@@ -1,6 +1,7 @@
 import sys
 import tempfile
 from collections import defaultdict
+from datetime import date
 from distutils.ccompiler import CCompiler
 from distutils.errors import CompileError
 from glob import glob
@@ -33,9 +34,8 @@ def cpp_flag(compiler: CCompiler) -> str:
     Returns the -std=c++[11/14/17] compiler flag.
     The newer version is preferred when available.
     """
-    flags = ['-std=c++14', '-std=c++11']
-    if sys.platform != 'darwin':
-        flags = ['-std=c++17'] + flags
+    flags = ['-std=c++{}'.format(str(year)[2:])
+             for year in range(2011, date.today().year + 1, 3)]
     for flag in flags:
         if has_flag(compiler, flag):
             return flag
