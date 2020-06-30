@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  wagyu:
+    build:
+      context: .
+      args:
+        - IMAGE_NAME=${IMAGE_NAME}
+        - IMAGE_VERSION=${IMAGE_VERSION}
+    image: lycantropos/wagyu-cpython:0.0.0
+    volumes:
+      - ./wagyu/:/opt/wagyu/wagyu/
+      - ./tests/:/opt/wagyu/tests/
+      - ./README.md:/opt/wagyu/README.md
+      - ./requirements.txt:/opt/wagyu/requirements.txt
+      - ./requirements-tests.txt:/opt/wagyu/requirements-tests.txt
+      - ./setup.py:/opt/wagyu/setup.py
+      - ./pytest.ini:/opt/wagyu/pytest.ini
+    entrypoint: pytest
