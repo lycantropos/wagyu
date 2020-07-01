@@ -6,31 +6,26 @@ namespace mapbox {
 namespace geometry {
 
 template <typename T>
-struct box
-{
-    using coordinate_type = T;
-    using point_type = point<coordinate_type>;
+struct box {
+  using coordinate_type = T;
+  using point_type = point<coordinate_type>;
 
-    constexpr box(point_type const& min_, point_type const& max_)
-        : min(min_), max(max_)
-    {
-    }
+  constexpr box(point_type const& min_, point_type const& max_)
+      : min(min_), max(max_) {}
 
-    point_type min;
-    point_type max;
+  point_type min;
+  point_type max;
 };
 
 template <typename T>
-constexpr bool operator==(box<T> const& lhs, box<T> const& rhs)
-{
-    return lhs.min == rhs.min && lhs.max == rhs.max;
+constexpr bool operator==(box<T> const& lhs, box<T> const& rhs) {
+  return lhs.min == rhs.min && lhs.max == rhs.max;
 }
 
 template <typename T>
-constexpr bool operator!=(box<T> const& lhs, box<T> const& rhs)
-{
-    return lhs.min != rhs.min || lhs.max != rhs.max;
+constexpr bool operator!=(box<T> const& lhs, box<T> const& rhs) {
+  return lhs.min != rhs.min || lhs.max != rhs.max;
 }
 
-} // namespace geometry
-} // namespace mapbox
+}  // namespace geometry
+}  // namespace mapbox
