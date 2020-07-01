@@ -32,7 +32,7 @@ script:
   - python -m doctest README.md
 
 after_success:
-  - gcovr --filter src/ --xml -o coverage_cpp.xml
+  - gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml
   - python -m codecov -f coverage.xml -X gcov
   - python -m codecov -f coverage_cpp.xml -X gcov
 
