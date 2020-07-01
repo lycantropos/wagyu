@@ -108,6 +108,7 @@ static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   stream << ", ";
   write_maybe(stream, ring.bottom_point);
   stream << ", " << bool_repr(ring.corrected) << ")";
+  return stream;
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Edge& edge) {
