@@ -2,6 +2,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <mapbox/geometry/box.hpp>
 #include <mapbox/geometry/point.hpp>
 #include <sstream>
 
@@ -10,9 +11,11 @@ namespace py = pybind11;
 #define MODULE_NAME _wagyu
 #define C_STR_HELPER(a) #a
 #define C_STR(a) C_STR_HELPER(a)
+#define BOX_NAME "Box"
 #define POINT_NAME "Point"
 
 using coordinate_t = double;
+using Box = mapbox::geometry::box<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
@@ -30,6 +33,11 @@ namespace geometry {
 static std::ostream& operator<<(std::ostream& stream, const Point& point) {
   return stream << C_STR(MODULE_NAME) "." POINT_NAME "(" << point.x << ", "
                 << point.y << ")";
+}
+
+static std::ostream& operator<<(std::ostream& stream, const Box& box) {
+  return stream << C_STR(MODULE_NAME) "." BOX_NAME "(" << box.min << ", "
+                << box.max << ")";
 }
 }  // namespace geometry
 }  // namespace mapbox
@@ -54,6 +62,21 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__repr__", repr<Point>)
       .def_readonly("x", &Point::x)
       .def_readonly("y", &Point::y);
+
+  py::class_<Box>(m, BOX_NAME)
+      .def(py::init<Point, Point>(), py::arg("min"), py::arg("max"))
+      .def(py::pickle(
+          [](const Box& self) {  // __getstate__
+            return py::make_tuple(self.min, self.max);
+          },
+          [](py::tuple tuple) {  // __setstate__
+            if (tuple.size() != 2) throw std::runtime_error("Invalid state!");
+            return Box(tuple[0].cast<Point>(), tuple[1].cast<Point>());
+          }))
+      .def(py::self == py::self)
+      .def("__repr__", repr<Box>)
+      .def_readonly("min", &Box::min)
+      .def_readonly("max", &Box::max);
 
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
