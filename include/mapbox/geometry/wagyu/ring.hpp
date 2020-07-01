@@ -90,17 +90,19 @@ struct ring {
   ring(ring const&) = delete;
   ring& operator=(ring const&) = delete;
 
-  ring()
-      : ring_index(0),
+  ring(std::size_t ring_index_ = 0, ring_ptr<T> parent_ = nullptr,
+       const ring_vector<T>& children_ = {}, point_ptr<T> points_ = nullptr,
+       point_ptr<T> bottom_point_ = nullptr, bool corrected_ = false)
+      : ring_index(ring_index_),
         size_(0),
         area_(std::numeric_limits<double>::quiet_NaN()),
         bbox({0, 0}, {0, 0}),
-        parent(nullptr),
-        children(),
-        points(nullptr),
-        bottom_point(nullptr),
+        parent(parent_),
+        children(children_),
+        points(points_),
+        bottom_point(bottom_point_),
         is_hole_(false),
-        corrected(false) {}
+        corrected(corrected_) {}
 
   void reset_stats() {
     area_ = std::numeric_limits<double>::quiet_NaN();
