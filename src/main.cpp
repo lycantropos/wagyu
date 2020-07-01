@@ -4,6 +4,7 @@
 
 #include <mapbox/geometry/box.hpp>
 #include <mapbox/geometry/point.hpp>
+#include <mapbox/geometry/wagyu/edge.hpp>
 #include <sstream>
 
 namespace py = pybind11;
@@ -12,10 +13,12 @@ namespace py = pybind11;
 #define C_STR_HELPER(a) #a
 #define C_STR(a) C_STR_HELPER(a)
 #define BOX_NAME "Box"
+#define EDGE_NAME "Edge"
 #define POINT_NAME "Point"
 
 using coordinate_t = double;
 using Box = mapbox::geometry::box<coordinate_t>;
+using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
@@ -39,6 +42,17 @@ static std::ostream& operator<<(std::ostream& stream, const Box& box) {
   return stream << C_STR(MODULE_NAME) "." BOX_NAME "(" << box.min << ", "
                 << box.max << ")";
 }
+
+namespace wagyu {
+static std::ostream& operator<<(std::ostream& stream, const Edge& edge) {
+  return stream << C_STR(MODULE_NAME) "." EDGE_NAME "(" << edge.bot << ", "
+                << edge.top << ")";
+}
+
+static bool operator==(const Edge& left, const Edge& right) {
+  return left.bot == right.bot && left.top == right.top;
+}
+}  // namespace wagyu
 }  // namespace geometry
 }  // namespace mapbox
 
@@ -77,6 +91,22 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__repr__", repr<Box>)
       .def_readonly("min", &Box::min)
       .def_readonly("max", &Box::max);
+
+  py::class_<Edge>(m, EDGE_NAME)
+      .def(py::init<Point, Point>(), py::arg("start"), py::arg("end"))
+      .def(py::pickle(
+          [](const Edge& self) {  // __getstate__
+            return py::make_tuple(self.bot, self.top);
+          },
+          [](py::tuple tuple) {  // __setstate__
+            if (tuple.size() != 2) throw std::runtime_error("Invalid state!");
+            return Edge(tuple[0].cast<Point>(), tuple[1].cast<Point>());
+          }))
+      .def(py::self == py::self)
+      .def("__repr__", repr<Edge>)
+      .def_readonly("bottom", &Edge::bot)
+      .def_readonly("top", &Edge::top)
+      .def_readonly("dx", &Edge::dx);
 
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
