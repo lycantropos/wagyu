@@ -1,6 +1,8 @@
 import pickle
-from typing import TypeVar
+from typing import (Optional,
+                    TypeVar)
 
+from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
 
 Domain = TypeVar('Domain')
@@ -18,3 +20,7 @@ def implication(antecedent: bool, consequent: bool) -> bool:
 
 def pickle_round_trip(object_: Domain) -> Domain:
     return pickle.loads(pickle.dumps(object_))
+
+
+def to_maybe(strategy: Strategy[Domain]) -> Strategy[Optional[Domain]]:
+    return strategies.none() | strategy
