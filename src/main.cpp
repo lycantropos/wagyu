@@ -15,11 +15,13 @@ namespace py = pybind11;
 #define BOX_NAME "Box"
 #define EDGE_NAME "Edge"
 #define POINT_NAME "Point"
+#define POINT_NODE_NAME "PointNode"
 
 using coordinate_t = double;
 using Box = mapbox::geometry::box<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
+using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
 
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
 
@@ -44,6 +46,11 @@ static std::ostream& operator<<(std::ostream& stream, const Box& box) {
 }
 
 namespace wagyu {
+static std::ostream& operator<<(std::ostream& stream, const PointNode& point) {
+  return stream << C_STR(MODULE_NAME) "." POINT_NODE_NAME "(" << point.x << ", "
+                << point.y << ")";
+}
+
 static std::ostream& operator<<(std::ostream& stream, const Edge& edge) {
   return stream << C_STR(MODULE_NAME) "." EDGE_NAME "(" << edge.bot << ", "
                 << edge.top << ")";
@@ -76,6 +83,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__repr__", repr<Point>)
       .def_readonly("x", &Point::x)
       .def_readonly("y", &Point::y);
+
+  py::class_<PointNode>(m, POINT_NODE_NAME)
+      .def(py::init<coordinate_t, coordinate_t>(), py::arg("x"), py::arg("y"))
+      .def(py::self == py::self)
+      .def("__repr__", repr<PointNode>)
+      .def_readonly("x", &PointNode::x)
+      .def_readonly("y", &PointNode::y)
+      .def_readwrite("next", &PointNode::next)
+      .def_readwrite("prev", &PointNode::prev);
 
   py::class_<Box>(m, BOX_NAME)
       .def(py::init<Point, Point>(), py::arg("min"), py::arg("max"))
