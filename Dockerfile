@@ -16,7 +16,9 @@ RUN pip install --force-reinstall -r requirements-tests.txt
 COPY README.md .
 COPY pytest.ini .
 COPY setup.py .
-COPY wagyu wagyu/
+COPY include/ include/
+COPY src/ src/
+COPY wagyu/ wagyu/
 COPY tests/ tests/
 
 RUN python -m pip install -e .
