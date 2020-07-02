@@ -192,10 +192,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("dx", &Edge::dx);
 
   py::class_<Ring, std::unique_ptr<Ring, py::nodelete>>(m, RING_NAME)
-      .def(py::init<std::size_t, RingPtr, const RingVector&, PointNodePtr,
-                    PointNodePtr, bool>(),
-           py::arg("index") = 0, py::arg("parent").none(true) = nullptr,
-           py::arg("children") = RingVector{},
+      .def(py::init<std::size_t, const RingVector&, PointNodePtr, PointNodePtr,
+                    bool>(),
+           py::arg("index") = 0, py::arg("children") = RingVector{},
            py::arg("node").none(true) = nullptr,
            py::arg("bottom_node").none(true) = nullptr,
            py::arg("corrected") = false)

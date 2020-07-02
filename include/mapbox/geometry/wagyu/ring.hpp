@@ -90,14 +90,14 @@ struct ring {
   ring(ring const&) = delete;
   ring& operator=(ring const&) = delete;
 
-  ring(std::size_t ring_index_ = 0, ring_ptr<T> parent_ = nullptr,
-       const ring_vector<T>& children_ = {}, point_ptr<T> points_ = nullptr,
-       point_ptr<T> bottom_point_ = nullptr, bool corrected_ = false)
+  ring(std::size_t ring_index_ = 0, const ring_vector<T>& children_ = {},
+       point_ptr<T> points_ = nullptr, point_ptr<T> bottom_point_ = nullptr,
+       bool corrected_ = false)
       : ring_index(ring_index_),
         size_(0),
         area_(std::numeric_limits<double>::quiet_NaN()),
         bbox({0, 0}, {0, 0}),
-        parent(parent_),
+        parent(nullptr),
         children(children_),
         points(points_),
         bottom_point(bottom_point_),
