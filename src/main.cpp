@@ -55,7 +55,7 @@ std::string repr(const Object& object) {
 }
 
 template <class Object>
-static void write_maybe(std::ostream& stream, Object* value) {
+static void write_pointer(std::ostream& stream, Object* value) {
   if (value == nullptr)
     stream << py::none();
   else
@@ -63,32 +63,44 @@ static void write_maybe(std::ostream& stream, Object* value) {
 }
 
 template <class Object>
-static bool maybe_equal(Object* left, Object* right) {
+static bool pointers_equal(Object* left, Object* right) {
   return left == nullptr ? right == nullptr
                          : right != nullptr && *left == *right;
 }
 
 template <class Object>
-static bool vectors_equal(std::vector<Object*> left,
-                          std::vector<Object*> right) {
+static bool pointers_vectors_equal(std::vector<Object*> left,
+                                   std::vector<Object*> right) {
   if (left.size() != right.size()) return false;
   auto size = left.size();
   for (std::size_t index = 0; index < size; ++index)
-    if (!maybe_equal(left[index], right[index])) return false;
+    if (!pointers_equal(left[index], right[index])) return false;
   return true;
 }
 
 template <typename Object>
-static void write_vector(std::ostream& stream,
-                         const std::vector<Object*>& elements) {
+static void write_pointers_vector(std::ostream& stream,
+                                  const std::vector<Object*>& elements) {
   stream << "[";
   if (!elements.empty()) {
-    write_maybe(stream, elements[0]);
+    write_pointer(stream, elements[0]);
     std::for_each(std::next(std::begin(elements)), std::end(elements),
                   [&stream](Object* value) {
                     stream << ", ";
-                    write_maybe(stream, value);
+                    write_pointer(stream, value);
                   });
+  }
+  stream << "]";
+};
+
+template <typename Object>
+static void write_vector(std::ostream& stream,
+                         const std::vector<Object>& elements) {
+  stream << "[";
+  if (!elements.empty()) {
+    stream << elements[0];
+    std::for_each(std::next(std::begin(elements)), std::end(elements),
+                  [&stream](const Object& value) { stream << ", " << value; });
   }
   stream << "]";
 };
@@ -178,11 +190,11 @@ static std::ostream& operator<<(std::ostream& stream, const PointNode& point) {
 
 static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   stream << C_STR(MODULE_NAME) "." RING_NAME "(" << ring.ring_index << ", ";
-  write_vector(stream, ring.children);
+  write_pointers_vector(stream, ring.children);
   stream << ", ";
-  write_maybe(stream, ring.points);
+  write_pointer(stream, ring.points);
   stream << ", ";
-  write_maybe(stream, ring.bottom_point);
+  write_pointer(stream, ring.bottom_point);
   stream << ", " << bool_repr(ring.corrected) << ")";
   return stream;
 }
@@ -207,9 +219,9 @@ static bool operator==(const Edge& left, const Edge& right) {
 
 static bool operator==(const Ring& left, const Ring& right) {
   return left.ring_index == right.ring_index &&
-         vectors_equal(left.children, right.children) &&
-         maybe_equal(left.points, right.points) &&
-         maybe_equal(left.bottom_point, right.bottom_point) &&
+         pointers_vectors_equal(left.children, right.children) &&
+         pointers_equal(left.points, right.points) &&
+         pointers_equal(left.bottom_point, right.bottom_point) &&
          left.corrected == right.corrected;
 }
 }  // namespace wagyu
