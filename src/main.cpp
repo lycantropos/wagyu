@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <mapbox/geometry/box.hpp>
 #include <mapbox/geometry/point.hpp>
+#include <mapbox/geometry/polygon.hpp>
 #include <mapbox/geometry/wagyu/bound.hpp>
 #include <mapbox/geometry/wagyu/config.hpp>
 #include <mapbox/geometry/wagyu/edge.hpp>
@@ -23,8 +24,9 @@ namespace py = pybind11;
 #define EDGE_NAME "Edge"
 #define EDGE_SIDE_NAME "EdgeSide"
 #define FILL_KIND_NAME "FillKind"
-#define OPERATION_KIND_NAME "OperationKind"
+#define LINEAR_RING_NAME "LinearRing"
 #define LOCAL_MINIMUM_NAME "LocalMinimum"
+#define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
 #define POINT_NODE_NAME "PointNode"
 #define POLYGON_KIND_NAME "PolygonKind"
@@ -35,6 +37,7 @@ using coordinate_t = double;
 using Box = mapbox::geometry::box<coordinate_t>;
 using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
+using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
@@ -110,6 +113,12 @@ namespace geometry {
 static std::ostream& operator<<(std::ostream& stream, const Point& point) {
   return stream << C_STR(MODULE_NAME) "." POINT_NAME "(" << point.x << ", "
                 << point.y << ")";
+}
+
+static std::ostream& operator<<(std::ostream& stream, const LinearRing& ring) {
+  stream << C_STR(MODULE_NAME) "." LINEAR_RING_NAME "(";
+  write_vector(stream, ring);
+  return stream << ")";
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Box& box) {
@@ -285,6 +294,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__repr__", repr<Point>)
       .def_readonly("x", &Point::x)
       .def_readonly("y", &Point::y);
+
+  py::class_<LinearRing>(m, LINEAR_RING_NAME)
+      .def(py::init<>())
+      .def(py::init<const std::vector<Point>&>())
+      .def(py::self == py::self)
+      .def("__repr__", repr<LinearRing>);
 
   py::class_<PointNode, std::unique_ptr<PointNode, py::nodelete>>(
       m, POINT_NODE_NAME)
