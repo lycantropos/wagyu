@@ -18,6 +18,7 @@ namespace py = pybind11;
 #define C_STR(a) C_STR_HELPER(a)
 #define BOX_NAME "Box"
 #define EDGE_NAME "Edge"
+#define FILL_KIND_NAME "FillKind"
 #define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
 #define POINT_NODE_NAME "PointNode"
@@ -117,6 +118,25 @@ static std::ostream& operator<<(std::ostream& stream, const clip_type& type) {
   return stream;
 }
 
+static std::ostream& operator<<(std::ostream& stream, const fill_type& type) {
+  stream << C_STR(MODULE_NAME) "." FILL_KIND_NAME;
+  switch (type) {
+    case fill_type_even_odd:
+      stream << ".EVEN_ODD";
+      break;
+    case fill_type_non_zero:
+      stream << ".NON_ZERO";
+      break;
+    case fill_type_positive:
+      stream << ".POSITIVE";
+      break;
+    case fill_type_negative:
+      stream << ".NEGATIVE";
+      break;
+  }
+  return stream;
+}
+
 static std::ostream& operator<<(std::ostream& stream, const polygon_type& type) {
   stream << C_STR(MODULE_NAME) "." POLYGON_KIND_NAME;
   switch (type) {
@@ -180,6 +200,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .value("UNION", mapbox::geometry::wagyu::clip_type_union)
       .value("DIFFERENCE", mapbox::geometry::wagyu::clip_type_difference)
       .value("XOR", mapbox::geometry::wagyu::clip_type_x_or);
+
+  py::enum_<mapbox::geometry::wagyu::fill_type>(m, FILL_KIND_NAME)
+      .value("EVEN_ODD", mapbox::geometry::wagyu::fill_type_even_odd)
+      .value("NON_ZERO", mapbox::geometry::wagyu::fill_type_non_zero)
+      .value("POSITIVE", mapbox::geometry::wagyu::fill_type_positive)
+      .value("NEGATIVE", mapbox::geometry::wagyu::fill_type_negative);
 
   py::enum_<mapbox::geometry::wagyu::polygon_type>(m, POLYGON_KIND_NAME)
       .value("SUBJECT", mapbox::geometry::wagyu::polygon_type_subject)
