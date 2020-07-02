@@ -21,6 +21,7 @@ namespace py = pybind11;
 #define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
 #define POINT_NODE_NAME "PointNode"
+#define POLYGON_KIND_NAME "PolygonKind"
 #define RING_NAME "Ring"
 #define RING_MANAGER_NAME "RingManager"
 
@@ -116,6 +117,19 @@ static std::ostream& operator<<(std::ostream& stream, const clip_type& type) {
   return stream;
 }
 
+static std::ostream& operator<<(std::ostream& stream, const polygon_type& type) {
+  stream << C_STR(MODULE_NAME) "." POLYGON_KIND_NAME;
+  switch (type) {
+    case polygon_type_subject:
+      stream << ".SUBJECT";
+      break;
+    case polygon_type_clip:
+      stream << ".CLIP";
+      break;
+  }
+  return stream;
+}
+
 static std::ostream& operator<<(std::ostream& stream, const PointNode& point) {
   return stream << C_STR(MODULE_NAME) "." POINT_NODE_NAME "(" << point.x << ", "
                 << point.y << ")";
@@ -166,6 +180,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .value("UNION", mapbox::geometry::wagyu::clip_type_union)
       .value("DIFFERENCE", mapbox::geometry::wagyu::clip_type_difference)
       .value("XOR", mapbox::geometry::wagyu::clip_type_x_or);
+
+  py::enum_<mapbox::geometry::wagyu::polygon_type>(m, POLYGON_KIND_NAME)
+      .value("SUBJECT", mapbox::geometry::wagyu::polygon_type_subject)
+      .value("CLIP", mapbox::geometry::wagyu::polygon_type_clip);
 
   py::class_<Point>(m, POINT_NAME)
       .def(py::init<coordinate_t, coordinate_t>(), py::arg("x"), py::arg("y"))
