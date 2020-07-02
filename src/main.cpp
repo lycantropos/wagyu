@@ -226,8 +226,6 @@ static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
   write_vector(stream, bound.edges);
   stream << ", " << bound.last_point << ", ";
   write_pointer(stream, bound.ring);
-  stream << ", ";
-  write_pointer(stream, bound.maximum_bound);
   return stream << ", " << bound.current_x << ", " << bound.pos << ", "
                 << bound.winding_count << ", " << bound.winding_count2 << ", "
                 << std::to_string(bound.winding_delta) << ", "
