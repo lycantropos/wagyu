@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <mapbox/geometry/box.hpp>
 #include <mapbox/geometry/point.hpp>
+#include <mapbox/geometry/wagyu/bound.hpp>
 #include <mapbox/geometry/wagyu/config.hpp>
 #include <mapbox/geometry/wagyu/edge.hpp>
 #include <mapbox/geometry/wagyu/point.hpp>
@@ -16,6 +17,7 @@ namespace py = pybind11;
 #define MODULE_NAME _wagyu
 #define C_STR_HELPER(a) #a
 #define C_STR(a) C_STR_HELPER(a)
+#define BOUND_NAME "Bound"
 #define BOX_NAME "Box"
 #define EDGE_NAME "Edge"
 #define EDGE_SIDE_NAME "EdgeSide"
@@ -29,6 +31,7 @@ namespace py = pybind11;
 
 using coordinate_t = double;
 using Box = mapbox::geometry::box<coordinate_t>;
+using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
@@ -151,7 +154,8 @@ static std::ostream& operator<<(std::ostream& stream, const fill_type& type) {
   return stream;
 }
 
-static std::ostream& operator<<(std::ostream& stream, const polygon_type& type) {
+static std::ostream& operator<<(std::ostream& stream,
+                                const polygon_type& type) {
   stream << C_STR(MODULE_NAME) "." POLYGON_KIND_NAME;
   switch (type) {
     case polygon_type_subject:
@@ -180,8 +184,14 @@ static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   return stream;
 }
 
-static std::ostream& operator<<(std::ostream& stream, const RingManager& manager) {
+static std::ostream& operator<<(std::ostream& stream,
+                                const RingManager& manager) {
   return stream << C_STR(MODULE_NAME) "." RING_MANAGER_NAME "()";
+}
+
+static std::ostream& operator<<(std::ostream& stream,
+                                const Bound& bound) {
+  return stream << C_STR(MODULE_NAME) "." BOUND_NAME "()";
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Edge& edge) {
@@ -312,6 +322,21 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("reset_stats", &Ring::reset_stats)
       .def("set_stats", &Ring::set_stats, py::arg("area"), py::arg("size"),
            py::arg("box"));
+
+  py::class_<Bound, std::unique_ptr<Bound, py::nodelete>>(m, BOUND_NAME)
+      .def(py::init<>())
+      .def("__repr__", repr<Bound>)
+      .def_readonly("edges", &Bound::edges)
+      .def_readonly("last_point", &Bound::last_point)
+      .def_readonly("ring", &Bound::ring)
+      .def_readonly("maximum_bound", &Bound::maximum_bound)
+      .def_readonly("current_x", &Bound::current_x)
+      .def_readonly("position", &Bound::pos)
+      .def_readonly("winding_count", &Bound::winding_count)
+      .def_readonly("opposite_winding_count", &Bound::winding_count2)
+      .def_readonly("winding_delta", &Bound::winding_delta)
+      .def_readonly("polygon_kind", &Bound::poly_type)
+      .def_readonly("side", &Bound::side);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
       .def(py::init<>())
