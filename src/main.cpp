@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <mapbox/geometry/box.hpp>
 #include <mapbox/geometry/point.hpp>
+#include <mapbox/geometry/wagyu/config.hpp>
 #include <mapbox/geometry/wagyu/edge.hpp>
 #include <mapbox/geometry/wagyu/point.hpp>
 #include <mapbox/geometry/wagyu/ring.hpp>
@@ -17,6 +18,7 @@ namespace py = pybind11;
 #define C_STR(a) C_STR_HELPER(a)
 #define BOX_NAME "Box"
 #define EDGE_NAME "Edge"
+#define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
 #define POINT_NODE_NAME "PointNode"
 #define RING_NAME "Ring"
@@ -95,6 +97,25 @@ static std::ostream& operator<<(std::ostream& stream, const Box& box) {
 }
 
 namespace wagyu {
+static std::ostream& operator<<(std::ostream& stream, const clip_type& type) {
+  stream << C_STR(MODULE_NAME) "." OPERATION_KIND_NAME;
+  switch (type) {
+    case clip_type_intersection:
+      stream << ".INTERSECTION";
+      break;
+    case clip_type_union:
+      stream << ".UNION";
+      break;
+    case clip_type_difference:
+      stream << ".DIFFERENCE";
+      break;
+    case clip_type_x_or:
+      stream << ".XOR";
+      break;
+  }
+  return stream;
+}
+
 static std::ostream& operator<<(std::ostream& stream, const PointNode& point) {
   return stream << C_STR(MODULE_NAME) "." POINT_NODE_NAME "(" << point.x << ", "
                 << point.y << ")";
@@ -139,6 +160,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   m.doc() = R"pbdoc(
         Python binding of mapbox/wagyu library.
     )pbdoc";
+
+  py::enum_<mapbox::geometry::wagyu::clip_type>(m, OPERATION_KIND_NAME)
+      .value("INTERSECTION", mapbox::geometry::wagyu::clip_type_intersection)
+      .value("UNION", mapbox::geometry::wagyu::clip_type_union)
+      .value("DIFFERENCE", mapbox::geometry::wagyu::clip_type_difference)
+      .value("XOR", mapbox::geometry::wagyu::clip_type_x_or);
 
   py::class_<Point>(m, POINT_NAME)
       .def(py::init<coordinate_t, coordinate_t>(), py::arg("x"), py::arg("y"))
