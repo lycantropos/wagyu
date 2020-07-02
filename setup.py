@@ -36,7 +36,7 @@ def cpp_flag(compiler: CCompiler) -> str:
     """
     flags = ['-std=c++{}'.format(str(year)[2:])
              for year in range(2011, date.today().year + 1, 3)]
-    for flag in flags:
+    for flag in reversed(flags):
         if has_flag(compiler, flag):
             return flag
     raise RuntimeError('Unsupported compiler: '
