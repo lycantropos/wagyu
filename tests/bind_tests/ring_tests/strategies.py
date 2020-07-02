@@ -14,5 +14,5 @@ boxes = strategies.builds(Box, points, points)
 maybe_points_nodes = to_maybe(strategies.builds(PointNode, floats, floats))
 maybe_rings = to_maybe(strategies.deferred(lambda: rings))
 maybe_rings_lists = strategies.lists(maybe_rings)
-rings = strategies.builds(Ring, sizes, maybe_rings, maybe_rings_lists,
-                          maybe_points_nodes, maybe_points_nodes, booleans)
+rings = strategies.builds(Ring, sizes, maybe_rings_lists, maybe_points_nodes,
+                          maybe_points_nodes, booleans)
