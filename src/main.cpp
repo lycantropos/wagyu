@@ -120,7 +120,6 @@ static bool operator==(const Edge& left, const Edge& right) {
 
 static bool operator==(const Ring& left, const Ring& right) {
   return left.ring_index == right.ring_index &&
-         maybe_equal(left.parent, right.parent) &&
          vectors_equal(left.children, right.children) &&
          maybe_equal(left.points, right.points) &&
          maybe_equal(left.bottom_point, right.bottom_point) &&
