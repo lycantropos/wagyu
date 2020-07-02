@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <mapbox/geometry/box.hpp>
+#include <mapbox/geometry/multi_polygon.hpp>
 #include <mapbox/geometry/point.hpp>
 #include <mapbox/geometry/polygon.hpp>
 #include <mapbox/geometry/wagyu/bound.hpp>
@@ -25,6 +26,7 @@ namespace py = pybind11;
 #define EDGE_SIDE_NAME "EdgeSide"
 #define FILL_KIND_NAME "FillKind"
 #define LINEAR_RING_NAME "LinearRing"
+#define MULTIPOLYGON_NAME "Multipolygon"
 #define LOCAL_MINIMUM_NAME "LocalMinimum"
 #define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
@@ -40,6 +42,7 @@ using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
+using Multipolygon = mapbox::geometry::multi_polygon<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
 using PointNodePtr = mapbox::geometry::wagyu::point_ptr<coordinate_t>;
@@ -126,6 +129,13 @@ static std::ostream& operator<<(std::ostream& stream, const LinearRing& ring) {
 static std::ostream& operator<<(std::ostream& stream, const Polygon& polygon) {
   stream << C_STR(MODULE_NAME) "." POLYGON_NAME "(";
   write_vector(stream, polygon);
+  return stream << ")";
+}
+
+static std::ostream& operator<<(std::ostream& stream,
+                                const Multipolygon& multipolygon) {
+  stream << C_STR(MODULE_NAME) "." MULTIPOLYGON_NAME "(";
+  write_vector(stream, multipolygon);
   return stream << ")";
 }
 
@@ -312,6 +322,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<const std::vector<LinearRing>&>())
       .def(py::self == py::self)
       .def("__repr__", repr<Polygon>);
+
+  py::class_<Multipolygon>(m, MULTIPOLYGON_NAME)
+      .def(py::init<>())
+      .def(py::init<const std::vector<Polygon>&>())
+      .def(py::self == py::self)
+      .def("__repr__", repr<Multipolygon>);
 
   py::class_<PointNode, std::unique_ptr<PointNode, py::nodelete>>(
       m, POINT_NODE_NAME)
