@@ -222,6 +222,14 @@ static std::ostream& operator<<(std::ostream& stream, const Edge& edge) {
                 << edge.top << ")";
 }
 
+static std::ostream& operator<<(std::ostream& stream,
+                                const LocalMinimum& minimum) {
+  return stream << C_STR(MODULE_NAME) "." LOCAL_MINIMUM_NAME "("
+                << minimum.left_bound << ", " << minimum.right_bound << ", "
+                << minimum.y << ", "
+                << bool_repr(minimum.minimum_has_horizontal) << ")";
+}
+
 static bool operator==(const Edge& left, const Edge& right) {
   return left.bot == right.bot && left.top == right.top;
 }
@@ -362,6 +370,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("side", &Bound::side);
 
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
+      .def("__repr__", repr<LocalMinimum>)
       .def_readonly("left_bound", &LocalMinimum::left_bound)
       .def_readonly("right_bound", &LocalMinimum::right_bound)
       .def_readonly("y", &LocalMinimum::y)
