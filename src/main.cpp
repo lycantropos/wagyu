@@ -8,6 +8,7 @@
 #include <mapbox/geometry/wagyu/bound.hpp>
 #include <mapbox/geometry/wagyu/config.hpp>
 #include <mapbox/geometry/wagyu/edge.hpp>
+#include <mapbox/geometry/wagyu/local_minimum.hpp>
 #include <mapbox/geometry/wagyu/point.hpp>
 #include <mapbox/geometry/wagyu/ring.hpp>
 #include <sstream>
@@ -23,6 +24,7 @@ namespace py = pybind11;
 #define EDGE_SIDE_NAME "EdgeSide"
 #define FILL_KIND_NAME "FillKind"
 #define OPERATION_KIND_NAME "OperationKind"
+#define LOCAL_MINIMUM_NAME "LocalMinimum"
 #define POINT_NAME "Point"
 #define POINT_NODE_NAME "PointNode"
 #define POLYGON_KIND_NAME "PolygonKind"
@@ -33,6 +35,7 @@ using coordinate_t = double;
 using Box = mapbox::geometry::box<coordinate_t>;
 using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
+using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
 using PointNodePtr = mapbox::geometry::wagyu::point_ptr<coordinate_t>;
@@ -189,8 +192,7 @@ static std::ostream& operator<<(std::ostream& stream,
   return stream << C_STR(MODULE_NAME) "." RING_MANAGER_NAME "()";
 }
 
-static std::ostream& operator<<(std::ostream& stream,
-                                const Bound& bound) {
+static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
   return stream << C_STR(MODULE_NAME) "." BOUND_NAME "()";
 }
 
@@ -337,6 +339,13 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("winding_delta", &Bound::winding_delta)
       .def_readonly("polygon_kind", &Bound::poly_type)
       .def_readonly("side", &Bound::side);
+
+  py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
+      .def_readonly("left_bound", &LocalMinimum::left_bound)
+      .def_readonly("right_bound", &LocalMinimum::right_bound)
+      .def_readonly("y", &LocalMinimum::y)
+      .def_readonly("minimum_has_horizontal",
+                    &LocalMinimum::minimum_has_horizontal);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
       .def(py::init<>())
