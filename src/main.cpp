@@ -158,7 +158,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("x", &PointNode::x)
       .def_readonly("y", &PointNode::y)
       .def_readwrite("next", &PointNode::next)
-      .def_readwrite("prev", &PointNode::prev);
+      .def_readwrite("prev", &PointNode::prev)
+      .def("reverse", &mapbox::geometry::wagyu::reverse_ring<coordinate_t>);
 
   py::class_<Box>(m, BOX_NAME)
       .def(py::init<Point, Point>(), py::arg("min"), py::arg("max"))
