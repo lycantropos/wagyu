@@ -18,6 +18,7 @@ namespace py = pybind11;
 #define C_STR(a) C_STR_HELPER(a)
 #define BOX_NAME "Box"
 #define EDGE_NAME "Edge"
+#define EDGE_SIDE_NAME "EdgeSide"
 #define FILL_KIND_NAME "FillKind"
 #define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
@@ -118,6 +119,19 @@ static std::ostream& operator<<(std::ostream& stream, const clip_type& type) {
   return stream;
 }
 
+static std::ostream& operator<<(std::ostream& stream, const edge_side& side) {
+  stream << C_STR(MODULE_NAME) "." EDGE_SIDE_NAME;
+  switch (side) {
+    case edge_left:
+      stream << ".LEFT";
+      break;
+    case edge_right:
+      stream << ".RIGHT";
+      break;
+  }
+  return stream;
+}
+
 static std::ostream& operator<<(std::ostream& stream, const fill_type& type) {
   stream << C_STR(MODULE_NAME) "." FILL_KIND_NAME;
   switch (type) {
@@ -200,6 +214,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .value("UNION", mapbox::geometry::wagyu::clip_type_union)
       .value("DIFFERENCE", mapbox::geometry::wagyu::clip_type_difference)
       .value("XOR", mapbox::geometry::wagyu::clip_type_x_or);
+
+  py::enum_<mapbox::geometry::wagyu::edge_side>(m, EDGE_SIDE_NAME)
+      .value("LEFT", mapbox::geometry::wagyu::edge_left)
+      .value("RIGHT", mapbox::geometry::wagyu::edge_right);
 
   py::enum_<mapbox::geometry::wagyu::fill_type>(m, FILL_KIND_NAME)
       .value("EVEN_ODD", mapbox::geometry::wagyu::fill_type_even_odd)
