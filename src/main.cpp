@@ -205,7 +205,16 @@ static std::ostream& operator<<(std::ostream& stream,
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
-  return stream << C_STR(MODULE_NAME) "." BOUND_NAME "()";
+  stream << C_STR(MODULE_NAME) "." BOUND_NAME "(";
+  write_vector(stream, bound.edges);
+  stream << ", " << bound.last_point << ", ";
+  write_pointer(stream, bound.ring);
+  stream << ", ";
+  write_pointer(stream, bound.maximum_bound);
+  return stream << ", " << bound.current_x << ", " << bound.pos << ", "
+                << bound.winding_count << ", " << bound.winding_count2 << ", "
+                << std::to_string(bound.winding_delta) << ", "
+                << bound.poly_type << ", " << bound.side << ")";
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Edge& edge) {
