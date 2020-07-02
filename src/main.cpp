@@ -29,6 +29,7 @@ namespace py = pybind11;
 #define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
 #define POINT_NODE_NAME "PointNode"
+#define POLYGON_NAME "Polygon"
 #define POLYGON_KIND_NAME "PolygonKind"
 #define RING_NAME "Ring"
 #define RING_MANAGER_NAME "RingManager"
@@ -42,6 +43,7 @@ using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
 using PointNodePtr = mapbox::geometry::wagyu::point_ptr<coordinate_t>;
+using Polygon = mapbox::geometry::polygon<coordinate_t>;
 using Ring = mapbox::geometry::wagyu::ring<coordinate_t>;
 using RingPtr = mapbox::geometry::wagyu::ring_ptr<coordinate_t>;
 using RingVector = mapbox::geometry::wagyu::ring_vector<coordinate_t>;
@@ -118,6 +120,12 @@ static std::ostream& operator<<(std::ostream& stream, const Point& point) {
 static std::ostream& operator<<(std::ostream& stream, const LinearRing& ring) {
   stream << C_STR(MODULE_NAME) "." LINEAR_RING_NAME "(";
   write_vector(stream, ring);
+  return stream << ")";
+}
+
+static std::ostream& operator<<(std::ostream& stream, const Polygon& polygon) {
+  stream << C_STR(MODULE_NAME) "." POLYGON_NAME "(";
+  write_vector(stream, polygon);
   return stream << ")";
 }
 
@@ -300,6 +308,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<const std::vector<Point>&>())
       .def(py::self == py::self)
       .def("__repr__", repr<LinearRing>);
+
+  py::class_<Polygon>(m, POLYGON_NAME)
+      .def(py::init<>())
+      .def(py::init<const std::vector<LinearRing>&>())
+      .def(py::self == py::self)
+      .def("__repr__", repr<Polygon>);
 
   py::class_<PointNode, std::unique_ptr<PointNode, py::nodelete>>(
       m, POINT_NODE_NAME)
