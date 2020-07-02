@@ -100,8 +100,6 @@ static std::ostream& operator<<(std::ostream& stream, const PointNode& point) {
 
 static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   stream << C_STR(MODULE_NAME) "." RING_NAME "(" << ring.ring_index << ", ";
-  write_maybe<Ring>(stream, ring.parent);
-  stream << ", ";
   write_vector(stream, ring.children);
   stream << ", ";
   write_maybe(stream, ring.points);
