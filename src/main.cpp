@@ -60,7 +60,6 @@ using RingVector = mapbox::geometry::wagyu::ring_vector<coordinate_t>;
 using RingManager = mapbox::geometry::wagyu::ring_manager<coordinate_t>;
 using Wagyu = mapbox::geometry::wagyu::wagyu<coordinate_t>;
 
-
 template <class Iterable>
 static py::iterator to_iterator(Iterable& iterable) {
   return py::make_iterator(std::begin(iterable), std::end(iterable));
@@ -497,15 +496,16 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__getitem__", to_item<LocalMinimumList>, py::arg("index"),
            py::return_value_policy::reference)
       .def("__iter__", to_iterator<LocalMinimumList>, py::keep_alive<0, 1>())
-      .def("add_ring", [](LocalMinimumList& self, const LinearRing& ring,
-                          mapbox::geometry::wagyu::polygon_type polygon_kind) {
-        return mapbox::geometry::wagyu::add_linear_ring(ring, self,
-                                                        polygon_kind);
-      });
+      .def("add_linear_ring",
+           [](LocalMinimumList& self, const LinearRing& ring,
+              mapbox::geometry::wagyu::polygon_type polygon_kind) {
+             return mapbox::geometry::wagyu::add_linear_ring(ring, self,
+                                                             polygon_kind);
+           });
 
   py::class_<Wagyu>(m, WAGYU_NAME)
       .def(py::init<>())
-      .def("add_ring", &Wagyu::add_ring<coordinate_t>)
+      .def("add_linear_ring", &Wagyu::add_ring<coordinate_t>)
       .def("add_polygon", &Wagyu::add_polygon<coordinate_t>)
       .def("clear", &Wagyu::clear)
       .def(
