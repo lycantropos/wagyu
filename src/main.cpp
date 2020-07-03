@@ -87,14 +87,14 @@ static bool pointers_vectors_equal(std::vector<Object*> left,
   return true;
 }
 
-template <typename Object>
-static void write_pointers_vector(std::ostream& stream,
-                                  const std::vector<Object*>& elements) {
+template <typename Sequence>
+static void write_pointers_sequence(std::ostream& stream,
+                                    const Sequence& sequence) {
   stream << "[";
-  if (!elements.empty()) {
-    write_pointer(stream, elements[0]);
-    std::for_each(std::next(std::begin(elements)), std::end(elements),
-                  [&stream](Object* value) {
+  if (!std::empty(sequence)) {
+    write_pointer(stream, sequence[0]);
+    std::for_each(std::next(std::begin(sequence)), std::end(sequence),
+                  [&stream](typename Sequence::value_type value) {
                     stream << ", ";
                     write_pointer(stream, value);
                   });
@@ -102,14 +102,15 @@ static void write_pointers_vector(std::ostream& stream,
   stream << "]";
 };
 
-template <typename Object>
-static void write_vector(std::ostream& stream,
-                         const std::vector<Object>& elements) {
+template <typename Sequence>
+static void write_sequence(std::ostream& stream, const Sequence& sequence) {
   stream << "[";
-  if (!elements.empty()) {
-    stream << elements[0];
-    std::for_each(std::next(std::begin(elements)), std::end(elements),
-                  [&stream](const Object& value) { stream << ", " << value; });
+  if (!std::empty(sequence)) {
+    stream << sequence[0];
+    std::for_each(std::next(std::begin(sequence)), std::end(sequence),
+                  [&stream](const typename Sequence::value_type& value) {
+                    stream << ", " << value;
+                  });
   }
   stream << "]";
 };
@@ -123,20 +124,20 @@ static std::ostream& operator<<(std::ostream& stream, const Point& point) {
 
 static std::ostream& operator<<(std::ostream& stream, const LinearRing& ring) {
   stream << C_STR(MODULE_NAME) "." LINEAR_RING_NAME "(";
-  write_vector(stream, ring);
+  write_sequence(stream, ring);
   return stream << ")";
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Polygon& polygon) {
   stream << C_STR(MODULE_NAME) "." POLYGON_NAME "(";
-  write_vector(stream, polygon);
+  write_sequence(stream, polygon);
   return stream << ")";
 }
 
 static std::ostream& operator<<(std::ostream& stream,
                                 const Multipolygon& multipolygon) {
   stream << C_STR(MODULE_NAME) "." MULTIPOLYGON_NAME "(";
-  write_vector(stream, multipolygon);
+  write_sequence(stream, multipolygon);
   return stream << ")";
 }
 
@@ -218,7 +219,7 @@ static std::ostream& operator<<(std::ostream& stream, const PointNode& point) {
 
 static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   stream << C_STR(MODULE_NAME) "." RING_NAME "(" << ring.ring_index << ", ";
-  write_pointers_vector(stream, ring.children);
+  write_pointers_sequence(stream, ring.children);
   stream << ", ";
   write_pointer(stream, ring.points);
   stream << ", ";
@@ -234,7 +235,7 @@ static std::ostream& operator<<(std::ostream& stream,
 
 static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
   stream << C_STR(MODULE_NAME) "." BOUND_NAME "(";
-  write_vector(stream, bound.edges);
+  write_sequence(stream, bound.edges);
   stream << ", " << bound.last_point << ", ";
   write_pointer(stream, bound.ring);
   return stream << ", " << bound.current_x << ", " << bound.pos << ", "
