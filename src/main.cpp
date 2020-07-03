@@ -72,6 +72,13 @@ static std::size_t to_size(Sequence& sequence) {
 }
 
 template <class Sequence>
+static bool contains(const Sequence& sequence,
+                     const typename Sequence::value_type& value) {
+  return std::find(std::begin(sequence), std::end(sequence), value) !=
+         std::end(sequence);
+}
+
+template <class Sequence>
 static const typename Sequence::value_type& to_item(const Sequence& sequence,
                                                     std::int64_t index) {
   std::int64_t size = to_size(sequence);
@@ -373,6 +380,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::init<const std::vector<Point>&>())
       .def(py::self == py::self)
+      .def("__contains__", contains<LinearRing>)
       .def("__repr__", repr<LinearRing>)
       .def("__len__", to_size<LinearRing>)
       .def("__getitem__", to_item<LinearRing>, py::arg("index"))
