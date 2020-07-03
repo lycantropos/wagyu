@@ -1,6 +1,6 @@
 from _wagyu import PointNode
 from hypothesis import strategies
 
-from tests.strategies import floats
+from tests.strategies import coordinates
 
-points_nodes = strategies.builds(PointNode, floats, floats)
+points_nodes = strategies.builds(PointNode, coordinates, coordinates)

@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import Optional
 
 from hypothesis import strategies
+
 from tests.utils import Strategy
 from wagyu.hints import Coordinate
 
@@ -10,8 +11,8 @@ MAX_VALUE = 10 ** 4
 MIN_VALUE = -MAX_VALUE
 
 
-def to_floats(min_value: Optional[Coordinate] = MIN_VALUE,
-              max_value: Optional[Coordinate] = MAX_VALUE) -> Strategy:
+def to_floats(min_value: Optional[Coordinate] = None,
+              max_value: Optional[Coordinate] = None) -> Strategy:
     return (strategies.floats(min_value=min_value,
                               max_value=max_value,
                               allow_nan=False,
@@ -46,4 +47,5 @@ def to_digits_count(number: float,
     return float(str(decimal))
 
 
-floats = to_floats()
+floats = to_floats(MIN_VALUE, MAX_VALUE)
+coordinates = strategies.integers(MIN_VALUE, MAX_VALUE)
