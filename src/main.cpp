@@ -279,6 +279,16 @@ static bool operator==(const Ring& left, const Ring& right) {
          pointers_equal(left.bottom_point, right.bottom_point) &&
          left.corrected == right.corrected;
 }
+
+static bool operator==(const Bound& self, const Bound& other) {
+  return self.edges == other.edges && self.last_point == other.last_point &&
+         pointers_equal(self.ring, other.ring) &&
+         self.current_x == other.current_x && self.pos == other.pos &&
+         self.winding_count == other.winding_count &&
+         self.winding_count2 == other.winding_count2 &&
+         self.winding_delta == other.winding_delta &&
+         self.poly_type == other.poly_type && self.side == other.side;
+}
 }  // namespace wagyu
 }  // namespace geometry
 }  // namespace mapbox
@@ -441,6 +451,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
 
   py::class_<Bound, std::unique_ptr<Bound, py::nodelete>>(m, BOUND_NAME)
       .def(py::init<>())
+      .def(py::self == py::self)
       .def("__repr__", repr<Bound>)
       .def_readonly("edges", &Bound::edges)
       .def_readonly("last_point", &Bound::last_point)
