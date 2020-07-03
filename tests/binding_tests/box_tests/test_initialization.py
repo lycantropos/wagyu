@@ -6,8 +6,8 @@ from . import strategies
 
 
 @given(strategies.points, strategies.points)
-def test_basic(min_: Point, max_: Point) -> None:
-    result = Box(min_, max_)
+def test_basic(minimum: Point, maximum: Point) -> None:
+    result = Box(minimum, maximum)
 
-    assert result.min == min_
-    assert result.max == max_
+    assert result.minimum == minimum
+    assert result.maximum == maximum
