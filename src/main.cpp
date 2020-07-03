@@ -396,6 +396,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::init<const std::vector<LinearRing>&>())
       .def(py::self == py::self)
+      .def("__contains__", contains<Polygon>)
       .def("__repr__", repr<Polygon>)
       .def("__len__", to_size<Polygon>)
       .def("__getitem__", to_item<Polygon>, py::arg("index"))
