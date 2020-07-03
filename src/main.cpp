@@ -8,6 +8,7 @@
 #include <mapbox/geometry/point.hpp>
 #include <mapbox/geometry/polygon.hpp>
 #include <mapbox/geometry/wagyu/bound.hpp>
+#include <mapbox/geometry/wagyu/build_local_minima_list.hpp>
 #include <mapbox/geometry/wagyu/config.hpp>
 #include <mapbox/geometry/wagyu/edge.hpp>
 #include <mapbox/geometry/wagyu/local_minimum.hpp>
@@ -29,6 +30,7 @@ namespace py = pybind11;
 #define LINEAR_RING_NAME "LinearRing"
 #define MULTIPOLYGON_NAME "Multipolygon"
 #define LOCAL_MINIMUM_NAME "LocalMinimum"
+#define LOCAL_MINIMUM_LIST_NAME "LocalMinimumList"
 #define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
 #define POINT_NODE_NAME "PointNode"
@@ -43,6 +45,8 @@ using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
+using LocalMinimumList =
+    mapbox::geometry::wagyu::local_minimum_list<coordinate_t>;
 using Multipolygon = mapbox::geometry::multi_polygon<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
@@ -257,6 +261,13 @@ static std::ostream& operator<<(std::ostream& stream,
                 << bool_repr(minimum.minimum_has_horizontal) << ")";
 }
 
+static std::ostream& operator<<(std::ostream& stream,
+                                const LocalMinimumList& list) {
+  stream << C_STR(MODULE_NAME) "." LOCAL_MINIMUM_LIST_NAME "(";
+  write_sequence(stream, list);
+  return stream << ")";
+}
+
 static bool operator==(const Edge& left, const Edge& right) {
   return left.bot == right.bot && left.top == right.top;
 }
@@ -289,6 +300,8 @@ static const typename Sequence::value_type& to_item(const Sequence& self,
                             "), but found " + std::to_string(index) + ".");
   return self[normalized_index];
 }
+
+PYBIND11_MAKE_OPAQUE(LocalMinimumList);
 
 PYBIND11_MODULE(MODULE_NAME, m) {
   m.doc() = R"pbdoc(
@@ -448,6 +461,19 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("y", &LocalMinimum::y)
       .def_readonly("minimum_has_horizontal",
                     &LocalMinimum::minimum_has_horizontal);
+
+  py::class_<LocalMinimumList>(m, LOCAL_MINIMUM_LIST_NAME)
+      .def(py::init<>())
+      .def("__repr__", repr<LocalMinimumList>)
+      .def("__len__", std::size<LocalMinimumList>)
+      .def("__getitem__", to_item<LocalMinimumList>, py::arg("index"),
+           py::return_value_policy::reference)
+      .def("__iter__", to_iterator<LocalMinimumList>, py::keep_alive<0, 1>())
+      .def("add_ring", [](LocalMinimumList& self, const LinearRing& ring,
+                          mapbox::geometry::wagyu::polygon_type polygon_kind) {
+        return mapbox::geometry::wagyu::add_linear_ring(ring, self,
+                                                        polygon_kind);
+      });
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
       .def(py::init<>())
