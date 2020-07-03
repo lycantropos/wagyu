@@ -29,9 +29,6 @@ namespace wagyu {
 template <typename T>
 class wagyu {
  private:
-  local_minimum_list<T> minima_list;
-  bool reverse_output;
-
   wagyu(wagyu const&) = delete;
   wagyu& operator=(wagyu const&) = delete;
 
@@ -133,6 +130,9 @@ class wagyu {
 
     return true;
   }
+
+  local_minimum_list<T> minima_list;
+  bool reverse_output;
 };
 }  // namespace wagyu
 }  // namespace geometry

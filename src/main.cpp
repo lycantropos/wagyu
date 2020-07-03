@@ -14,6 +14,7 @@
 #include <mapbox/geometry/wagyu/local_minimum.hpp>
 #include <mapbox/geometry/wagyu/point.hpp>
 #include <mapbox/geometry/wagyu/ring.hpp>
+#include <mapbox/geometry/wagyu/wagyu.hpp>
 #include <sstream>
 #include <stdexcept>
 
@@ -38,6 +39,7 @@ namespace py = pybind11;
 #define POLYGON_KIND_NAME "PolygonKind"
 #define RING_NAME "Ring"
 #define RING_MANAGER_NAME "RingManager"
+#define WAGYU_NAME "Wagyu"
 
 using coordinate_t = double;
 using Box = mapbox::geometry::box<coordinate_t>;
@@ -56,6 +58,7 @@ using Ring = mapbox::geometry::wagyu::ring<coordinate_t>;
 using RingPtr = mapbox::geometry::wagyu::ring_ptr<coordinate_t>;
 using RingVector = mapbox::geometry::wagyu::ring_vector<coordinate_t>;
 using RingManager = mapbox::geometry::wagyu::ring_manager<coordinate_t>;
+using Wagyu = mapbox::geometry::wagyu::wagyu<coordinate_t>;
 
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
 
@@ -493,6 +496,79 @@ PYBIND11_MODULE(MODULE_NAME, m) {
         return mapbox::geometry::wagyu::add_linear_ring(ring, self,
                                                         polygon_kind);
       });
+
+  py::class_<Wagyu>(m, WAGYU_NAME)
+      .def(py::init<>())
+      .def("add_ring", &Wagyu::add_ring<coordinate_t>)
+      .def("add_polygon", &Wagyu::add_polygon<coordinate_t>)
+      .def("clear", &Wagyu::clear)
+      .def(
+          "intersect",
+          [](Wagyu& self,
+             mapbox::geometry::wagyu::fill_type subject_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd,
+             mapbox::geometry::wagyu::fill_type clip_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd) {
+            Multipolygon solution;
+            self.execute(mapbox::geometry::wagyu::clip_type_intersection,
+                         solution, subject_fill_kind, clip_fill_kind);
+            return solution;
+          },
+          py::arg("subject_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd,
+          py::arg("clip_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd)
+      .def(
+          "subtract",
+          [](Wagyu& self,
+             mapbox::geometry::wagyu::fill_type subject_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd,
+             mapbox::geometry::wagyu::fill_type clip_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd) {
+            Multipolygon solution;
+            self.execute(mapbox::geometry::wagyu::clip_type_difference,
+                         solution, subject_fill_kind, clip_fill_kind);
+            return solution;
+          },
+          py::arg("subject_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd,
+          py::arg("clip_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd)
+      .def(
+          "unite",
+          [](Wagyu& self,
+             mapbox::geometry::wagyu::fill_type subject_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd,
+             mapbox::geometry::wagyu::fill_type clip_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd) {
+            Multipolygon solution;
+            self.execute(mapbox::geometry::wagyu::clip_type_union, solution,
+                         subject_fill_kind, clip_fill_kind);
+            return solution;
+          },
+          py::arg("subject_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd,
+          py::arg("clip_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd)
+      .def(
+          "symmetric_subtract",
+          [](Wagyu& self,
+             mapbox::geometry::wagyu::fill_type subject_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd,
+             mapbox::geometry::wagyu::fill_type clip_fill_kind =
+                 mapbox::geometry::wagyu::fill_type_even_odd) {
+            Multipolygon solution;
+            self.execute(mapbox::geometry::wagyu::clip_type_x_or, solution,
+                         subject_fill_kind, clip_fill_kind);
+            return solution;
+          },
+          py::arg("subject_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd,
+          py::arg("clip_fill_kind") =
+              mapbox::geometry::wagyu::fill_type_even_odd)
+      .def_property_readonly("bounds", &Wagyu::get_bounds)
+      .def_readonly("minimums", &Wagyu::minima_list)
+      .def_readonly("reverse_output", &Wagyu::reverse_output);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
       .def(py::init<>())
