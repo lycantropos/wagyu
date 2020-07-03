@@ -60,6 +60,30 @@ using RingVector = mapbox::geometry::wagyu::ring_vector<coordinate_t>;
 using RingManager = mapbox::geometry::wagyu::ring_manager<coordinate_t>;
 using Wagyu = mapbox::geometry::wagyu::wagyu<coordinate_t>;
 
+
+template <class Iterable>
+static py::iterator to_iterator(Iterable& iterable) {
+  return py::make_iterator(std::begin(iterable), std::end(iterable));
+}
+
+template <class Sequence>
+static std::size_t to_size(Sequence& sequence) {
+  return sequence.size();
+}
+
+template <class Sequence>
+static const typename Sequence::value_type& to_item(const Sequence& self,
+                                                    std::int64_t index) {
+  std::int64_t size = to_size(self);
+  std::int64_t normalized_index = index >= 0 ? index : index + size;
+  if (normalized_index < 0 || normalized_index >= size)
+    throw std::out_of_range(std::string("Index should be in range(" +
+                                        std::to_string(-size) + ", ") +
+                            std::to_string(size > 0 ? size : 1) +
+                            "), but found " + std::to_string(index) + ".");
+  return self[normalized_index];
+}
+
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
 
 template <class Object>
@@ -88,7 +112,7 @@ template <class Sequence>
 static bool pointers_sequences_equal(const Sequence& left,
                                      const Sequence& right) {
   if (left.size() != right.size()) return false;
-  auto size = std::size(left);
+  auto size = to_size(left);
   for (std::size_t index = 0; index < size; ++index)
     if (!pointers_equal(left[index], right[index])) return false;
   return true;
@@ -302,24 +326,6 @@ static bool operator==(const LocalMinimum& self, const LocalMinimum& other) {
 }  // namespace geometry
 }  // namespace mapbox
 
-template <class Iterable>
-static py::iterator to_iterator(Iterable& iterable) {
-  return py::make_iterator(std::begin(iterable), std::end(iterable));
-}
-
-template <class Sequence>
-static const typename Sequence::value_type& to_item(const Sequence& self,
-                                                    std::int64_t index) {
-  std::int64_t size = std::size(self);
-  std::int64_t normalized_index = index >= 0 ? index : index + size;
-  if (normalized_index < 0 || normalized_index >= size)
-    throw std::out_of_range(std::string("Index should be in range(" +
-                                        std::to_string(-size) + ", ") +
-                            std::to_string(size > 0 ? size : 1) +
-                            "), but found " + std::to_string(index) + ".");
-  return self[normalized_index];
-}
-
 PYBIND11_MAKE_OPAQUE(LocalMinimumList);
 
 PYBIND11_MODULE(MODULE_NAME, m) {
@@ -368,7 +374,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<const std::vector<Point>&>())
       .def(py::self == py::self)
       .def("__repr__", repr<LinearRing>)
-      .def("__len__", std::size<LinearRing>)
+      .def("__len__", to_size<LinearRing>)
       .def("__getitem__", to_item<LinearRing>, py::arg("index"))
       .def("__iter__", to_iterator<LinearRing>, py::keep_alive<0, 1>());
 
@@ -377,7 +383,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<const std::vector<LinearRing>&>())
       .def(py::self == py::self)
       .def("__repr__", repr<Polygon>)
-      .def("__len__", std::size<Polygon>)
+      .def("__len__", to_size<Polygon>)
       .def("__getitem__", to_item<Polygon>, py::arg("index"))
       .def("__iter__", to_iterator<Polygon>, py::keep_alive<0, 1>());
 
@@ -386,7 +392,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<const std::vector<Polygon>&>())
       .def(py::self == py::self)
       .def("__repr__", repr<Multipolygon>)
-      .def("__len__", std::size<Multipolygon>)
+      .def("__len__", to_size<Multipolygon>)
       .def("__getitem__", to_item<Multipolygon>, py::arg("index"))
       .def("__iter__", to_iterator<Multipolygon>, py::keep_alive<0, 1>());
 
@@ -487,7 +493,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::self == py::self)
       .def("__repr__", repr<LocalMinimumList>)
-      .def("__len__", std::size<LocalMinimumList>)
+      .def("__len__", to_size<LocalMinimumList>)
       .def("__getitem__", to_item<LocalMinimumList>, py::arg("index"),
            py::return_value_policy::reference)
       .def("__iter__", to_iterator<LocalMinimumList>, py::keep_alive<0, 1>())
