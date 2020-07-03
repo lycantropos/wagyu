@@ -79,6 +79,21 @@ static bool contains(const Sequence& sequence,
 }
 
 template <class Sequence>
+static py::list sequence_get_state(const Sequence& sequence) {
+  py::list result;
+  for (const auto& element : sequence) result.append(element);
+  return result;
+}
+
+template <class Sequence>
+static Sequence sequence_set_state(py::list list) {
+  Sequence result;
+  for (const auto& element : list)
+    result.push_back(element.cast<typename Sequence::value_type>());
+  return result;
+}
+
+template <class Sequence>
 static const typename Sequence::value_type& to_item(const Sequence& sequence,
                                                     std::int64_t index) {
   std::int64_t size = to_size(sequence);
@@ -380,6 +395,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::init<const std::vector<Point>&>())
       .def(py::self == py::self)
+      .def(py::pickle(&sequence_get_state<LinearRing>,
+                      &sequence_set_state<LinearRing>))
       .def("__contains__", contains<LinearRing>)
       .def("__repr__", repr<LinearRing>)
       .def("__len__", to_size<LinearRing>)
@@ -396,6 +413,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::init<const std::vector<LinearRing>&>())
       .def(py::self == py::self)
+      .def(py::pickle(&sequence_get_state<Polygon>,
+                      &sequence_set_state<Polygon>))
       .def("__contains__", contains<Polygon>)
       .def("__repr__", repr<Polygon>)
       .def("__len__", to_size<Polygon>)
@@ -406,6 +425,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::init<const std::vector<Polygon>&>())
       .def(py::self == py::self)
+      .def(py::pickle(&sequence_get_state<Multipolygon>,
+                      &sequence_set_state<Multipolygon>))
       .def("__contains__", contains<Multipolygon>)
       .def("__repr__", repr<Multipolygon>)
       .def("__len__", to_size<Multipolygon>)
