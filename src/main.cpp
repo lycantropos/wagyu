@@ -72,16 +72,16 @@ static std::size_t to_size(Sequence& sequence) {
 }
 
 template <class Sequence>
-static const typename Sequence::value_type& to_item(const Sequence& self,
+static const typename Sequence::value_type& to_item(const Sequence& sequence,
                                                     std::int64_t index) {
-  std::int64_t size = to_size(self);
+  std::int64_t size = to_size(sequence);
   std::int64_t normalized_index = index >= 0 ? index : index + size;
   if (normalized_index < 0 || normalized_index >= size)
     throw std::out_of_range(std::string("Index should be in range(" +
                                         std::to_string(-size) + ", ") +
                             std::to_string(size > 0 ? size : 1) +
                             "), but found " + std::to_string(index) + ".");
-  return self[normalized_index];
+  return sequence[normalized_index];
 }
 
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
