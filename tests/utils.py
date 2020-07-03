@@ -11,6 +11,7 @@ from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
 
 from wagyu.hints import Coordinate
+from wagyu.point import Point as PortedPoint
 
 Domain = TypeVar('Domain')
 Range = TypeVar('Range')
@@ -19,6 +20,7 @@ RawPoint = Tuple[Coordinate, Coordinate]
 RawPointsList = List[RawPoint]
 RawPolygon = Tuple[RawPointsList, List[RawPointsList]]
 RawMultipolygon = List[RawPolygon]
+BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
 
 
 def equivalence(left_statement: bool, right_statement: bool) -> bool:
@@ -35,6 +37,16 @@ def pickle_round_trip(object_: Domain) -> Domain:
 
 def to_maybe(strategy: Strategy[Domain]) -> Strategy[Optional[Domain]]:
     return strategies.none() | strategy
+
+
+def are_bound_ported_points_equal(bound: BoundPoint,
+                                  ported: PortedPoint) -> bool:
+    return bound.x == ported.x and bound.y == ported.y
+
+
+def to_bound_with_ported_points_pair(x: float, y: float
+                                     ) -> BoundPortedPointsPair:
+    return BoundPoint(x, y), PortedPoint(x, y)
 
 
 def to_bound_linear_rings_points(raw_points: RawPointsList
