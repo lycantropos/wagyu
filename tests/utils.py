@@ -7,13 +7,15 @@ from typing import (Callable,
                     Tuple,
                     TypeVar)
 
-from _wagyu import (Edge as BoundEdge,
+from _wagyu import (Box as BoundBox,
+                    Edge as BoundEdge,
                     LinearRing as BoundLinearRing,
                     Point as BoundPoint,
                     Polygon as BoundPolygon)
 from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
 
+from wagyu.box import Box as PortedBox
 from wagyu.edge import Edge as PortedEdge
 from wagyu.hints import Coordinate
 from wagyu.point import Point as PortedPoint
@@ -25,10 +27,13 @@ RawPoint = Tuple[Coordinate, Coordinate]
 RawPointsList = List[RawPoint]
 RawPolygon = Tuple[RawPointsList, List[RawPointsList]]
 RawMultipolygon = List[RawPolygon]
+BoundBox = BoundBox
 BoundEdge = BoundEdge
 BoundPoint = BoundPoint
+BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
+PortedBox = PortedBox
 PortedEdge = PortedEdge
 PortedPoint = PortedPoint
 
@@ -70,14 +75,28 @@ def are_endpoints_non_degenerate(endpoints: Tuple[BoundPortedPointsPair,
     return first_bound != second_bound
 
 
-def are_bound_ported_points_equal(bound: BoundPoint,
-                                  ported: PortedPoint) -> bool:
-    return bound.x == ported.x and bound.y == ported.y
+def are_bound_ported_boxes_equal(bound: BoundBox, ported: PortedBox) -> bool:
+    return (are_bound_ported_points_equal(bound.minimum, ported.minimum)
+            and are_bound_ported_points_equal(bound.maximum, ported.maximum))
 
 
 def are_bound_ported_edges_equal(bound: BoundEdge, ported: PortedEdge) -> bool:
     return (are_bound_ported_points_equal(bound.top, ported.top)
             and are_bound_ported_points_equal(bound.bottom, ported.bottom))
+
+
+def are_bound_ported_points_equal(bound: BoundPoint,
+                                  ported: PortedPoint) -> bool:
+    return bound.x == ported.x and bound.y == ported.y
+
+
+def to_bound_with_ported_boxes_pair(minimums: BoundPortedPointsPair,
+                                    maximums: BoundPortedPointsPair
+                                    ) -> BoundPortedBoxesPair:
+    bound_minimum, ported_minimum = minimums
+    bound_maximum, ported_maximum = maximums
+    return (BoundBox(bound_minimum, bound_maximum),
+            PortedBox(ported_minimum, ported_maximum))
 
 
 def to_bound_with_ported_edges_pair(starts: BoundPortedPointsPair,
