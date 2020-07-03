@@ -45,6 +45,7 @@ using coordinate_t = std::int64_t;
 using Box = mapbox::geometry::box<coordinate_t>;
 using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
+using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
 using LocalMinimumList =
@@ -375,7 +376,13 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__repr__", repr<LinearRing>)
       .def("__len__", to_size<LinearRing>)
       .def("__getitem__", to_item<LinearRing>, py::arg("index"))
-      .def("__iter__", to_iterator<LinearRing>, py::keep_alive<0, 1>());
+      .def("__iter__", to_iterator<LinearRing>, py::keep_alive<0, 1>())
+      .def_property_readonly("edges", [](const LinearRing& self) {
+        EdgeList result;
+        result.reserve(self.size());
+        build_edge_list(self, result);
+        return result;
+      });
 
   py::class_<Polygon>(m, POLYGON_NAME)
       .def(py::init<>())
