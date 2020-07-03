@@ -406,6 +406,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::init<const std::vector<Polygon>&>())
       .def(py::self == py::self)
+      .def("__contains__", contains<Multipolygon>)
       .def("__repr__", repr<Multipolygon>)
       .def("__len__", to_size<Multipolygon>)
       .def("__getitem__", to_item<Multipolygon>, py::arg("index"))
