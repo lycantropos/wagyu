@@ -5,7 +5,8 @@ from typing import (List,
                     TypeVar)
 
 from _wagyu import (LinearRing as BoundLinearRing,
-                    Point as BoundPoint)
+                    Point as BoundPoint,
+                    Polygon as BoundPolygon)
 from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
 
@@ -17,6 +18,7 @@ Strategy = SearchStrategy
 RawPoint = Tuple[Coordinate, Coordinate]
 RawPointsList = List[RawPoint]
 RawPolygon = Tuple[RawPointsList, List[RawPointsList]]
+RawMultipolygon = List[RawPolygon]
 
 
 def equivalence(left_statement: bool, right_statement: bool) -> bool:
@@ -47,3 +49,9 @@ def to_bound_polygon_linear_rings(raw_polygon: RawPolygon
     return ([BoundLinearRing(to_bound_linear_rings_points(raw_border))]
             + [BoundLinearRing(to_bound_linear_rings_points(raw_hole))
                for raw_hole in raw_holes])
+
+
+def to_bound_multipolygon_polygons(raw_multipolygon: RawMultipolygon
+                                   ) -> List[BoundPolygon]:
+    return [BoundPolygon(to_bound_polygon_linear_rings(raw_polygon))
+            for raw_polygon in raw_multipolygon]
