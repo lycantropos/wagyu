@@ -445,7 +445,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("reverse", &mapbox::geometry::wagyu::reverse_ring<coordinate_t>);
 
   py::class_<Box>(m, BOX_NAME)
-      .def(py::init<Point, Point>(), py::arg("min"), py::arg("max"))
+      .def(py::init<Point, Point>(), py::arg("minimum"), py::arg("maximum"))
       .def(py::pickle(
           [](const Box& self) {  // __getstate__
             return py::make_tuple(self.min, self.max);
@@ -456,8 +456,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           }))
       .def(py::self == py::self)
       .def("__repr__", repr<Box>)
-      .def_readonly("min", &Box::min)
-      .def_readonly("max", &Box::max);
+      .def_readonly("minimum", &Box::min)
+      .def_readonly("maximum", &Box::max);
 
   py::class_<Edge>(m, EDGE_NAME)
       .def(py::init<Point, Point>(), py::arg("bottom"), py::arg("top"))
