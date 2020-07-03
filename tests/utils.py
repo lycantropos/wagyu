@@ -1,13 +1,19 @@
 import pickle
-from typing import (Optional,
+from typing import (List,
+                    Optional,
+                    Tuple,
                     TypeVar)
 
 from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
 
+from wagyu.hints import Coordinate
+
 Domain = TypeVar('Domain')
 Range = TypeVar('Range')
 Strategy = SearchStrategy
+RawPoint = Tuple[Coordinate, Coordinate]
+RawPointsList = List[RawPoint]
 
 
 def equivalence(left_statement: bool, right_statement: bool) -> bool:
