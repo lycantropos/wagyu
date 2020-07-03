@@ -77,11 +77,11 @@ static bool pointers_equal(Object* left, Object* right) {
                          : right != nullptr && *left == *right;
 }
 
-template <class Object>
-static bool pointers_vectors_equal(std::vector<Object*> left,
-                                   std::vector<Object*> right) {
+template <class Sequence>
+static bool pointers_sequences_equal(const Sequence& left,
+                                     const Sequence& right) {
   if (left.size() != right.size()) return false;
-  auto size = left.size();
+  auto size = std::size(left);
   for (std::size_t index = 0; index < size; ++index)
     if (!pointers_equal(left[index], right[index])) return false;
   return true;
@@ -263,7 +263,7 @@ static bool operator==(const Edge& left, const Edge& right) {
 
 static bool operator==(const Ring& left, const Ring& right) {
   return left.ring_index == right.ring_index &&
-         pointers_vectors_equal(left.children, right.children) &&
+         pointers_sequences_equal(left.children, right.children) &&
          pointers_equal(left.points, right.points) &&
          pointers_equal(left.bottom_point, right.bottom_point) &&
          left.corrected == right.corrected;
