@@ -122,7 +122,7 @@ template <typename Sequence>
 static void write_pointers_sequence(std::ostream& stream,
                                     const Sequence& sequence) {
   stream << "[";
-  if (!std::empty(sequence)) {
+  if (!sequence.empty()) {
     write_pointer(stream, sequence[0]);
     std::for_each(std::next(std::begin(sequence)), std::end(sequence),
                   [&stream](typename Sequence::value_type value) {
@@ -136,7 +136,7 @@ static void write_pointers_sequence(std::ostream& stream,
 template <typename Sequence>
 static void write_sequence(std::ostream& stream, const Sequence& sequence) {
   stream << "[";
-  if (!std::empty(sequence)) {
+  if (!sequence.empty()) {
     stream << sequence[0];
     std::for_each(std::next(std::begin(sequence)), std::end(sequence),
                   [&stream](const typename Sequence::value_type& value) {
