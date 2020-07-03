@@ -1,20 +1,18 @@
-from reprit import seekers
 from reprit.base import generate_repr
 
 from .point import Point
 
 
 class Box:
-    __slots__ = 'min', 'max'
+    __slots__ = 'minimum', 'maximum'
 
-    def __init__(self, min_: Point, max_: Point) -> None:
-        self.min = min_
-        self.max = max_
+    def __init__(self, minimum: Point, maximum: Point) -> None:
+        self.minimum = minimum
+        self.maximum = maximum
 
-    __repr__ = generate_repr(__init__,
-                             field_seeker=seekers.complex_)
+    __repr__ = generate_repr(__init__)
 
     def __eq__(self, other: 'Box') -> bool:
-        return (self.min == other.min and self.max == other.max
+        return (self.minimum == other.minimum and self.maximum == other.maximum
                 if isinstance(other, Box)
                 else NotImplemented)
