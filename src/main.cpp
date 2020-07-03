@@ -14,6 +14,7 @@
 #include <mapbox/geometry/wagyu/point.hpp>
 #include <mapbox/geometry/wagyu/ring.hpp>
 #include <sstream>
+#include <stdexcept>
 
 namespace py = pybind11;
 
@@ -270,6 +271,24 @@ static bool operator==(const Ring& left, const Ring& right) {
 }  // namespace geometry
 }  // namespace mapbox
 
+template <class Iterable>
+static py::iterator to_iterator(Iterable& iterable) {
+  return py::make_iterator(std::begin(iterable), std::end(iterable));
+}
+
+template <class Sequence>
+static const typename Sequence::value_type& to_item(const Sequence& self,
+                                                    std::int64_t index) {
+  std::int64_t size = std::size(self);
+  std::int64_t normalized_index = index >= 0 ? index : index + size;
+  if (normalized_index < 0 || normalized_index >= size)
+    throw std::out_of_range(std::string("Index should be in range(" +
+                                        std::to_string(-size) + ", ") +
+                            std::to_string(size > 0 ? size : 1) +
+                            "), but found " + std::to_string(index) + ".");
+  return self[normalized_index];
+}
+
 PYBIND11_MODULE(MODULE_NAME, m) {
   m.doc() = R"pbdoc(
         Python binding of mapbox/wagyu library.
@@ -315,19 +334,28 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::init<const std::vector<Point>&>())
       .def(py::self == py::self)
-      .def("__repr__", repr<LinearRing>);
+      .def("__repr__", repr<LinearRing>)
+      .def("__len__", std::size<LinearRing>)
+      .def("__getitem__", to_item<LinearRing>, py::arg("index"))
+      .def("__iter__", to_iterator<LinearRing>, py::keep_alive<0, 1>());
 
   py::class_<Polygon>(m, POLYGON_NAME)
       .def(py::init<>())
       .def(py::init<const std::vector<LinearRing>&>())
       .def(py::self == py::self)
-      .def("__repr__", repr<Polygon>);
+      .def("__repr__", repr<Polygon>)
+      .def("__len__", std::size<Polygon>)
+      .def("__getitem__", to_item<Polygon>, py::arg("index"))
+      .def("__iter__", to_iterator<Polygon>, py::keep_alive<0, 1>());
 
   py::class_<Multipolygon>(m, MULTIPOLYGON_NAME)
       .def(py::init<>())
       .def(py::init<const std::vector<Polygon>&>())
       .def(py::self == py::self)
-      .def("__repr__", repr<Multipolygon>);
+      .def("__repr__", repr<Multipolygon>)
+      .def("__len__", std::size<Multipolygon>)
+      .def("__getitem__", to_item<Multipolygon>, py::arg("index"))
+      .def("__iter__", to_iterator<Multipolygon>, py::keep_alive<0, 1>());
 
   py::class_<PointNode, std::unique_ptr<PointNode, py::nodelete>>(
       m, POINT_NODE_NAME)
