@@ -9,5 +9,5 @@ from . import strategies
 def test_basic(min_: Point, max_: Point) -> None:
     result = Box(min_, max_)
 
-    assert result.min == min_
-    assert result.max == max_
+    assert result.minimum == min_
+    assert result.maximum == max_
