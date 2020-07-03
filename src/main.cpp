@@ -460,7 +460,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("max", &Box::max);
 
   py::class_<Edge>(m, EDGE_NAME)
-      .def(py::init<Point, Point>(), py::arg("start"), py::arg("end"))
+      .def(py::init<Point, Point>(), py::arg("bottom"), py::arg("top"))
       .def(py::pickle(
           [](const Edge& self) {  // __getstate__
             return py::make_tuple(self.bot, self.top);
