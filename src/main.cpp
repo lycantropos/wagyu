@@ -704,6 +704,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                                                                      pt3);
         });
 
+  m.def("are_edges_slopes_equal", [](const Edge& e1, const Edge& e2) {
+    return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(e1, e2);
+  });
+
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
 #else
