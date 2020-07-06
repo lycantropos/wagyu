@@ -1,5 +1,6 @@
 import pickle
 from functools import partial
+from itertools import zip_longest
 from typing import (Callable,
                     Iterable,
                     List,
@@ -11,6 +12,7 @@ from _wagyu import (Box as BoundBox,
                     Edge as BoundEdge,
                     LinearRing as BoundLinearRing,
                     Point as BoundPoint,
+                    PointNode as BoundPointNode,
                     Polygon as BoundPolygon)
 from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
@@ -19,6 +21,7 @@ from wagyu.box import Box as PortedBox
 from wagyu.edge import Edge as PortedEdge
 from wagyu.hints import Coordinate
 from wagyu.point import Point as PortedPoint
+from wagyu.point_node import PointNode as PortedPointNode
 
 Domain = TypeVar('Domain')
 Range = TypeVar('Range')
@@ -30,12 +33,15 @@ RawMultipolygon = List[RawPolygon]
 BoundBox = BoundBox
 BoundEdge = BoundEdge
 BoundPoint = BoundPoint
+BoundPointNode = BoundPointNode
 BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
+BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
 PortedBox = PortedBox
 PortedEdge = PortedEdge
 PortedPoint = PortedPoint
+PortedPointNode = PortedPointNode
 
 
 def equivalence(left_statement: bool, right_statement: bool) -> bool:
@@ -90,6 +96,30 @@ def are_bound_ported_points_equal(bound: BoundPoint,
     return bound.x == ported.x and bound.y == ported.y
 
 
+def are_bound_ported_points_nodes_equal(bound: BoundPointNode,
+                                        ported: PortedPointNode) -> bool:
+    return all(
+            bound_node is not None
+            and ported_node is not None
+            and bound_node.x == ported_node.x
+            and bound_node.y == ported_node.y
+            for bound_node, ported_node in zip_longest(traverse_tree(bound),
+                                                       traverse_tree(ported),
+                                                       fillvalue=None))
+
+
+AnyPointNode = TypeVar('AnyPointNode', BoundPointNode, PortedPointNode)
+
+
+def traverse_tree(point_node: AnyPointNode) -> Iterable[AnyPointNode]:
+    cursor = point_node
+    while True:
+        yield cursor
+        cursor = cursor.next
+        if cursor is point_node:
+            break
+
+
 def to_bound_with_ported_boxes_pair(minimums: BoundPortedPointsPair,
                                     maximums: BoundPortedPointsPair
                                     ) -> BoundPortedBoxesPair:
@@ -111,6 +141,11 @@ def to_bound_with_ported_edges_pair(starts: BoundPortedPointsPair,
 def to_bound_with_ported_points_pair(x: float, y: float
                                      ) -> BoundPortedPointsPair:
     return BoundPoint(x, y), PortedPoint(x, y)
+
+
+def to_bound_with_ported_points_nodes_pair(x: float, y: float
+                                           ) -> BoundPortedPointsNodesPair:
+    return BoundPointNode(x, y), PortedPointNode(x, y)
 
 
 def to_bound_linear_rings_points(raw_points: RawPointsList
