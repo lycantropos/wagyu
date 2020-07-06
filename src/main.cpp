@@ -694,6 +694,16 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           py::arg("ring").none(false), py::arg("remove_children") = true,
           py::arg("remove_from_parent") = true);
 
+  m.def("are_points_slopes_equal", [](const Point& pt1, const Point& pt2,
+                                      const Point& pt3) {
+    return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(pt1, pt2, pt3);
+  });
+  m.def("are_points_slopes_equal",
+        [](const PointNode& pt1, const PointNode& pt2, const PointNode& pt3) {
+          return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(pt1, pt2,
+                                                                     pt3);
+        });
+
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
 #else
