@@ -708,6 +708,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
     return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(e1, e2);
   });
 
+  m.def("is_point_between_others",
+        mapbox::geometry::wagyu::point_2_is_between_point_1_and_point_3<
+            coordinate_t>);
+
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
 #else
