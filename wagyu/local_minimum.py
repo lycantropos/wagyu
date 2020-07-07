@@ -37,13 +37,16 @@ class LocalMinimum:
                 else NotImplemented)
 
 
-class LocalMinimumList(abc.Sequence):
+class LocalMinimumList(abc.MutableSequence):
     __slots__ = 'values',
 
     def __init__(self, *values: LocalMinimum) -> None:
         self.values = list(values)
 
     __repr__ = generate_repr(__init__)
+
+    def __delitem__(self, index: int) -> None:
+        del self.values[index]
 
     def __eq__(self, other: 'LocalMinimumList'):
         return (self.values == other.values
@@ -55,6 +58,9 @@ class LocalMinimumList(abc.Sequence):
 
     def __len__(self) -> int:
         return len(self.values)
+
+    def __setitem__(self, index: int, value: LocalMinimum) -> None:
+        self.values[index] = value
 
     def add_linear_ring(self,
                         ring: LinearRing,
@@ -139,6 +145,9 @@ class LocalMinimumList(abc.Sequence):
         last_maximum.maximum_bound = first_minimum
         first_minimum.maximum_bound = last_maximum
         return True
+
+    def insert(self, index: int, value: LocalMinimum) -> None:
+        self.insert(index, value)
 
 
 def start_list_on_local_maximum(edges: List[Edge]) -> None:
