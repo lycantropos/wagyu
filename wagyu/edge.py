@@ -8,9 +8,9 @@ from .point import Point
 class Edge:
     __slots__ = 'top', 'bottom', 'slope'
 
-    def __init__(self, top: Point, bottom: Point) -> None:
-        self.top, self.bottom = ((top, bottom)
-                                 if top.y < bottom.y
+    def __init__(self, bottom: Point, top: Point) -> None:
+        self.bottom, self.top = ((top, bottom)
+                                 if bottom.y < top.y
                                  else (bottom, top))
         dy = self.top.y - self.bottom.y
         self.slope = (self.top.x - self.bottom.x) / dy if dy else math.inf
