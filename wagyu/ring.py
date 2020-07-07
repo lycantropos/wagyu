@@ -15,12 +15,12 @@ class Ring:
 
     def __init__(self,
                  index: int = 0,
-                 children: Optional[List['Ring']] = None,
+                 children: Optional[List[Optional['Ring']]] = None,
                  node: Optional[PointNode] = None,
                  bottom_node: Optional[PointNode] = None,
                  corrected: bool = False) -> None:
         self.index = index
-        self.children = children
+        self.children = children or []
         self.node = node
         self.bottom_node = bottom_node
         self.corrected = corrected
