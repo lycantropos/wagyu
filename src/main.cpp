@@ -519,7 +519,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("opposite_winding_count", &Bound::winding_count2)
       .def_readonly("winding_delta", &Bound::winding_delta)
       .def_readonly("polygon_kind", &Bound::poly_type)
-      .def_readonly("side", &Bound::side);
+      .def_readonly("side", &Bound::side)
+      .def("fix_horizontals",
+           mapbox::geometry::wagyu::fix_horizontals<coordinate_t>)
+      .def("move_horizontals",
+           mapbox::geometry::wagyu::move_horizontals_on_left_to_right<
+               coordinate_t>);
 
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
       .def(py::self == py::self)
