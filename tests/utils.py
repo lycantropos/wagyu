@@ -87,7 +87,7 @@ BoundPortedPolygonKindsPair = Tuple[BoundPolygonKind, PortedPolygonKind]
 
 
 def enum_to_values(cls: Type[Enum]) -> List[Enum]:
-    return list(cls.__members__.values())
+    return sorted(cls.__members__.values())
 
 
 bound_edges_sides = enum_to_values(BoundEdgeSide)
