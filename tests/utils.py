@@ -80,6 +80,7 @@ BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
     List[PortedLinearRingWithPolygonKind]]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
 BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
+BoundPortedPolygonKindsPair = Tuple[BoundPolygonKind, PortedPolygonKind]
 
 
 def enum_to_values(cls: Type[Enum]) -> List[Enum]:
