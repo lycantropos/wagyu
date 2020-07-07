@@ -7,7 +7,8 @@ from _wagyu import (Bound,
 from hypothesis import strategies
 
 from tests.strategies import (coordinates,
-                              floats)
+                              floats,
+                              trits)
 from tests.utils import (bound_edges_sides,
                          bound_polygons_kinds,
                          to_maybe)
@@ -27,7 +28,7 @@ edges = strategies.builds(Edge, points, points)
 integers_32 = strategies.integers(-2147483648, 2147483647)
 edges_lists = strategies.lists(edges)
 maybe_rings = to_maybe(rings)
-trits = strategies.sampled_from([-1, 0, 1])
+trits = trits
 polygons_kinds = strategies.sampled_from(bound_polygons_kinds)
 edges_sides = strategies.sampled_from(bound_edges_sides)
 bounds = strategies.builds(Bound, edges_lists, points, maybe_rings, floats,

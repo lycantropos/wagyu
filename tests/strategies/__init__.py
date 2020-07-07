@@ -1,2 +1,3 @@
 from .base import (coordinates,
-                   floats)
+                   floats,
+                   trits)
