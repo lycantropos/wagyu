@@ -530,6 +530,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<>())
       .def(py::self == py::self)
       .def("__repr__", repr<LocalMinimumList>)
+      .def("__contains__", contains<LocalMinimumList>)
       .def("__len__", to_size<LocalMinimumList>)
       .def("__getitem__", to_item<LocalMinimumList>, py::arg("index"),
            py::return_value_policy::reference)
