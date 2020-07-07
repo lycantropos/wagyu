@@ -166,3 +166,9 @@ def to_bound_multipolygon_polygons(raw_multipolygon: RawMultipolygon
                                    ) -> List[BoundPolygon]:
     return [BoundPolygon(to_bound_polygon_linear_rings(raw_polygon))
             for raw_polygon in raw_multipolygon]
+
+
+def to_ported_linear_rings_points(raw_points: RawPointsList
+                                  ) -> List[PortedPoint]:
+    points = [PortedPoint(x, y) for x, y in raw_points]
+    return points + [points[0]]
