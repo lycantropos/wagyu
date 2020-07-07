@@ -27,6 +27,8 @@ struct edge {
   mapbox::geometry::point<T> top;
   double dx;
 
+  edge(const edge<T>& e) noexcept : bot(e.bot), top(e.top), dx(e.dx) {}
+
   edge(edge<T>&& e) noexcept
       : bot(std::move(e.bot)), top(std::move(e.top)), dx(std::move(e.dx)) {}
 
@@ -34,6 +36,13 @@ struct edge {
     bot = std::move(e.bot);
     top = std::move(e.top);
     dx = std::move(e.dx);
+    return *this;
+  }
+
+  edge& operator=(const edge<T>& e) noexcept {
+    bot = e.bot;
+    top = e.top;
+    dx = e.dx;
     return *this;
   }
 
