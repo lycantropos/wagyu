@@ -1,4 +1,5 @@
-from typing import List, Tuple
+from typing import (List,
+                    Tuple)
 
 from _wagyu import (LinearRing,
                     LocalMinimumList,
@@ -7,7 +8,8 @@ from hypothesis import strategies
 from hypothesis_geometry import planar
 
 from tests.strategies import coordinates
-from tests.utils import (Strategy, to_bound_linear_rings_points,
+from tests.utils import (Strategy,
+                         to_bound_linear_rings_points,
                          to_bound_polygon_linear_rings)
 
 linear_rings_points = (planar.contours(coordinates)
