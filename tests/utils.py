@@ -73,6 +73,7 @@ PortedRing = PortedRing
 
 BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
+BoundPortedEdgesListsPair = Tuple[List[BoundEdge], List[PortedEdge]]
 BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
 BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
 BoundPortedLocalMinimumListsPair = Tuple[BoundLocalMinimumList,
@@ -284,6 +285,12 @@ def to_bound_with_ported_linear_rings(linear_rings_points
                                       ) -> BoundPortedLinearRingsPair:
     bound_points, ported_points = linear_rings_points
     return BoundLinearRing(bound_points), PortedLinearRing(ported_points)
+
+
+def to_bound_with_ported_edges_lists(linear_rings: BoundPortedLinearRingsPair
+                                     ) -> BoundPortedEdgesListsPair:
+    bound_linear_ring, ported_linear_ring = linear_rings
+    return bound_linear_ring.edges, ported_linear_ring.edges
 
 
 def to_bound_with_ported_local_minimum_lists(
