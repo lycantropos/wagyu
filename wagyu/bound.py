@@ -11,15 +11,14 @@ from .ring import Ring
 
 
 class Bound:
-    __slots__ = ('edges', 'last_point', 'ring', 'maximum_bound', 'current_x',
-                 'position', 'winding_count', 'opposite_winding_count',
-                 'winding_delta', 'polygon_kind', 'side')
+    __slots__ = ('edges', 'last_point', 'ring', 'current_x', 'position',
+                 'winding_count', 'opposite_winding_count', 'winding_delta',
+                 'polygon_kind', 'side', 'maximum_bound')
 
     def __init__(self,
                  edges: Optional[List[Edge]] = None,
                  last_point: Point = Point(0, 0),
                  ring: Optional[Ring] = None,
-                 maximum_bound: Optional['Bound'] = None,
                  current_x: float = 0.,
                  position: int = 0,
                  winding_count: int = 0,
@@ -30,7 +29,6 @@ class Bound:
         self.edges = edges or []
         self.last_point = last_point
         self.ring = ring
-        self.maximum_bound = maximum_bound
         self.current_x = current_x
         self.position = position
         self.winding_count = winding_count
@@ -38,6 +36,7 @@ class Bound:
         self.winding_delta = winding_delta
         self.polygon_kind = polygon_kind
         self.side = side
+        self.maximum_bound = None  # type: Optional[Bound]
 
     __repr__ = generate_repr(__init__)
 
