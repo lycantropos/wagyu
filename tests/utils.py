@@ -14,6 +14,7 @@ from typing import (Callable,
 from _wagyu import (Bound as BoundBound,
                     Box as BoundBox,
                     Edge as BoundEdge,
+                    EdgeSide as BoundEdgeSide,
                     LinearRing as BoundLinearRing,
                     LocalMinimum as BoundLocalMinimum,
                     LocalMinimumList as BoundLocalMinimumList,
@@ -28,7 +29,8 @@ from hypothesis.strategies import SearchStrategy
 from wagyu.bound import Bound as PortedBound
 from wagyu.box import Box as PortedBox
 from wagyu.edge import Edge as PortedEdge
-from wagyu.enums import PolygonKind as PortedPolygonKind
+from wagyu.enums import (EdgeSide as PortedEdgeSide,
+                         PolygonKind as PortedPolygonKind)
 from wagyu.hints import Coordinate
 from wagyu.linear_ring import LinearRing as PortedLinearRing
 from wagyu.local_minimum import (LocalMinimum as PortedLocalMinimum,
@@ -87,7 +89,9 @@ def enum_to_values(cls: Type[Enum]) -> List[Enum]:
     return list(cls.__members__.values())
 
 
+bound_edges_sides = enum_to_values(BoundEdgeSide)
 bound_polygons_kinds = enum_to_values(BoundPolygonKind)
+ported_edges_sides = enum_to_values(PortedEdgeSide)
 ported_polygons_kinds = enum_to_values(PortedPolygonKind)
 
 
