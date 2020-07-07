@@ -506,7 +506,17 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            py::arg("box"));
 
   py::class_<Bound, std::unique_ptr<Bound, py::nodelete>>(m, BOUND_NAME)
-      .def(py::init<>())
+      .def(py::init<const EdgeList&, const Point&, RingPtr, double, std::size_t,
+                    std::int32_t, std::int32_t, std::int8_t,
+                    mapbox::geometry::wagyu::polygon_type,
+                    mapbox::geometry::wagyu::edge_side>(),
+           py::arg("edges") = EdgeList{}, py::arg("last_point") = Point{0, 0},
+           py::arg("ring").none(true) = nullptr, py::arg("current_x") = 0.,
+           py::arg("position") = 0, py::arg("winding_count") = 0,
+           py::arg("opposite_winding_count") = 0, py::arg("winding_delta") = 0,
+           py::arg("polygon_kind") =
+               mapbox::geometry::wagyu::polygon_type_subject,
+           py::arg("side") = mapbox::geometry::wagyu::edge_left)
       .def(py::self == py::self)
       .def("__repr__", repr<Bound>)
       .def_readonly("edges", &Bound::edges)

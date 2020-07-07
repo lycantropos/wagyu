@@ -32,20 +32,26 @@ struct bound {
   polygon_type poly_type;
   edge_side side;  // side only refers to current side of solution poly
 
-  bound() noexcept
-      : edges(),
+  bound(const edge_list<T>& edges_ = {},
+        const mapbox::geometry::point<T>& last_point_ = {0, 0},
+        ring_ptr<T> ring_ = nullptr, double current_x_ = 0.,
+        std::size_t pos_ = 0, std::int32_t winding_count_ = 0,
+        std::int32_t winding_count2_ = 0, std::int8_t winding_delta_ = 0,
+        polygon_type poly_type_ = polygon_type_subject,
+        edge_side side_ = edge_left) noexcept
+      : edges(edges_),
         current_edge(edges.end()),
         next_edge(edges.end()),
-        last_point({0, 0}),
-        ring(nullptr),
+        last_point(last_point_),
+        ring(ring_),
         maximum_bound(nullptr),
-        current_x(0.0),
-        pos(0),
-        winding_count(0),
-        winding_count2(0),
-        winding_delta(0),
-        poly_type(polygon_type_subject),
-        side(edge_left) {}
+        current_x(current_x_),
+        pos(pos_),
+        winding_count(winding_count_),
+        winding_count2(winding_count2_),
+        winding_delta(winding_delta_),
+        poly_type(poly_type_),
+        side(side_) {}
 
   bound(bound<T>&& b) noexcept
       : edges(std::move(b.edges)),
