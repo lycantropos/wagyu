@@ -2,7 +2,6 @@ from hypothesis import given
 
 from wagyu.edge import Edge
 from wagyu.linear_ring import LinearRing
-from wagyu.point import Point
 from . import strategies
 
 
