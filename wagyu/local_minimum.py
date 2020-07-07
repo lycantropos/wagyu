@@ -43,6 +43,11 @@ class LocalMinimumList(abc.Sequence):
 
     __repr__ = generate_repr(__init__)
 
+    def __eq__(self, other: 'LocalMinimumList'):
+        return (self.values == other.values
+                if isinstance(other, LocalMinimumList)
+                else NotImplemented)
+
     def __getitem__(self, index: int) -> LocalMinimum:
         return self.values[index]
 
