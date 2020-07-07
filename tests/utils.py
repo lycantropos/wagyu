@@ -5,7 +5,8 @@ from typing import (Callable,
                     Iterable,
                     List,
                     Optional,
-                    Sequence, Tuple,
+                    Sequence,
+                    Tuple,
                     TypeVar)
 
 from _wagyu import (Bound as BoundBound,
