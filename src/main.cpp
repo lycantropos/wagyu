@@ -475,8 +475,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("top", &Edge::top)
       .def_readonly("slope", &Edge::dx)
       .def_property_readonly(
-          "is_horizontal",
-          mapbox::geometry::wagyu::is_horizontal<coordinate_t>);
+          "is_horizontal", mapbox::geometry::wagyu::is_horizontal<coordinate_t>)
+      .def("reverse_horizontal",
+           mapbox::geometry::wagyu::reverse_horizontal<coordinate_t>);
 
   py::class_<Ring, std::unique_ptr<Ring, py::nodelete>>(m, RING_NAME)
       .def(py::init<std::size_t, const RingVector&, PointNodePtr, PointNodePtr,
