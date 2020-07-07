@@ -25,3 +25,6 @@ class Edge:
     @property
     def is_horizontal(self) -> bool:
         return math.isinf(self.slope)
+
+    def reverse_horizontal(self) -> None:
+        self.top.x, self.bottom.x = self.bottom.x, self.top.x
