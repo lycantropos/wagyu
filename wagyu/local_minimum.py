@@ -69,8 +69,8 @@ class LocalMinimumList(abc.Sequence):
                 raise RuntimeError('Edges is empty '
                                    'after only creating a single bound.')
             to_maximum = create_bound_towards_maximum(edges)
-            fix_horizontals(to_minimum)
-            fix_horizontals(to_maximum)
+            to_minimum.fix_horizontals()
+            to_maximum.fix_horizontals()
             max_non_horizontal_index = 0
             minimum_is_left = True
             maximum_edges = to_maximum.edges
@@ -92,10 +92,10 @@ class LocalMinimumList(abc.Sequence):
                 if (maximum_edges[max_non_horizontal_index].bottom.x
                         > minimum_edges[min_non_horizontal_index].bottom.x):
                     minimum_is_left = True
-                    move_horizontals_on_left_to_right(to_minimum, to_maximum)
+                    to_minimum.move_horizontals(to_maximum)
                 else:
                     minimum_is_left = False
-                    move_horizontals_on_left_to_right(to_maximum, to_minimum)
+                    to_maximum.move_horizontals(to_minimum)
             else:
                 if (maximum_edges[max_non_horizontal_index].slope
                         > minimum_edges[min_non_horizontal_index].slope):
@@ -246,40 +246,3 @@ def start_list_on_local_maximum(edges: List[Edge]) -> None:
         prev_edge, prev_edge_is_horizontal = edge, edge_is_horizontal
         index += 1
     edges[:] = edges[index:] + edges[:index]
-
-
-def fix_horizontals(bound: Bound) -> None:
-    edge_index = 0
-    next_index = 1
-    edges = bound.edges
-    if next_index == len(edges):
-        return
-    edge = edges[edge_index]
-    if edge.is_horizontal and edges[next_index].bottom != edge.top:
-        edge.reverse_horizontal()
-    prev_edge = edge
-    edge_index += 1
-    while edge_index < len(edges):
-        edge = edges[edge_index]
-        if edge.is_horizontal and prev_edge.top != edge.bottom:
-            edge.reverse_horizontal()
-        prev_edge = edge
-        edge_index += 1
-
-
-def move_horizontals_on_left_to_right(left_bound: Bound,
-                                      right_bound: Bound) -> None:
-    index = 0
-    left_edges = left_bound.edges
-    while index < len(left_edges):
-        edge = left_edges[index]
-        if not edge.is_horizontal:
-            break
-        edge.reverse_horizontal()
-        index += 1
-    if not index:
-        return
-    right_edges = right_bound.edges
-    right_edges.extend(reversed(left_edges[:index]))
-    del left_edges[:index]
-    right_edges[:] = right_edges[-index:] + right_edges[:-index]

@@ -53,3 +53,37 @@ class Bound:
                 and self.side is other.side
                 if isinstance(other, Bound)
                 else NotImplemented)
+
+    def fix_horizontals(self) -> None:
+        edge_index = 0
+        next_index = 1
+        edges = self.edges
+        if next_index == len(edges):
+            return
+        edge = edges[edge_index]
+        if edge.is_horizontal and edges[next_index].bottom != edge.top:
+            edge.reverse_horizontal()
+        prev_edge = edge
+        edge_index += 1
+        while edge_index < len(edges):
+            edge = edges[edge_index]
+            if edge.is_horizontal and prev_edge.top != edge.bottom:
+                edge.reverse_horizontal()
+            prev_edge = edge
+            edge_index += 1
+
+    def move_horizontals(self, other: 'Bound') -> None:
+        index = 0
+        edges = self.edges
+        while index < len(edges):
+            edge = edges[index]
+            if not edge.is_horizontal:
+                break
+            edge.reverse_horizontal()
+            index += 1
+        if not index:
+            return
+        other_edges = other.edges
+        other_edges.extend(reversed(edges[:index]))
+        del edges[:index]
+        other_edges[:] = other_edges[-index:] + other_edges[:-index]
