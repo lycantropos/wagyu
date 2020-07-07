@@ -41,6 +41,8 @@ class LocalMinimumList(abc.Sequence):
     def __init__(self, *values: LocalMinimum) -> None:
         self.values = list(values)
 
+    __repr__ = generate_repr(__init__)
+
     def __getitem__(self, index: int) -> LocalMinimum:
         return self.values[index]
 
