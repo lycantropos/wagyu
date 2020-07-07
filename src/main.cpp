@@ -722,6 +722,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
         mapbox::geometry::wagyu::point_2_is_between_point_1_and_point_3<
             coordinate_t>);
 
+  m.def("create_bound_towards_maximum",
+        mapbox::geometry::wagyu::create_bound_towards_maximum<coordinate_t>);
+
+  m.def("create_bound_towards_minimum",
+        mapbox::geometry::wagyu::create_bound_towards_minimum<coordinate_t>);
+
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
 #else
