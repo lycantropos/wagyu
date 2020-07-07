@@ -21,3 +21,7 @@ class Edge:
         return (self.top == other.top and self.bottom == other.bottom
                 if isinstance(other, Edge)
                 else NotImplemented)
+
+    @property
+    def is_horizontal(self) -> bool:
+        return math.isinf(self.slope)
