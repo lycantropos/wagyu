@@ -5,24 +5,34 @@ from typing import (Callable,
                     Iterable,
                     List,
                     Optional,
-                    Tuple,
+                    Sequence, Tuple,
                     TypeVar)
 
-from _wagyu import (Box as BoundBox,
+from _wagyu import (Bound as BoundBound,
+                    Box as BoundBox,
                     Edge as BoundEdge,
                     LinearRing as BoundLinearRing,
+                    LocalMinimum as BoundLocalMinimum,
+                    LocalMinimumList as BoundLocalMinimumList,
                     Point as BoundPoint,
                     PointNode as BoundPointNode,
-                    Polygon as BoundPolygon)
+                    Polygon as BoundPolygon,
+                    PolygonKind as BoundPolygonKind,
+                    Ring as BoundRing)
 from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
 
+from wagyu.bound import Bound as PortedBound
 from wagyu.box import Box as PortedBox
 from wagyu.edge import Edge as PortedEdge
+from wagyu.enums import PolygonKind as PortedPolygonKind
 from wagyu.hints import Coordinate
 from wagyu.linear_ring import LinearRing as PortedLinearRing
+from wagyu.local_minimum import (LocalMinimum as PortedLocalMinimum,
+                                 LocalMinimumList as PortedLocalMinimumList)
 from wagyu.point import Point as PortedPoint
 from wagyu.point_node import PointNode as PortedPointNode
+from wagyu.ring import Ring as PortedRing
 
 Domain = TypeVar('Domain')
 Range = TypeVar('Range')
@@ -32,22 +42,39 @@ RawPointsList = List[RawPoint]
 RawPolygon = Tuple[RawPointsList, List[RawPointsList]]
 RawMultipolygon = List[RawPolygon]
 
+BoundBound = BoundBound
 BoundBox = BoundBox
 BoundEdge = BoundEdge
 BoundLinearRing = BoundLinearRing
+BoundLinearRingWithPolygonKind = Tuple[BoundLinearRing, BoundPolygonKind]
+BoundLocalMinimum = BoundLocalMinimum
+BoundLocalMinimumList = BoundLocalMinimumList
 BoundPoint = BoundPoint
 BoundPointNode = BoundPointNode
+BoundPolygonKind = BoundPolygonKind
+BoundRing = BoundRing
 
+PortedBound = PortedBound
 PortedBox = PortedBox
 PortedEdge = PortedEdge
 PortedLinearRing = PortedLinearRing
+PortedLinearRingWithPolygonKind = Tuple[PortedLinearRing, PortedPolygonKind]
+PortedLocalMinimum = PortedLocalMinimum
+PortedLocalMinimumList = PortedLocalMinimumList
 PortedPoint = PortedPoint
 PortedPointNode = PortedPointNode
+PortedPolygonKind = PortedPolygonKind
+PortedRing = PortedRing
 
 BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
 BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
+BoundPortedLocalMinimumListsPair = Tuple[BoundLocalMinimumList,
+                                         PortedLocalMinimumList]
+BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
+    List[BoundLinearRingWithPolygonKind],
+    List[PortedLinearRingWithPolygonKind]]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
 BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
 
@@ -82,6 +109,25 @@ def to_maybe(strategy: Strategy[Domain]) -> Strategy[Optional[Domain]]:
     return strategies.none() | strategy
 
 
+def to_maybe_equals(equals: Callable[[Domain, Range], bool]
+                    ) -> Callable[[Optional[Domain], Optional[Range]], bool]:
+    def maybe_equals(left: Optional[Domain], right: Optional[Range]) -> bool:
+        return ((left is None) is (right is None)
+                and (left is None or equals(left, right)))
+
+    return maybe_equals
+
+
+def to_sequences_equals(equals: Callable[[Domain, Range], bool]
+                        ) -> Callable[[Sequence[Domain], Sequence[Range]],
+                                      bool]:
+    def sequences_equals(left: Sequence[Domain],
+                         right: Sequence[Range]) -> bool:
+        return len(left) == len(right) and all(map(equals, left, right))
+
+    return sequences_equals
+
+
 def are_endpoints_non_degenerate(endpoints: Tuple[BoundPortedPointsPair,
                                                   BoundPortedPointsPair]
                                  ) -> bool:
@@ -99,10 +145,38 @@ def are_bound_ported_edges_equal(bound: BoundEdge, ported: PortedEdge) -> bool:
             and are_bound_ported_points_equal(bound.bottom, ported.bottom))
 
 
-def are_bound_ported_points_lists_equal(bound: BoundLinearRing,
-                                        ported: PortedLinearRing) -> bool:
-    return (len(bound) == len(ported)
-            and all(map(are_bound_ported_points_equal, bound, ported)))
+def are_bound_ported_local_minimums_equal(bound: BoundLocalMinimum,
+                                          ported: PortedLocalMinimum) -> bool:
+    return (are_bound_ported_bounds_equal(bound.left_bound, ported.left_bound)
+            and are_bound_ported_bounds_equal(bound.right_bound,
+                                              ported.right_bound)
+            and bound.y == ported.y
+            and bound.minimum_has_horizontal is ported.minimum_has_horizontal)
+
+
+are_bound_ported_local_minimums_lists_equal = to_sequences_equals(
+        are_bound_ported_local_minimums_equal)
+
+
+def are_bound_ported_bounds_equal(bound: BoundBound,
+                                  ported: PortedBound) -> bool:
+    return (are_bound_ported_edges_lists_equal(bound.edges, ported.edges)
+            and are_bound_ported_points_equal(bound.last_point,
+                                              ported.last_point)
+            and are_bound_ported_maybe_rings_equal(bound.ring, ported.ring)
+            and are_bound_ported_maybe_bounds_equal(bound.maximum_bound,
+                                                    ported.maximum_bound)
+            and bound.current_x == ported.current_x
+            and bound.position == ported.position
+            and bound.winding_count == ported.winding_count
+            and bound.opposite_winding_count == ported.opposite_winding_count
+            and bound.winding_delta == ported.winding_delta
+            and bound.polygon_kind == ported.polygon_kind
+            and bound.side == ported.side)
+
+
+are_bound_ported_maybe_bounds_equal = to_maybe_equals(
+        are_bound_ported_bounds_equal)
 
 
 def are_bound_ported_edges_lists_equal(bound: List[BoundEdge],
@@ -116,6 +190,10 @@ def are_bound_ported_points_equal(bound: BoundPoint,
     return bound.x == ported.x and bound.y == ported.y
 
 
+are_bound_ported_points_lists_equal = to_sequences_equals(
+        are_bound_ported_points_equal)
+
+
 def are_bound_ported_points_nodes_equal(bound: BoundPointNode,
                                         ported: PortedPointNode) -> bool:
     return all(
@@ -127,6 +205,27 @@ def are_bound_ported_points_nodes_equal(bound: BoundPointNode,
                                                        traverse_tree(ported),
                                                        fillvalue=None))
 
+
+are_bound_ported_maybe_points_nodes_equal = to_maybe_equals(
+        are_bound_ported_points_nodes_equal)
+
+
+def are_bound_ported_rings_equal(bound: BoundRing,
+                                 ported: PortedRing) -> bool:
+    return (bound.index == ported.index
+            and are_bound_ported_maybe_rings_lists_equal(bound.children,
+                                                         ported.children)
+            and are_bound_ported_maybe_points_nodes_equal(bound.node,
+                                                          ported.node)
+            and are_bound_ported_maybe_points_nodes_equal(bound.bottom_node,
+                                                          ported.bottom_node)
+            and bound.corrected is ported.corrected)
+
+
+are_bound_ported_maybe_rings_equal = to_maybe_equals(
+        are_bound_ported_rings_equal)
+are_bound_ported_maybe_rings_lists_equal = to_sequences_equals(
+        are_bound_ported_maybe_rings_equal)
 
 AnyPointNode = TypeVar('AnyPointNode', BoundPointNode, PortedPointNode)
 
@@ -171,6 +270,14 @@ def to_bound_with_ported_linear_rings(linear_rings_points
     return BoundLinearRing(bound_points), PortedLinearRing(ported_points)
 
 
+def to_bound_with_ported_local_minimum_lists(
+        rings_with_kinds: BoundPortedLinearRingsWithPolygonsKindsListsPair
+) -> BoundPortedLocalMinimumListsPair:
+    bound_rings_with_kinds, ported_rings_with_kinds = rings_with_kinds
+    return (to_bound_local_minimum_list(bound_rings_with_kinds),
+            to_ported_local_minimum_list(ported_rings_with_kinds))
+
+
 def to_bound_with_ported_points_pair(x: float, y: float
                                      ) -> BoundPortedPointsPair:
     return BoundPoint(x, y), PortedPoint(x, y)
@@ -195,6 +302,15 @@ def to_bound_polygon_linear_rings(raw_polygon: RawPolygon
                for raw_hole in raw_holes])
 
 
+def to_bound_local_minimum_list(linear_rings_with_polygons_kinds
+                                : List[BoundLinearRingWithPolygonKind]
+                                ) -> BoundLocalMinimumList:
+    result = BoundLocalMinimumList()
+    for linear_ring, polygon_kind in linear_rings_with_polygons_kinds:
+        result.add_linear_ring(linear_ring, polygon_kind)
+    return result
+
+
 def to_bound_multipolygon_polygons(raw_multipolygon: RawMultipolygon
                                    ) -> List[BoundPolygon]:
     return [BoundPolygon(to_bound_polygon_linear_rings(raw_polygon))
@@ -205,3 +321,20 @@ def to_ported_linear_rings_points(raw_points: RawPointsList
                                   ) -> List[PortedPoint]:
     points = [PortedPoint(x, y) for x, y in raw_points]
     return points + [points[0]]
+
+
+def to_ported_local_minimum_list(linear_rings_with_polygons_kinds
+                                 : List[PortedLinearRingWithPolygonKind]
+                                 ) -> PortedLocalMinimumList:
+    result = PortedLocalMinimumList()
+    for linear_ring, polygon_kind in linear_rings_with_polygons_kinds:
+        result.add_linear_ring(linear_ring, polygon_kind)
+    return result
+
+
+def to_ported_polygon_linear_rings(raw_polygon: RawPolygon
+                                   ) -> List[PortedLinearRing]:
+    raw_border, raw_holes = raw_polygon
+    return ([PortedLinearRing(to_ported_linear_rings_points(raw_border))]
+            + [PortedLinearRing(to_ported_linear_rings_points(raw_hole))
+               for raw_hole in raw_holes])
