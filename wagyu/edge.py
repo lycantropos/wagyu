@@ -27,4 +27,5 @@ class Edge:
         return math.isinf(self.slope)
 
     def reverse_horizontal(self) -> None:
-        self.top.x, self.bottom.x = self.bottom.x, self.top.x
+        self.top, self.bottom = (Point(self.bottom.x, self.top.y),
+                                 Point(self.top.x, self.bottom.y))
