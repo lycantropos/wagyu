@@ -177,12 +177,28 @@ are_bound_ported_local_minimums_lists_equal = to_sequences_equals(
 
 def are_bound_ported_bounds_equal(bound: BoundBound,
                                   ported: PortedBound) -> bool:
+    return are_bound_ported_plain_bounds_lists_equal(
+            list(traverse_bound(bound)), list(traverse_bound(ported)))
+
+
+AnyBound = TypeVar('AnyBound', BoundBound, PortedBound)
+
+
+def traverse_bound(bound: AnyBound) -> Iterable[AnyBound]:
+    seen_ids = set()
+    cursor = bound
+    while cursor is not None and id(cursor) not in seen_ids:
+        yield cursor
+        seen_ids.add(id(cursor))
+        cursor = cursor.maximum_bound
+
+
+def are_bound_ported_plain_bounds_equal(bound: BoundBound,
+                                        ported: PortedBound) -> bool:
     return (are_bound_ported_edges_lists_equal(bound.edges, ported.edges)
             and are_bound_ported_points_equal(bound.last_point,
                                               ported.last_point)
             and are_bound_ported_maybe_rings_equal(bound.ring, ported.ring)
-            and are_bound_ported_maybe_bounds_equal(bound.maximum_bound,
-                                                    ported.maximum_bound)
             and bound.current_x == ported.current_x
             and bound.position == ported.position
             and bound.winding_count == ported.winding_count
@@ -192,6 +208,8 @@ def are_bound_ported_bounds_equal(bound: BoundBound,
             and bound.side == ported.side)
 
 
+are_bound_ported_plain_bounds_lists_equal = to_sequences_equals(
+        are_bound_ported_plain_bounds_equal)
 are_bound_ported_maybe_bounds_equal = to_maybe_equals(
         are_bound_ported_bounds_equal)
 
