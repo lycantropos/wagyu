@@ -20,6 +20,7 @@ from hypothesis.strategies import SearchStrategy
 from wagyu.box import Box as PortedBox
 from wagyu.edge import Edge as PortedEdge
 from wagyu.hints import Coordinate
+from wagyu.linear_ring import LinearRing as PortedLinearRing
 from wagyu.point import Point as PortedPoint
 from wagyu.point_node import PointNode as PortedPointNode
 
@@ -30,18 +31,25 @@ RawPoint = Tuple[Coordinate, Coordinate]
 RawPointsList = List[RawPoint]
 RawPolygon = Tuple[RawPointsList, List[RawPointsList]]
 RawMultipolygon = List[RawPolygon]
+
 BoundBox = BoundBox
 BoundEdge = BoundEdge
+BoundLinearRing = BoundLinearRing
 BoundPoint = BoundPoint
 BoundPointNode = BoundPointNode
-BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
-BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
-BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
-BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
+
 PortedBox = PortedBox
 PortedEdge = PortedEdge
+PortedLinearRing = PortedLinearRing
 PortedPoint = PortedPoint
 PortedPointNode = PortedPointNode
+
+BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
+BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
+BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
+BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
+BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
+BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
 
 
 def equivalence(left_statement: bool, right_statement: bool) -> bool:
@@ -91,6 +99,18 @@ def are_bound_ported_edges_equal(bound: BoundEdge, ported: PortedEdge) -> bool:
             and are_bound_ported_points_equal(bound.bottom, ported.bottom))
 
 
+def are_bound_ported_points_lists_equal(bound: BoundLinearRing,
+                                        ported: PortedLinearRing) -> bool:
+    return (len(bound) == len(ported)
+            and all(map(are_bound_ported_points_equal, bound, ported)))
+
+
+def are_bound_ported_edges_lists_equal(bound: List[BoundEdge],
+                                       ported: List[PortedEdge]) -> bool:
+    return (len(bound) == len(ported)
+            and all(map(are_bound_ported_edges_equal, bound, ported)))
+
+
 def are_bound_ported_points_equal(bound: BoundPoint,
                                   ported: PortedPoint) -> bool:
     return bound.x == ported.x and bound.y == ported.y
@@ -136,6 +156,19 @@ def to_bound_with_ported_edges_pair(starts: BoundPortedPointsPair,
     bound_end, ported_end = ends
     return BoundEdge(bound_start, bound_end), PortedEdge(ported_start,
                                                          ported_end)
+
+
+def to_bound_with_ported_linear_rings_points(raw_points: RawPointsList
+                                             ) -> BoundPortedPointsListsPair:
+    return (to_bound_linear_rings_points(raw_points),
+            to_ported_linear_rings_points(raw_points))
+
+
+def to_bound_with_ported_linear_rings(linear_rings_points
+                                      : BoundPortedPointsListsPair
+                                      ) -> BoundPortedLinearRingsPair:
+    bound_points, ported_points = linear_rings_points
+    return BoundLinearRing(bound_points), PortedLinearRing(ported_points)
 
 
 def to_bound_with_ported_points_pair(x: float, y: float
