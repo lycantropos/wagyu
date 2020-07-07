@@ -87,3 +87,84 @@ class Bound:
         other_edges.extend(reversed(edges[:index]))
         del edges[:index]
         other_edges[:] = other_edges[-index:] + other_edges[:-index]
+
+
+def create_bound_towards_maximum(edges: List[Edge]) -> Bound:
+    if len(edges) == 1:
+        result = Bound(edges[:])
+        edges.clear()
+        return result
+    next_edge_index = 0
+    edge = edges[next_edge_index]
+    next_edge_index += 1
+    edge_is_horizontal = edge.is_horizontal
+    y_decreasing_before_last_horizontal = False
+    while next_edge_index < len(edges):
+        next_edge = edges[next_edge_index]
+        next_edge_is_horizontal = next_edge.is_horizontal
+        if (not next_edge_is_horizontal and not edge_is_horizontal
+                and edge.top == next_edge.top):
+            break
+        if not next_edge_is_horizontal and edge_is_horizontal:
+            if (y_decreasing_before_last_horizontal
+                    and (next_edge.top == edge.bottom
+                         or next_edge.top == edge.top)):
+                break
+        elif (not y_decreasing_before_last_horizontal
+              and not edge_is_horizontal and next_edge_is_horizontal
+              and (edge.top == next_edge.top or edge.top == next_edge.bottom)):
+            y_decreasing_before_last_horizontal = True
+        edge, edge_is_horizontal = next_edge, next_edge_is_horizontal
+        next_edge_index += 1
+    if next_edge_index == len(edges):
+        result = Bound(edges[:])
+        edges.clear()
+    else:
+        result = Bound(edges[:next_edge_index])
+        del edges[:next_edge_index]
+    return result
+
+
+def create_bound_towards_minimum(edges: List[Edge]) -> Bound:
+    if len(edges) == 1:
+        first_edge = edges[0]
+        if first_edge.is_horizontal:
+            first_edge.reverse_horizontal()
+        result = Bound(edges[:])
+        edges.clear()
+        return result
+    next_edge_index = 0
+    edge = edges[next_edge_index]
+    next_edge_index += 1
+    edge_is_horizontal = edge.is_horizontal
+    if edge_is_horizontal:
+        edge.reverse_horizontal()
+    y_increasing_before_last_horizontal = False
+    while next_edge_index < len(edges):
+        next_edge = edges[next_edge_index]
+        next_edge_is_horizontal = next_edge.is_horizontal
+        if (not next_edge_is_horizontal and not edge_is_horizontal
+                and edge.bottom == next_edge.bottom):
+            break
+        if not next_edge_is_horizontal and edge_is_horizontal:
+            if (y_increasing_before_last_horizontal
+                    and (next_edge.bottom == edge.bottom
+                         or next_edge.bottom == edge.top)):
+                break
+        elif (not y_increasing_before_last_horizontal
+              and not edge_is_horizontal and next_edge_is_horizontal
+              and (edge.bottom == next_edge.top
+                   or edge.bottom == next_edge.bottom)):
+            y_increasing_before_last_horizontal = True
+        edge_is_horizontal, edge = next_edge_is_horizontal, next_edge
+        if edge_is_horizontal:
+            edge.reverse_horizontal()
+        next_edge_index += 1
+    if next_edge_index == len(edges):
+        result = Bound(edges[:])
+        edges.clear()
+    else:
+        result = Bound(edges[:next_edge_index])
+        del edges[:next_edge_index]
+    result.edges.reverse()
+    return result
