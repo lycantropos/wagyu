@@ -9,14 +9,14 @@ from hypothesis_geometry import planar
 
 from tests.strategies import coordinates
 from tests.utils import (Strategy,
+                         bound_polygons_kinds,
                          to_bound_linear_rings_points,
                          to_bound_polygon_linear_rings)
 
 linear_rings_points = (planar.contours(coordinates)
                        .map(to_bound_linear_rings_points))
 linear_rings = strategies.builds(LinearRing, linear_rings_points)
-polygons_kinds = strategies.sampled_from(list(PolygonKind.__members__
-                                              .values()))
+polygons_kinds = strategies.sampled_from(bound_polygons_kinds)
 linear_rings_lists = (planar.polygons(coordinates)
                       .map(to_bound_polygon_linear_rings))
 empty_local_minimum_lists = strategies.builds(LocalMinimumList)

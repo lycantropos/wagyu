@@ -1,4 +1,5 @@
 import pickle
+from enum import Enum
 from functools import partial
 from itertools import zip_longest
 from typing import (Callable,
@@ -7,6 +8,7 @@ from typing import (Callable,
                     Optional,
                     Sequence,
                     Tuple,
+                    Type,
                     TypeVar)
 
 from _wagyu import (Bound as BoundBound,
@@ -78,6 +80,14 @@ BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
     List[PortedLinearRingWithPolygonKind]]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
 BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
+
+
+def enum_to_values(cls: Type[Enum]) -> List[Enum]:
+    return list(cls.__members__.values())
+
+
+bound_polygons_kinds = enum_to_values(BoundPolygonKind)
+ported_polygons_kinds = enum_to_values(PortedPolygonKind)
 
 
 def equivalence(left_statement: bool, right_statement: bool) -> bool:
