@@ -7,7 +7,7 @@ from hypothesis import strategies
 from tests.utils import Strategy
 from wagyu.hints import Coordinate
 
-MAX_VALUE = 10 ** 4
+MAX_VALUE = 10 ** 6
 MIN_VALUE = -MAX_VALUE
 
 
