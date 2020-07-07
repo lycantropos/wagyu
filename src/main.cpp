@@ -694,7 +694,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
             mapbox::geometry::wagyu::ring1_replaces_ring2<coordinate_t>(
                 replacement, original, manager);
           },
-          py::arg("original").none(false), py::arg("replacment").none(false))
+          py::arg("original").none(false), py::arg("replacement").none(false))
       .def(
           "remove_ring_and_points",
           [](RingManager& manager, RingPtr ring, bool remove_children = true,
