@@ -105,6 +105,11 @@ def implication(antecedent: bool, consequent: bool) -> bool:
     return not antecedent or consequent
 
 
+def transpose_pairs(pairs: Sequence[Tuple[Domain, Range]]
+                    ) -> Tuple[Sequence[Domain], Sequence[Range]]:
+    return tuple(zip(*pairs)) if pairs else ([], [])
+
+
 def pack(function: Callable[..., Range]
          ) -> Callable[[Iterable[Domain]], Range]:
     return partial(apply, function)

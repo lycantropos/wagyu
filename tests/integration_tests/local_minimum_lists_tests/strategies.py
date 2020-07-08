@@ -16,7 +16,8 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          ported_polygons_kinds,
                          to_bound_with_ported_linear_rings,
                          to_bound_with_ported_linear_rings_points,
-                         to_bound_with_ported_local_minimum_lists)
+                         to_bound_with_ported_local_minimum_lists,
+                         transpose_pairs)
 
 polygons_kinds_pairs = strategies.sampled_from(
         list(zip(bound_polygons_kinds, ported_polygons_kinds)))
@@ -26,17 +27,14 @@ def to_linear_rings_with_polygons_kinds(
         linear_rings_pairs: List[BoundPortedLocalMinimumListsPair]
 ) -> Strategy[Tuple[List[BoundLinearRingWithPolygonKind],
                     List[PortedLinearRingWithPolygonKind]]]:
-    bound_linear_rings, ported_linear_rings = (zip(*linear_rings_pairs)
-                                               if linear_rings_pairs
-                                               else ([], []))
+    bound_linear_rings, ported_linear_rings = transpose_pairs(
+            linear_rings_pairs)
 
     def merge_with_linear_rings(
             polygons_kinds: List[BoundPortedPolygonKindsPair]
     ) -> Tuple[List[BoundLinearRingWithPolygonKind],
                List[PortedLinearRingWithPolygonKind]]:
-        bound_kinds, ported_kinds = (zip(*polygons_kinds)
-                                     if polygons_kinds
-                                     else ([], []))
+        bound_kinds, ported_kinds = transpose_pairs(polygons_kinds)
         return (list(zip(bound_linear_rings, bound_kinds)),
                 list(zip(ported_linear_rings, ported_kinds)))
 
