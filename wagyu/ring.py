@@ -48,6 +48,15 @@ class Ring:
         return self._area
 
     @property
+    def depth(self) -> int:
+        result = 0
+        cursor = self.parent
+        while cursor is not None:
+            result += 1
+            cursor = cursor.parent
+        return result
+
+    @property
     def is_hole(self) -> bool:
         if math.isnan(self._area):
             self.recalculate_stats()
