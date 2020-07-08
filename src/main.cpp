@@ -508,6 +508,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
             return Edge(tuple[0].cast<Point>(), tuple[1].cast<Point>());
           }))
       .def(py::self == py::self)
+      .def("__and__",
+           [](const Edge& self, const Edge& other) -> std::unique_ptr<Point> {
+             Point intersection;
+             if (mapbox::geometry::wagyu::get_edge_intersection(self, other,
+                                                                intersection))
+               return std::make_unique<Point>(intersection.x, intersection.y);
+             else
+               return nullptr;
+           })
       .def("__repr__", repr<Edge>)
       .def_readonly("bottom", &Edge::bot)
       .def_readonly("top", &Edge::top)
