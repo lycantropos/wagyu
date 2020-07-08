@@ -37,6 +37,12 @@ class LocalMinimum:
                 if isinstance(other, LocalMinimum)
                 else NotImplemented)
 
+    def __lt__(self, other: 'LocalMinimum') -> bool:
+        return ((self.y, self.minimum_has_horizontal)
+                < (other.y, other.minimum_has_horizontal)
+                if isinstance(other, LocalMinimum)
+                else NotImplemented)
+
 
 class LocalMinimumList(abc.MutableSequence):
     __slots__ = 'values',
