@@ -332,6 +332,13 @@ static std::ostream& operator<<(std::ostream& stream,
   return stream << ")";
 }
 
+static std::ostream& operator<<(std::ostream& stream, const Wagyu& wagyu) {
+  stream << C_STR(MODULE_NAME) "." EDGE_NAME "(";
+  write_sequence(stream, wagyu.minima_list);
+  stream << ", ";
+  return stream << bool_repr(wagyu.reverse_output) << ")";
+}
+
 static bool operator==(const Edge& left, const Edge& right) {
   return left.bot == right.bot && left.top == right.top;
 }
@@ -586,6 +593,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
 
   py::class_<Wagyu>(m, WAGYU_NAME)
       .def(py::init<>())
+      .def("__repr__", repr<Wagyu>)
       .def("add_linear_ring", &Wagyu::add_ring<coordinate_t>)
       .def("add_polygon", &Wagyu::add_polygon<coordinate_t>)
       .def("clear", &Wagyu::clear)
