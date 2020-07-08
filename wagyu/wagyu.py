@@ -21,6 +21,12 @@ class Wagyu:
 
     __repr__ = generate_repr(__init__)
 
+    def __eq__(self, other: 'Wagyu') -> bool:
+        return (self.minimums == other.minimums
+                and self.reverse_output is other.reverse_output
+                if isinstance(other, Wagyu)
+                else NotImplemented)
+
     @property
     def bounds(self) -> Box:
         minimum, maximum = Point(0, 0), Point(0, 0)
