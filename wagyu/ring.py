@@ -10,8 +10,8 @@ from .point_node import PointNode
 
 
 class Ring:
-    __slots__ = ('index', 'children', 'node', 'bottom_node', 'corrected',
-                 'box', '_area', '_size', '_is_hole')
+    __slots__ = ('index', 'parent', 'children', 'node', 'bottom_node',
+                 'corrected', 'box', '_area', '_size', '_is_hole')
 
     def __init__(self,
                  index: int = 0,
@@ -20,6 +20,7 @@ class Ring:
                  bottom_node: Optional[PointNode] = None,
                  corrected: bool = False) -> None:
         self.index = index
+        self.parent = None  # type: Optional[Ring]
         self.children = children or []
         self.node = node
         self.bottom_node = bottom_node
