@@ -170,15 +170,21 @@ struct ring_manager {
   ring_manager(ring_manager const&) = delete;
   ring_manager& operator=(ring_manager const&) = delete;
 
-  ring_manager()
-      : children(),
-        all_points(),
-        hot_pixels(),
+  ring_manager(const ring_vector<T>& children_ = {},
+               const point_vector<T>& all_points_ = {},
+               const hot_pixel_vector<T>& hot_pixels_ = {},
+               const std::deque<point<T>>& points_ = {},
+               const std::deque<ring<T>>& rings_ = {},
+               const std::vector<point<T>>& storage_ = {},
+               std::size_t index_ = 0)
+      : children(children_),
+        all_points(all_points_),
+        hot_pixels(hot_pixels_),
         current_hp_itr(hot_pixels.end()),
-        points(),
-        rings(),
-        storage(),
-        index(0) {}
+        points(points_),
+        rings(rings_),
+        storage(storage_),
+        index(index_) {}
 };
 
 template <typename T>

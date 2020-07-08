@@ -46,6 +46,7 @@ using Box = mapbox::geometry::box<coordinate_t>;
 using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
+using HotPixelVector = mapbox::geometry::wagyu::hot_pixel_vector<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
 using LocalMinimumList =
@@ -54,6 +55,7 @@ using Multipolygon = mapbox::geometry::multi_polygon<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
 using PointNodePtr = mapbox::geometry::wagyu::point_ptr<coordinate_t>;
+using PointNodeVector = mapbox::geometry::wagyu::point_vector<coordinate_t>;
 using Polygon = mapbox::geometry::polygon<coordinate_t>;
 using Ring = mapbox::geometry::wagyu::ring<coordinate_t>;
 using RingPtr = mapbox::geometry::wagyu::ring_ptr<coordinate_t>;
@@ -643,7 +645,16 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("reverse_output", &Wagyu::reverse_output);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
-      .def(py::init<>())
+      .def(py::init<const RingVector&, const PointNodeVector&,
+                    const HotPixelVector&, const std::deque<PointNode>&,
+                    const std::deque<Ring>&, const std::vector<PointNode>&,
+                    std::size_t>(),
+           py::arg("children") = RingVector{},
+           py::arg("all_points") = PointNodeVector{},
+           py::arg("hot_pixels") = HotPixelVector{},
+           py::arg("points") = std::deque<PointNode>{},
+           py::arg("rings") = std::deque<Ring>{},
+           py::arg("storage") = std::vector<PointNode>{}, py::arg("index") = 0)
       .def(py::self == py::self)
       .def("__repr__", repr<RingManager>)
       .def_readonly("children", &RingManager::children)
