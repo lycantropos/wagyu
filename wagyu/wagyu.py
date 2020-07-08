@@ -1,5 +1,7 @@
 from typing import Optional
 
+from reprit.base import generate_repr
+
 from .box import Box
 from .enums import PolygonKind
 from .linear_ring import (LinearRing,
@@ -16,6 +18,8 @@ class Wagyu:
                  reverse_output: bool = False) -> None:
         self.minimums = LocalMinimumList() if minimums is None else minimums
         self.reverse_output = reverse_output
+
+    __repr__ = generate_repr(__init__)
 
     @property
     def bounds(self) -> Box:
