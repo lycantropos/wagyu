@@ -1,4 +1,6 @@
 import math
+from typing import (Optional,
+                    Tuple)
 
 from reprit.base import generate_repr
 
@@ -16,6 +18,25 @@ class Edge:
         self.slope = (self.top.x - self.bottom.x) / dy if dy else math.inf
 
     __repr__ = generate_repr(__init__)
+
+    def __and__(self, other: 'Edge') -> Optional[Tuple[float, float]]:
+        delta_x = self.top.x - self.bottom.x
+        delta_y = self.top.y - self.bottom.y
+        other_delta_x = other.top.x - other.bottom.x
+        other_delta_y = other.top.y - other.bottom.y
+        denominator = delta_x * other_delta_y - other_delta_x * delta_y
+        if not denominator:
+            return None
+        s = ((-delta_y * (self.bottom.x - other.bottom.x)
+              + delta_x * (self.bottom.y - other.bottom.y))
+             / denominator)
+        t = ((other_delta_x * (self.bottom.y - other.bottom.y)
+              - other_delta_y * (self.bottom.x - other.bottom.x))
+             / denominator)
+        return (Point(self.bottom.x + (t * delta_x),
+                      self.bottom.y + (t * delta_y))
+                if 0. <= s <= 1. and 0. <= t <= 1.
+                else None)
 
     def __eq__(self, other: 'Edge') -> bool:
         return (self.top == other.top and self.bottom == other.bottom
