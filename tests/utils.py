@@ -82,9 +82,12 @@ BoundPortedLocalMinimumsPair = Tuple[BoundLocalMinimum, PortedLocalMinimum]
 BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
     List[BoundLinearRingWithPolygonKind],
     List[PortedLinearRingWithPolygonKind]]
+BoundPortedMaybeRingsListsPair = Tuple[List[Optional[BoundRing]],
+                                       List[Optional[PortedRing]]]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
 BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
 BoundPortedPolygonKindsPair = Tuple[BoundPolygonKind, PortedPolygonKind]
+BoundPortedRingsPair = Tuple[BoundRing, PortedRing]
 
 
 def enum_to_values(cls: Type[Enum]) -> List[Enum]:
@@ -130,6 +133,11 @@ def to_pairs(strategy: Strategy[Domain]) -> Strategy[Tuple[Domain, Domain]]:
 
 def to_maybe(strategy: Strategy[Domain]) -> Strategy[Optional[Domain]]:
     return strategies.none() | strategy
+
+
+def to_maybe_pairs(strategy: Strategy[Tuple[Domain, Range]]
+                   ) -> Strategy[Tuple[Optional[Domain], Optional[Range]]]:
+    return to_pairs(strategies.none()) | strategy
 
 
 def to_maybe_equals(equals: Callable[[Domain, Range], bool]
@@ -325,6 +333,22 @@ def to_bound_with_ported_local_minimum_lists(
     bound_rings_with_kinds, ported_rings_with_kinds = rings_with_kinds
     return (to_bound_local_minimum_list(bound_rings_with_kinds),
             to_ported_local_minimum_list(ported_rings_with_kinds))
+
+
+def to_bound_with_ported_rings_pair(index: int,
+                                    children_pairs
+                                    : BoundPortedMaybeRingsListsPair,
+                                    nodes_pairs: BoundPortedPointsNodesPair,
+                                    bottom_nodes_pairs
+                                    : BoundPortedPointsNodesPair,
+                                    corrected: bool) -> BoundPortedRingsPair:
+    bound_children, ported_children = children_pairs
+    bound_node, ported_node = nodes_pairs
+    bound_bottom_node, ported_bottom_node = bottom_nodes_pairs
+    return (BoundRing(index, bound_children, bound_node, bound_bottom_node,
+                      corrected),
+            PortedRing(index, ported_children, ported_node, ported_bottom_node,
+                       corrected))
 
 
 def to_bound_with_ported_points_pair(x: float, y: float
