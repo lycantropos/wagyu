@@ -64,10 +64,10 @@ bool get_edge_intersection(edge<T1> const& e1, edge<T1> const& e2,
   s2_x = p3_x - p2_x;
   s2_y = p3_y - p2_y;
 
-  T2 s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) /
-         (-s2_x * s1_y + s1_x * s2_y);
-  T2 t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) /
-         (-s2_x * s1_y + s1_x * s2_y);
+  T1 denominator = (-s2_x * s1_y + s1_x * s2_y);
+  if (!denominator) return false;
+  T2 s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / denominator;
+  T2 t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / denominator;
 
   if (s >= 0.0 && s <= 1.0 && t >= 0.0 && t <= 1.0) {
     pt.x = p0_x + (t * s1_x);
