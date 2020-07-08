@@ -27,7 +27,6 @@ rings = strategies.builds(Ring, sizes, maybe_rings_lists, maybe_points_nodes,
 edges = strategies.builds(Edge, points, points)
 integers_32 = strategies.integers(-2147483648, 2147483647)
 edges_lists = strategies.lists(edges)
-maybe_rings = to_maybe(rings)
 trits = trits
 polygons_kinds = strategies.sampled_from(bound_polygons_kinds)
 edges_sides = strategies.sampled_from(bound_edges_sides)
