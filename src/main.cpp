@@ -49,6 +49,8 @@ using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
 using HotPixelVector = mapbox::geometry::wagyu::hot_pixel_vector<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
+using LocalMinimumPtr =
+    mapbox::geometry::wagyu::local_minimum_ptr<coordinate_t>;
 using LocalMinimumList =
     mapbox::geometry::wagyu::local_minimum_list<coordinate_t>;
 using Multipolygon = mapbox::geometry::multi_polygon<coordinate_t>;
@@ -575,6 +577,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
       .def(py::self == py::self)
       .def("__repr__", repr<LocalMinimum>)
+      .def("__lt__",
+           [](LocalMinimumPtr self, LocalMinimumPtr other) {
+             static mapbox::geometry::wagyu::local_minimum_sorter<coordinate_t>
+                 sorter;
+             return sorter(other, self);
+           })
       .def_readonly("left_bound", &LocalMinimum::left_bound)
       .def_readonly("right_bound", &LocalMinimum::right_bound)
       .def_readonly("y", &LocalMinimum::y)
