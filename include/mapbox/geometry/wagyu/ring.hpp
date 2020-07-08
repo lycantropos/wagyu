@@ -87,9 +87,6 @@ struct ring {
   bool is_hole_;
   bool corrected;
 
-  ring(ring const&) = delete;
-  ring& operator=(ring const&) = delete;
-
   ring(std::size_t ring_index_ = 0, const ring_vector<T>& children_ = {},
        point_ptr<T> points_ = nullptr, point_ptr<T> bottom_point_ = nullptr,
        bool corrected_ = false)
