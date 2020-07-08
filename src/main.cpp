@@ -41,7 +41,7 @@ namespace py = pybind11;
 #define RING_MANAGER_NAME "RingManager"
 #define WAGYU_NAME "Wagyu"
 
-using coordinate_t = std::int64_t;
+using coordinate_t = double;
 using Box = mapbox::geometry::box<coordinate_t>;
 using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
