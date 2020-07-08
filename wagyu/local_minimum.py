@@ -10,6 +10,7 @@ from .bound import (Bound,
 from .edge import Edge
 from .enums import (EdgeSide,
                     PolygonKind)
+from .hints import Coordinate
 from .linear_ring import LinearRing
 
 
@@ -61,6 +62,10 @@ class LocalMinimumList(abc.MutableSequence):
 
     def __setitem__(self, index: int, value: LocalMinimum) -> None:
         self.values[index] = value
+
+    @property
+    def scanbeams(self) -> List[Coordinate]:
+        return sorted(value.y for value in self.values)
 
     def add_linear_ring(self,
                         ring: LinearRing,
