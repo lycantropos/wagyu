@@ -374,6 +374,11 @@ static bool operator==(const LocalMinimum& self, const LocalMinimum& other) {
          self.right_bound == other.right_bound && self.y == other.y &&
          self.minimum_has_horizontal == other.minimum_has_horizontal;
 }
+
+static bool operator==(const Wagyu& self, const Wagyu& other) {
+  return self.minima_list == other.minima_list &&
+         self.reverse_output == other.reverse_output;
+}
 }  // namespace wagyu
 }  // namespace geometry
 }  // namespace mapbox
@@ -593,6 +598,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
 
   py::class_<Wagyu>(m, WAGYU_NAME)
       .def(py::init<>())
+      .def(py::self == py::self)
       .def("__repr__", repr<Wagyu>)
       .def("add_linear_ring", &Wagyu::add_ring<coordinate_t>)
       .def("add_polygon", &Wagyu::add_polygon<coordinate_t>)
