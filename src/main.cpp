@@ -329,6 +329,14 @@ static bool operator==(const Ring& left, const Ring& right) {
          left.corrected == right.corrected;
 }
 
+static bool operator==(const RingManager& left, const RingManager& right) {
+  return left.index == right.index &&
+         pointers_sequences_equal(left.children, right.children) &&
+         pointers_sequences_equal(left.all_points, right.all_points) &&
+         left.points == right.points && left.hot_pixels == right.hot_pixels &&
+         left.rings == right.rings && left.storage == right.storage;
+}
+
 static bool operator==(const Bound& self, const Bound& other) {
   return self.edges == other.edges && self.last_point == other.last_point &&
          pointers_equal(self.ring, other.ring) &&
@@ -636,6 +644,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
       .def(py::init<>())
+      .def(py::self == py::self)
       .def("__repr__", repr<RingManager>)
       .def_readonly("children", &RingManager::children)
       .def_readonly("all_nodes", &RingManager::all_points)
