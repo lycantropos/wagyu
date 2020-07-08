@@ -78,6 +78,7 @@ BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
 BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
 BoundPortedLocalMinimumListsPair = Tuple[BoundLocalMinimumList,
                                          PortedLocalMinimumList]
+BoundPortedLocalMinimumsPair = Tuple[BoundLocalMinimum, PortedLocalMinimum]
 BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
     List[BoundLinearRingWithPolygonKind],
     List[PortedLinearRingWithPolygonKind]]
