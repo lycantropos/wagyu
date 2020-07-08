@@ -285,7 +285,20 @@ static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
 
 static std::ostream& operator<<(std::ostream& stream,
                                 const RingManager& manager) {
-  return stream << C_STR(MODULE_NAME) "." RING_MANAGER_NAME "()";
+  stream << C_STR(MODULE_NAME) "." RING_MANAGER_NAME "(";
+  write_pointers_sequence(stream, manager.children);
+  stream << ", ";
+  write_pointers_sequence(stream, manager.all_points);
+  stream << ", ";
+  write_sequence(stream, manager.hot_pixels);
+  stream << ", ";
+  write_sequence(stream, manager.points);
+  stream << ", ";
+  write_sequence(stream, manager.rings);
+  stream << ", ";
+  write_sequence(stream, manager.storage);
+  stream << ", ";
+  return stream << manager.index << ")";
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
