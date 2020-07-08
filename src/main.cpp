@@ -714,8 +714,13 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("rings", &RingManager::rings)
       .def_readonly("storage", &RingManager::storage)
       .def_readonly("index", &RingManager::index)
+      .def("build_hot_pixels",
+           [](RingManager& self, LocalMinimumList& minimums) {
+             mapbox::geometry::wagyu::build_hot_pixels<coordinate_t>(minimums,
+                                                                     self);
+           })
       .def("create_ring",
-           &mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
+           mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
       .def(
           "create_new_point",
           [](RingManager& self, RingPtr ring, const Point& point) {
