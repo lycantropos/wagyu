@@ -226,6 +226,8 @@ def are_bound_ported_points_equal(bound: BoundPoint,
     return bound.x == ported.x and bound.y == ported.y
 
 
+are_bound_ported_maybe_points_equal = to_maybe_equals(
+        are_bound_ported_points_equal)
 are_bound_ported_points_lists_equal = to_sequences_equals(
         are_bound_ported_points_equal)
 
