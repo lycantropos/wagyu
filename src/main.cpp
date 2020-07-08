@@ -61,6 +61,7 @@ using Ring = mapbox::geometry::wagyu::ring<coordinate_t>;
 using RingPtr = mapbox::geometry::wagyu::ring_ptr<coordinate_t>;
 using RingVector = mapbox::geometry::wagyu::ring_vector<coordinate_t>;
 using RingManager = mapbox::geometry::wagyu::ring_manager<coordinate_t>;
+using ScanbeamList = mapbox::geometry::wagyu::scanbeam_list<coordinate_t>;
 using Wagyu = mapbox::geometry::wagyu::wagyu<coordinate_t>;
 
 template <class Iterable>
@@ -594,7 +595,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               mapbox::geometry::wagyu::polygon_type polygon_kind) {
              return mapbox::geometry::wagyu::add_linear_ring(ring, self,
                                                              polygon_kind);
-           });
+           })
+      .def_property_readonly("scanbeams", [](LocalMinimumList& self) {
+        ScanbeamList result;
+        mapbox::geometry::wagyu::setup_scanbeam<coordinate_t>(self, result);
+        return result;
+      });
 
   py::class_<Wagyu>(m, WAGYU_NAME)
       .def(py::init<>())
