@@ -525,6 +525,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("slope", &Edge::dx)
       .def_property_readonly(
           "is_horizontal", mapbox::geometry::wagyu::is_horizontal<coordinate_t>)
+      .def("get_current_x",
+           mapbox::geometry::wagyu::get_current_x<coordinate_t>,
+           py::arg("current_y"))
       .def("reverse_horizontal",
            mapbox::geometry::wagyu::reverse_horizontal<coordinate_t>);
 
