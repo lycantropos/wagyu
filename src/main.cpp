@@ -430,7 +430,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::self == py::self)
       .def("__repr__", repr<Point>)
       .def_readonly("x", &Point::x)
-      .def_readonly("y", &Point::y);
+      .def_readonly("y", &Point::y)
+      .def("round", mapbox::geometry::wagyu::round_point<coordinate_t>);
 
   py::class_<LinearRing>(m, LINEAR_RING_NAME)
       .def(py::init<>())
