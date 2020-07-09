@@ -71,9 +71,11 @@ PortedPointNode = PortedPointNode
 PortedPolygonKind = PortedPolygonKind
 PortedRing = PortedRing
 
+BoundPortedBoundsPair = Tuple[BoundBound, PortedBound]
 BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedEdgesListsPair = Tuple[List[BoundEdge], List[PortedEdge]]
+BoundPortedEdgesSidesPair = Tuple[BoundEdgeSide, PortedEdgeSide]
 BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
 BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
 BoundPortedLocalMinimumListsPair = Tuple[BoundLocalMinimumList,
@@ -82,6 +84,7 @@ BoundPortedLocalMinimumsPair = Tuple[BoundLocalMinimum, PortedLocalMinimum]
 BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
     List[BoundLinearRingWithPolygonKind],
     List[PortedLinearRingWithPolygonKind]]
+BoundPortedMaybeRingsPair = Tuple[Optional[BoundRing], Optional[PortedRing]]
 BoundPortedMaybeRingsListsPair = Tuple[List[Optional[BoundRing]],
                                        List[Optional[PortedRing]]]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
@@ -290,6 +293,32 @@ def traverse_tree(point_node: AnyPointNode) -> Iterable[AnyPointNode]:
             break
 
 
+def to_bound_with_ported_bounds_pair(edges: BoundPortedEdgesListsPair,
+                                     last_points_pair: BoundPortedPointsPair,
+                                     rings_pair: BoundPortedMaybeRingsListsPair,
+                                     current_x: float,
+                                     position: int,
+                                     winding_count: int,
+                                     opposite_winding_count: int,
+                                     winding_delta: int,
+                                     polygons_kinds_pair
+                                     : BoundPortedPolygonKindsPair,
+                                     sides_pair: BoundPortedEdgesSidesPair
+                                     ) -> BoundPortedBoundsPair:
+    bound_edges, ported_edges = edges
+    bound_last_point, ported_last_point = last_points_pair
+    bound_ring, ported_ring = rings_pair
+    bound_polygon_kind, ported_polygon_kind = polygons_kinds_pair
+    bound_edge_side, ported_edge_side = sides_pair
+    return (BoundBound(bound_edges, bound_last_point, bound_ring, current_x,
+                       position, winding_count, opposite_winding_count,
+                       winding_delta, bound_polygon_kind, bound_edge_side),
+            PortedBound(ported_edges, ported_last_point, ported_ring,
+                        current_x, position, winding_count,
+                        opposite_winding_count, winding_delta,
+                        ported_polygon_kind, ported_edge_side))
+
+
 def to_bound_with_ported_boxes_pair(minimums: BoundPortedPointsPair,
                                     maximums: BoundPortedPointsPair
                                     ) -> BoundPortedBoxesPair:
@@ -308,6 +337,12 @@ def to_bound_with_ported_edges_pair(starts: BoundPortedPointsPair,
                                                          ported_end)
 
 
+def to_bound_with_ported_edges_lists(linear_rings: BoundPortedLinearRingsPair
+                                     ) -> BoundPortedEdgesListsPair:
+    bound_linear_ring, ported_linear_ring = linear_rings
+    return bound_linear_ring.edges, ported_linear_ring.edges
+
+
 def to_bound_with_ported_linear_rings_points(raw_points: RawPointsList
                                              ) -> BoundPortedPointsListsPair:
     return (to_bound_linear_rings_points(raw_points),
@@ -319,12 +354,6 @@ def to_bound_with_ported_linear_rings(linear_rings_points
                                       ) -> BoundPortedLinearRingsPair:
     bound_points, ported_points = linear_rings_points
     return BoundLinearRing(bound_points), PortedLinearRing(ported_points)
-
-
-def to_bound_with_ported_edges_lists(linear_rings: BoundPortedLinearRingsPair
-                                     ) -> BoundPortedEdgesListsPair:
-    bound_linear_ring, ported_linear_ring = linear_rings
-    return bound_linear_ring.edges, ported_linear_ring.edges
 
 
 def to_bound_with_ported_local_minimum_lists(
