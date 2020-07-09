@@ -579,6 +579,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("winding_delta", &Bound::winding_delta)
       .def_readonly("polygon_kind", &Bound::poly_type)
       .def_readonly("side", &Bound::side)
+      .def("is_maxima",
+           [](const Bound& self, coordinate_t y) {
+             return mapbox::geometry::wagyu::is_maxima<coordinate_t>(self, y);
+           })
       .def("fix_horizontals",
            mapbox::geometry::wagyu::fix_horizontals<coordinate_t>)
       .def("move_horizontals",
