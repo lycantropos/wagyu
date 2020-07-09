@@ -50,3 +50,4 @@ def to_digits_count(number: float,
 floats = to_floats(MIN_VALUE, MAX_VALUE)
 coordinates = strategies.integers(MIN_VALUE, MAX_VALUE)
 trits = strategies.sampled_from([-1, 0, 1])
+integers_32 = strategies.integers(-2147483648, 2147483647)

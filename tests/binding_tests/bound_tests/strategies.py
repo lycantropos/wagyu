@@ -8,6 +8,7 @@ from hypothesis import strategies
 
 from tests.strategies import (coordinates,
                               floats,
+                              integers_32,
                               trits)
 from tests.utils import (bound_edges_sides,
                          bound_polygons_kinds,
@@ -25,7 +26,7 @@ maybe_rings_lists = strategies.lists(maybe_rings)
 rings = strategies.builds(Ring, sizes, maybe_rings_lists, maybe_points_nodes,
                           maybe_points_nodes, booleans)
 edges = strategies.builds(Edge, points, points)
-integers_32 = strategies.integers(-2147483648, 2147483647)
+integers_32 = integers_32
 edges_lists = strategies.lists(edges)
 trits = trits
 polygons_kinds = strategies.sampled_from(bound_polygons_kinds)
