@@ -42,6 +42,8 @@ namespace py = pybind11;
 #define WAGYU_NAME "Wagyu"
 
 using coordinate_t = double;
+using ActiveBoundList =
+    mapbox::geometry::wagyu::active_bound_list<coordinate_t>;
 using Box = mapbox::geometry::box<coordinate_t>;
 using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
@@ -718,6 +720,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            [](RingManager& self, LocalMinimumList& minimums) {
              mapbox::geometry::wagyu::build_hot_pixels<coordinate_t>(minimums,
                                                                      self);
+           })
+      .def("process_hot_pixel_intersections",
+           [](RingManager& self, coordinate_t top_y,
+              ActiveBoundList& active_bounds) {
+             mapbox::geometry::wagyu::process_hot_pixel_intersections<
+                 coordinate_t>(top_y, active_bounds, self);
            })
       .def("create_ring",
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
