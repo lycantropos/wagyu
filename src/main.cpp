@@ -1,3 +1,4 @@
+#include <pybind11/functional.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -818,6 +819,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   m.def("are_edges_slopes_equal", [](const Edge& e1, const Edge& e2) {
     return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(e1, e2);
   });
+
+  m.def("bubble_sort",
+        [](std::vector<py::object> sequence,
+           std::function<bool(py::object, py::object)> comparator,
+           std::function<void(py::object, py::object)> on_swap) {
+          mapbox::geometry::wagyu::bubble_sort(sequence.begin(), sequence.end(),
+                                               comparator, on_swap);
+          return sequence;
+        });
 
   m.def("is_point_between_others",
         mapbox::geometry::wagyu::point_2_is_between_point_1_and_point_3<
