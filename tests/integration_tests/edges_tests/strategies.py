@@ -1,12 +1,14 @@
 from hypothesis import strategies
 
-from tests.strategies import coordinates
+from tests.strategies import (coordinates,
+                              floats)
 from tests.utils import (are_endpoints_non_degenerate,
                          pack,
                          to_bound_with_ported_edges_pair,
                          to_bound_with_ported_points_pair,
                          to_pairs)
 
+floats = floats
 points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,
                                  coordinates)
 points_pairs_pairs = (to_pairs(points_pairs)
