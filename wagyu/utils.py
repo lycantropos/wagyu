@@ -1,3 +1,5 @@
+import struct
+
 from .edge import Edge
 from .point import Point
 
@@ -20,3 +22,21 @@ def is_point_between_others(pt1: Point, pt2: Point, pt3: Point) -> bool:
         return (pt2.x > pt1.x) is (pt2.x < pt3.x)
     else:
         return (pt2.y > pt1.y) is (pt2.y < pt3.y)
+
+
+def are_floats_almost_equal(left: float, right: float,
+                            *,
+                            max_ulps: int = 4) -> bool:
+    left_bits = _double_to_biased(left)
+    right_bits = _double_to_biased(right)
+    return abs(left_bits - right_bits) <= max_ulps
+
+
+def _double_to_biased(value: float,
+                      *,
+                      sign_bit_mask: int = 2 ** 63) -> int:
+    result, = struct.unpack('!Q', struct.pack('!d', value))
+    if sign_bit_mask & result:
+        return (~result + 1) % sign_bit_mask
+    else:
+        return (sign_bit_mask | result) % sign_bit_mask
