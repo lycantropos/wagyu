@@ -4,6 +4,7 @@ from typing import (Optional,
 
 from reprit.base import generate_repr
 
+from .hints import Coordinate
 from .point import Point
 
 
@@ -46,6 +47,11 @@ class Edge:
     @property
     def is_horizontal(self) -> bool:
         return math.isinf(self.slope)
+
+    def get_current_x(self, current_y: Coordinate) -> Coordinate:
+        return (self.top.x
+                if current_y == self.top.y
+                else self.bottom.x + self.slope * (current_y - self.bottom.y))
 
     def reverse_horizontal(self) -> None:
         self.top, self.bottom = (Point(self.bottom.x, self.top.y),
