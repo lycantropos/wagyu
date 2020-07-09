@@ -8,10 +8,10 @@ from . import strategies
 
 
 @given(strategies.edges_pairs, strategies.edges_pairs)
-def test_basic(first_edges_pair: BoundPortedEdgesPair,
-               second_edges_pair: BoundPortedEdgesPair) -> None:
-    bound_first, ported_first = first_edges_pair
-    bound_second, ported_second = second_edges_pair
+def test_basic(first_pair: BoundPortedEdgesPair,
+               second_pair: BoundPortedEdgesPair) -> None:
+    bound_first, ported_first = first_pair
+    bound_second, ported_second = second_pair
 
     assert equivalence(ported(ported_first, ported_second),
                        bound(bound_first, bound_second))
