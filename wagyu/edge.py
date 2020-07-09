@@ -1,6 +1,5 @@
 import math
-from typing import (Optional,
-                    Tuple)
+from typing import Optional
 
 from reprit.base import generate_repr
 
@@ -20,7 +19,7 @@ class Edge:
 
     __repr__ = generate_repr(__init__)
 
-    def __and__(self, other: 'Edge') -> Optional[Tuple[float, float]]:
+    def __and__(self, other: 'Edge') -> Optional[Point]:
         delta_x = self.top.x - self.bottom.x
         delta_y = self.top.y - self.bottom.y
         other_delta_x = other.top.x - other.bottom.x
