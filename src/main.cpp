@@ -821,6 +821,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
     return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(e1, e2);
   });
 
+  m.def("are_floats_almost_equal", mapbox::geometry::wagyu::values_are_equal);
+
   m.def("bubble_sort",
         [](std::vector<py::object> sequence,
            std::function<bool(py::object, py::object)> comparator,
