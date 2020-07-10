@@ -13,5 +13,5 @@ def test_basic(ring: Ring) -> None:
     result = ring.recalculate_stats()
 
     assert result is None
-    assert equivalence(math.isnan(ring.area), ring.node is None)
-    assert implication(not ring.node, not ring.is_hole)
+    assert equivalence(math.isnan(ring.area), not ring.points)
+    assert implication(bool(ring.points), not ring.is_hole)
