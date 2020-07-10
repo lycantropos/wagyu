@@ -265,8 +265,7 @@ def are_bound_ported_points_nodes_equal(bound: BoundPointNode,
             and ported_node is not None
             and bound_node.x == ported_node.x
             and bound_node.y == ported_node.y
-            for bound_node, ported_node in zip_longest(traverse_tree(bound),
-                                                       traverse_tree(ported),
+            for bound_node, ported_node in zip_longest(bound, ported,
                                                        fillvalue=None))
 
 
@@ -290,17 +289,6 @@ are_bound_ported_maybe_rings_equal = to_maybe_equals(
         are_bound_ported_rings_equal)
 are_bound_ported_maybe_rings_lists_equal = to_sequences_equals(
         are_bound_ported_maybe_rings_equal)
-
-AnyPointNode = TypeVar('AnyPointNode', BoundPointNode, PortedPointNode)
-
-
-def traverse_tree(point_node: AnyPointNode) -> Iterable[AnyPointNode]:
-    cursor = point_node
-    while True:
-        yield cursor
-        cursor = cursor.next
-        if cursor is point_node:
-            break
 
 
 def to_bound_with_ported_bounds_pair(edges: BoundPortedEdgesListsPair,
