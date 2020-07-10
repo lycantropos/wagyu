@@ -200,7 +200,7 @@ def horizontals_at_top_scanbeam(top_y: Coordinate,
             bnd_next = active_bounds[bnd_next_index]
             if (bnd_next is not None and bnd_next.current_edge.top.y != top_y
                     and bnd_next.current_edge.bottom.y != top_y):
-                pt = Point(wround(bnd_next.current_x), top_y)
+                pt = Point(round(bnd_next.current_x), top_y)
                 manager.hot_pixels.append(pt)
             active_bounds[bnd_curr_index], active_bounds[bnd_next_index] = (
                 active_bounds[bnd_next_index], active_bounds[bnd_curr_index])
@@ -218,7 +218,7 @@ def horizontals_at_top_scanbeam(top_y: Coordinate,
                 if (bnd_prev is not None
                         and bnd_prev.current_edge.top.y != top_y
                         and bnd_prev.current_edge.bottom.y != top_y):
-                    pt = Point(wround(bnd_prev.current_x), top_y)
+                    pt = Point(round(bnd_prev.current_x), top_y)
                     manager.hot_pixels.append(pt)
                 active_bounds[bnd_curr_index], active_bounds[
                     bnd_prev_index] = (
