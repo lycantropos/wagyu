@@ -1,4 +1,5 @@
-from typing import Tuple
+from typing import (Iterator,
+                    Tuple)
 
 from reprit.base import generate_repr
 
@@ -16,12 +17,20 @@ class PointNode:
         self.prev = self  # type: PointNode
         self.next = self  # type: PointNode
 
+    __repr__ = generate_repr(__init__)
+
     def __eq__(self, other: 'PointNode') -> bool:
         return (self.x == other.x and self.y == other.y
                 if isinstance(other, PointNode)
                 else NotImplemented)
 
-    __repr__ = generate_repr(__init__)
+    def __iter__(self) -> Iterator['PointNode']:
+        cursor = self
+        while True:
+            yield cursor
+            cursor = cursor.next
+            if cursor == self:
+                break
 
     @property
     def stats(self) -> Tuple[float, int, Box]:
