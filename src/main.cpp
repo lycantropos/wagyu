@@ -527,16 +527,18 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("box", &Ring::bbox)
       .def_readonly("parent", &Ring::parent)
       .def_readonly("children", &Ring::children)
-      .def_property_readonly("points", [](const Ring& self) {
-        if (self.points == nullptr)
-            return new std::vector<const Point *>{};
-        return point_node_to_points(*self.points);
-      })
-      .def_property_readonly("bottom_points", [](const Ring& self) {
-        if (self.bottom_point == nullptr)
-            return new std::vector<const Point *>{};
-        return point_node_to_points(*self.bottom_point);
-      })
+      .def_property_readonly("points",
+                             [](const Ring& self) {
+                               if (self.points == nullptr)
+                                 return new std::vector<const Point*>{};
+                               return point_node_to_points(*self.points);
+                             })
+      .def_property_readonly("bottom_points",
+                             [](const Ring& self) {
+                               if (self.bottom_point == nullptr)
+                                 return new std::vector<const Point*>{};
+                               return point_node_to_points(*self.bottom_point);
+                             })
       .def_readonly("corrected", &Ring::corrected)
       .def_property_readonly("size", &Ring::size)
       .def_property_readonly("area", &Ring::area)
@@ -695,35 +697,40 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("reverse_output", &Wagyu::reverse_output);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
-      .def(py::init<const RingVector&, const HotPixelVector&, const std::deque<Ring>&,
-                    std::size_t>(),
+      .def(py::init<const RingVector&, const HotPixelVector&,
+                    const std::deque<Ring>&, std::size_t>(),
            py::arg("children") = RingVector{},
            py::arg("hot_pixels") = HotPixelVector{},
-           py::arg("rings") = std::deque<Ring>{},
-           py::arg("index") = 0)
+           py::arg("rings") = std::deque<Ring>{}, py::arg("index") = 0)
       .def(py::self == py::self)
       .def("__repr__", repr<RingManager>)
       .def_readonly("children", &RingManager::children)
       .def_readonly("hot_pixels", &RingManager::hot_pixels)
-      .def_property_readonly("all_points", [](const RingManager& self) {
-        auto* result = new std::vector<std::vector<const Point*>*>{};
-        for (const auto* node: self.all_points)
-            result->push_back(point_node_to_points(*node));
-        return result;
-      })
-      .def_property_readonly("points", [](const RingManager& self) {
-        auto* result = new std::vector<std::vector<const Point*>*>{};
-        for (const auto node: self.points)
-            result->push_back(point_node_to_points(node));
-        return result;
-      })
+      .def_property_readonly(
+          "all_points",
+          [](const RingManager& self) {
+            auto* result = new std::vector<std::vector<const Point*>*>{};
+            for (const auto* node : self.all_points)
+              result->push_back(point_node_to_points(*node));
+            return result;
+          })
+      .def_property_readonly(
+          "points",
+          [](const RingManager& self) {
+            auto* result = new std::vector<std::vector<const Point*>*>{};
+            for (const auto node : self.points)
+              result->push_back(point_node_to_points(node));
+            return result;
+          })
       .def_readonly("rings", &RingManager::rings)
-      .def_property_readonly("stored_points", [](const RingManager& self) {
-        auto* result = new std::vector<std::vector<const Point*>*>{};
-        for (const auto node: self.storage)
-            result->push_back(point_node_to_points(node));
-        return result;
-      })
+      .def_property_readonly(
+          "stored_points",
+          [](const RingManager& self) {
+            auto* result = new std::vector<std::vector<const Point*>*>{};
+            for (const auto node : self.storage)
+              result->push_back(point_node_to_points(node));
+            return result;
+          })
       .def_readonly("index", &RingManager::index)
       .def("build_hot_pixels",
            [](RingManager& self, LocalMinimumList& minimums) {
