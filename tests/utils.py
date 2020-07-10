@@ -22,7 +22,8 @@ from _wagyu import (Bound as BoundBound,
                     PointNode as BoundPointNode,
                     Polygon as BoundPolygon,
                     PolygonKind as BoundPolygonKind,
-                    Ring as BoundRing)
+                    Ring as BoundRing,
+                    RingManager as BoundRingManager)
 from hypothesis import strategies
 from hypothesis.strategies import SearchStrategy
 
@@ -38,6 +39,7 @@ from wagyu.local_minimum import (LocalMinimum as PortedLocalMinimum,
 from wagyu.point import Point as PortedPoint
 from wagyu.point_node import PointNode as PortedPointNode
 from wagyu.ring import Ring as PortedRing
+from wagyu.ring_manager import RingManager as PortedRingManager
 
 Domain = TypeVar('Domain')
 Range = TypeVar('Range')
@@ -58,6 +60,7 @@ BoundPoint = BoundPoint
 BoundPointNode = BoundPointNode
 BoundPolygonKind = BoundPolygonKind
 BoundRing = BoundRing
+BoundRingManager = BoundRingManager
 
 PortedBound = PortedBound
 PortedBox = PortedBox
@@ -70,13 +73,13 @@ PortedPoint = PortedPoint
 PortedPointNode = PortedPointNode
 PortedPolygonKind = PortedPolygonKind
 PortedRing = PortedRing
+PortedRingManager = PortedRingManager
 
 BoundPortedBoundsPair = Tuple[BoundBound, PortedBound]
 BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedEdgesListsPair = Tuple[List[BoundEdge], List[PortedEdge]]
 BoundPortedEdgesSidesPair = Tuple[BoundEdgeSide, PortedEdgeSide]
-BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
 BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
 BoundPortedLocalMinimumListsPair = Tuple[BoundLocalMinimumList,
                                          PortedLocalMinimumList]
@@ -84,12 +87,19 @@ BoundPortedLocalMinimumsPair = Tuple[BoundLocalMinimum, PortedLocalMinimum]
 BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
     List[BoundLinearRingWithPolygonKind],
     List[PortedLinearRingWithPolygonKind]]
+BoundPortedMaybePointsNodesListsPair = Tuple[List[Optional[BoundPointNode]],
+                                             List[Optional[PortedPointNode]]]
 BoundPortedMaybeRingsPair = Tuple[Optional[BoundRing], Optional[PortedRing]]
 BoundPortedMaybeRingsListsPair = Tuple[List[Optional[BoundRing]],
                                        List[Optional[PortedRing]]]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
+BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
+BoundPortedPointsNodesListsPair = Tuple[List[BoundPointNode],
+                                        List[PortedPointNode]]
 BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
 BoundPortedPolygonKindsPair = Tuple[BoundPolygonKind, PortedPolygonKind]
+BoundPortedRingManagersPair = Tuple[BoundRingManager, PortedRingManager]
+BoundPortedRingsListsPair = Tuple[List[BoundRing], List[PortedRing]]
 BoundPortedRingsPair = Tuple[BoundRing, PortedRing]
 
 
@@ -111,9 +121,9 @@ def implication(antecedent: bool, consequent: bool) -> bool:
     return not antecedent or consequent
 
 
-def transpose_pairs(pairs: Sequence[Tuple[Domain, Range]]
-                    ) -> Tuple[Sequence[Domain], Sequence[Range]]:
-    return tuple(zip(*pairs)) if pairs else ([], [])
+def transpose_pairs(pairs: List[Tuple[Domain, Range]]
+                    ) -> Tuple[List[Domain], List[Range]]:
+    return tuple(map(list, zip(*pairs))) if pairs else ([], [])
 
 
 def pack(function: Callable[..., Range]
@@ -378,6 +388,27 @@ def to_bound_with_ported_rings_pair(index: int,
                       corrected),
             PortedRing(index, ported_children, ported_node, ported_bottom_node,
                        corrected))
+
+
+def to_bound_with_ported_ring_managers_pair(
+        children_pair: BoundPortedMaybeRingsListsPair,
+        all_nodes_pair: BoundPortedMaybePointsNodesListsPair,
+        hot_pixels_pair: BoundPortedPointsListsPair,
+        nodes_pair: BoundPortedPointsNodesListsPair,
+        rings_pair: BoundPortedMaybeRingsListsPair,
+        storage_pair: BoundPortedPointsNodesListsPair,
+        index: int) -> BoundPortedRingManagersPair:
+    bound_children, ported_children = children_pair
+    bound_all_nodes, ported_all_nodes = all_nodes_pair
+    bound_hot_pixels, ported_hot_pixels = hot_pixels_pair
+    bound_nodes, ported_nodes = nodes_pair
+    bound_rings, ported_rings = rings_pair
+    bound_storage, ported_storage = storage_pair
+    return (BoundRingManager(bound_children, bound_all_nodes, bound_hot_pixels,
+                             bound_nodes, bound_rings, bound_storage, index),
+            PortedRingManager(ported_children, ported_all_nodes,
+                              ported_hot_pixels, ported_nodes, ported_rings,
+                              ported_storage, index))
 
 
 def to_bound_with_ported_points_pair(x: float, y: float
