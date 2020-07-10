@@ -4,6 +4,7 @@ from hypothesis_geometry import planar
 from tests.strategies import (coordinates,
                               floats,
                               integers_32,
+                              sizes,
                               trits)
 from tests.utils import (bound_edges_sides,
                          bound_polygons_kinds,
@@ -22,7 +23,7 @@ from tests.utils import (bound_edges_sides,
 points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,
                                  coordinates)
 booleans = strategies.booleans()
-sizes = strategies.integers(0, 65535)
+sizes = sizes
 points_nodes_pairs = strategies.builds(to_bound_with_ported_points_nodes_pair,
                                        coordinates, coordinates)
 maybe_points_nodes_pairs = to_maybe_pairs(points_nodes_pairs)

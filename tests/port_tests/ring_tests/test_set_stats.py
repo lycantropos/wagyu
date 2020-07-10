@@ -5,7 +5,8 @@ from wagyu.ring import (Box,
 from . import strategies
 
 
-@given(strategies.rings, strategies.floats, strategies.sizes, strategies.boxes)
+@given(strategies.rings, strategies.floats, strategies.non_negative_integers,
+       strategies.boxes)
 def test_basic(ring: Ring, area: float, size: int, box: Box) -> None:
     result = ring.set_stats(area, size, box)
 

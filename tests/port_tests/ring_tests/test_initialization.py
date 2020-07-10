@@ -8,7 +8,7 @@ from wagyu.ring import (PointNode,
 from . import strategies
 
 
-@given(strategies.sizes, strategies.maybe_rings_lists,
+@given(strategies.non_negative_integers, strategies.maybe_rings_lists,
        strategies.maybe_points_nodes, strategies.maybe_points_nodes,
        strategies.booleans)
 def test_basic(index: int,

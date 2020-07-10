@@ -13,9 +13,9 @@ from . import strategies
 
 
 @given(strategies.edges_lists, strategies.points, strategies.maybe_rings,
-       strategies.floats, strategies.sizes, strategies.integers,
-       strategies.integers, strategies.trits, strategies.polygons_kinds,
-       strategies.edges_sides)
+       strategies.floats, strategies.non_negative_integers,
+       strategies.integers, strategies.integers, strategies.trits,
+       strategies.polygons_kinds, strategies.edges_sides)
 def test_basic(edges: List[Edge],
                last_point: Point,
                ring: Optional[Ring],

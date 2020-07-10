@@ -1,13 +1,14 @@
 from hypothesis import strategies
 
-from tests.strategies import coordinates
+from tests.strategies import (coordinates,
+                              sizes)
 from tests.utils import (to_bound_with_ported_points_nodes_pair,
                          to_bound_with_ported_rings_pair,
                          to_maybe_pairs,
                          transpose_pairs)
 
 booleans = strategies.booleans()
-sizes = strategies.integers(0, 65535)
+sizes = sizes
 points_nodes_pairs = strategies.builds(to_bound_with_ported_points_nodes_pair,
                                        coordinates, coordinates)
 maybe_points_nodes_pairs = to_maybe_pairs(points_nodes_pairs)

@@ -4,11 +4,12 @@ from _wagyu import (Point,
                     RingManager)
 from hypothesis import strategies
 
-from tests.strategies import coordinates
+from tests.strategies import (coordinates,
+                              sizes)
 from tests.utils import to_maybe
 
 booleans = strategies.booleans()
-sizes = strategies.integers(0, 65535)
+sizes = sizes
 points = strategies.builds(Point, coordinates, coordinates)
 points_nodes = strategies.builds(PointNode, coordinates, coordinates)
 maybe_points_nodes = to_maybe(points_nodes)

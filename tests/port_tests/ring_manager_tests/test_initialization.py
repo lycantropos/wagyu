@@ -12,7 +12,8 @@ from . import strategies
 
 @given(strategies.maybe_rings_lists, strategies.maybe_points_nodes_lists,
        strategies.points_lists, strategies.points_nodes_lists,
-       strategies.rings_lists, strategies.points_nodes_lists, strategies.sizes)
+       strategies.rings_lists, strategies.points_nodes_lists,
+       strategies.non_negative_integers)
 def test_basic(children: List[Optional[Ring]],
                all_nodes: List[Optional[PointNode]],
                hot_pixels: List[Point],

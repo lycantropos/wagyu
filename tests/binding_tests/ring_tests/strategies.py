@@ -5,12 +5,13 @@ from _wagyu import (Box,
 from hypothesis import strategies
 
 from tests.strategies import (coordinates,
-                              floats)
+                              floats,
+                              sizes)
 from tests.utils import to_maybe
 
 booleans = strategies.booleans()
 floats = floats
-sizes = strategies.integers(0, 65535)
+sizes = sizes
 points = strategies.builds(Point, coordinates, coordinates)
 boxes = strategies.builds(Box, points, points)
 maybe_points_nodes = to_maybe(strategies.builds(PointNode, coordinates,
