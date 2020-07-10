@@ -34,6 +34,7 @@ class RingManager:
         return (self.children == other.children
                 and self.all_nodes == other.all_nodes
                 and self.hot_pixels == other.hot_pixels
+                and self.nodes == other.nodes
                 and self.rings == other.rings
                 and self.storage == other.storage
                 and self.index == other.index
