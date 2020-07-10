@@ -479,6 +479,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       m, POINT_NODE_NAME)
       .def(py::init<coordinate_t, coordinate_t>(), py::arg("x"), py::arg("y"))
       .def(py::self == py::self)
+      .def("__iter__", [](const PointNode& self) {
+        auto* nodes = new std::vector<const PointNode*>();
+        const auto* cursor = &self;
+        do {
+          nodes->push_back(cursor);
+          cursor = cursor->next;
+        } while (cursor != &self);
+        return to_iterator(*nodes);
+      })
       .def("__repr__", repr<PointNode>)
       .def_readonly("x", &PointNode::x)
       .def_readonly("y", &PointNode::y)
