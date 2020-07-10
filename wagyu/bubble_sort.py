@@ -1,14 +1,13 @@
 from typing import (Callable,
-                    MutableSequence,
-                    TypeVar)
+                    MutableSequence)
 
-Element = TypeVar('Element')
+from .hints import Domain
 
 
-def bubble_sort(sequence: MutableSequence[Element],
-                comparator: Callable[[Element, Element], bool],
-                on_swap: Callable[[Element, Element], None]
-                ) -> MutableSequence[Element]:
+def bubble_sort(sequence: MutableSequence[Domain],
+                comparator: Callable[[Domain, Domain], bool],
+                on_swap: Callable[[Domain, Domain], None]
+                ) -> MutableSequence[Domain]:
     if not sequence:
         return sequence
     result = sequence[:]
