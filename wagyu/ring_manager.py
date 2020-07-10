@@ -105,8 +105,8 @@ class RingManager:
                     index += 1
                     continue
                 shifted = False
-                while bound.current_edge_index < len(
-                        bound.edges) and bound.current_edge.top.y == scanline_y:
+                while (bound.current_edge_index < len(bound.edges)
+                       and bound.current_edge.top.y == scanline_y):
                     current_edge = bound.current_edge
                     self.hot_pixels.append(current_edge.top)
                     if current_edge.is_horizontal:
