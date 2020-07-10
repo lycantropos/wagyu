@@ -13,5 +13,5 @@ def test_basic(ring: Ring) -> None:
 
 @given(strategies.rings)
 def test_properties(ring: Ring) -> None:
-    assert implication(ring.node is None, not ring.is_hole)
+    assert implication(not ring.points, not ring.is_hole)
     assert equivalence(ring.area <= 0, ring.is_hole)

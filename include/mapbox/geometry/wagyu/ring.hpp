@@ -88,7 +88,6 @@ struct ring {
   bool corrected;
 
   ring(std::size_t ring_index_ = 0, const ring_vector<T>& children_ = {},
-       point_ptr<T> points_ = nullptr, point_ptr<T> bottom_point_ = nullptr,
        bool corrected_ = false)
       : ring_index(ring_index_),
         size_(0),
@@ -96,8 +95,8 @@ struct ring {
         bbox({0, 0}, {0, 0}),
         parent(nullptr),
         children(children_),
-        points(points_),
-        bottom_point(bottom_point_),
+        points(nullptr),
+        bottom_point(nullptr),
         is_hole_(false),
         corrected(corrected_) {}
 
@@ -171,19 +170,16 @@ struct ring_manager {
   ring_manager& operator=(ring_manager const&) = delete;
 
   ring_manager(const ring_vector<T>& children_ = {},
-               const point_vector<T>& all_points_ = {},
                const hot_pixel_vector<T>& hot_pixels_ = {},
-               const std::deque<point<T>>& points_ = {},
                const std::deque<ring<T>>& rings_ = {},
-               const std::vector<point<T>>& storage_ = {},
                std::size_t index_ = 0)
       : children(children_),
-        all_points(all_points_),
+        all_points(),
         hot_pixels(hot_pixels_),
         current_hp_itr(hot_pixels.end()),
-        points(points_),
+        points(),
         rings(rings_),
-        storage(storage_),
+        storage(),
         index(index_) {}
 };
 

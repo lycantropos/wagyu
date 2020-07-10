@@ -14,4 +14,4 @@ def test_basic(ring: Ring) -> None:
 
 @given(strategies.rings)
 def test_properties(ring: Ring) -> None:
-    assert equivalence(ring.node is None, math.isnan(ring.area))
+    assert equivalence(not ring.points, math.isnan(ring.area))

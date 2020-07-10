@@ -18,6 +18,7 @@
 #include <mapbox/geometry/wagyu/wagyu.hpp>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_set>
 
 namespace py = pybind11;
 
@@ -35,7 +36,6 @@ namespace py = pybind11;
 #define LOCAL_MINIMUM_LIST_NAME "LocalMinimumList"
 #define OPERATION_KIND_NAME "OperationKind"
 #define POINT_NAME "Point"
-#define POINT_NODE_NAME "PointNode"
 #define POLYGON_NAME "Polygon"
 #define POLYGON_KIND_NAME "PolygonKind"
 #define RING_NAME "Ring"
@@ -59,8 +59,6 @@ using LocalMinimumList =
 using Multipolygon = mapbox::geometry::multi_polygon<coordinate_t>;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
-using PointNodePtr = mapbox::geometry::wagyu::point_ptr<coordinate_t>;
-using PointNodeVector = mapbox::geometry::wagyu::point_vector<coordinate_t>;
 using Polygon = mapbox::geometry::polygon<coordinate_t>;
 using Ring = mapbox::geometry::wagyu::ring<coordinate_t>;
 using RingPtr = mapbox::geometry::wagyu::ring_ptr<coordinate_t>;
@@ -273,18 +271,9 @@ static std::ostream& operator<<(std::ostream& stream,
   return stream;
 }
 
-static std::ostream& operator<<(std::ostream& stream, const PointNode& point) {
-  return stream << C_STR(MODULE_NAME) "." POINT_NODE_NAME "(" << point.x << ", "
-                << point.y << ")";
-}
-
 static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   stream << C_STR(MODULE_NAME) "." RING_NAME "(" << ring.ring_index << ", ";
   write_pointers_sequence(stream, ring.children);
-  stream << ", ";
-  write_pointer(stream, ring.points);
-  stream << ", ";
-  write_pointer(stream, ring.bottom_point);
   stream << ", " << bool_repr(ring.corrected) << ")";
   return stream;
 }
@@ -294,15 +283,9 @@ static std::ostream& operator<<(std::ostream& stream,
   stream << C_STR(MODULE_NAME) "." RING_MANAGER_NAME "(";
   write_pointers_sequence(stream, manager.children);
   stream << ", ";
-  write_pointers_sequence(stream, manager.all_points);
-  stream << ", ";
   write_sequence(stream, manager.hot_pixels);
   stream << ", ";
-  write_sequence(stream, manager.points);
-  stream << ", ";
   write_sequence(stream, manager.rings);
-  stream << ", ";
-  write_sequence(stream, manager.storage);
   stream << ", ";
   return stream << manager.index << ")";
 }
@@ -388,6 +371,18 @@ static bool operator==(const Wagyu& self, const Wagyu& other) {
 }  // namespace wagyu
 }  // namespace geometry
 }  // namespace mapbox
+
+static std::vector<const Point*>* point_node_to_points(const PointNode& node) {
+  auto* result = new std::vector<const Point*>{};
+  const auto* cursor = &node;
+  std::unordered_set<const PointNode*> visited;
+  while (visited.find(cursor) == visited.end()) {
+    result->push_back(new Point(cursor->x, cursor->y));
+    visited.insert(cursor);
+    cursor = cursor->next;
+  }
+  return result;
+};
 
 PYBIND11_MAKE_OPAQUE(LocalMinimumList);
 
@@ -475,26 +470,6 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__getitem__", to_item<Multipolygon>, py::arg("index"))
       .def("__iter__", to_iterator<Multipolygon>, py::keep_alive<0, 1>());
 
-  py::class_<PointNode, std::unique_ptr<PointNode, py::nodelete>>(
-      m, POINT_NODE_NAME)
-      .def(py::init<coordinate_t, coordinate_t>(), py::arg("x"), py::arg("y"))
-      .def(py::self == py::self)
-      .def("__iter__", [](const PointNode& self) {
-        auto* nodes = new std::vector<const PointNode*>();
-        const auto* cursor = &self;
-        do {
-          nodes->push_back(cursor);
-          cursor = cursor->next;
-        } while (cursor != &self);
-        return to_iterator(*nodes);
-      })
-      .def("__repr__", repr<PointNode>)
-      .def_readonly("x", &PointNode::x)
-      .def_readonly("y", &PointNode::y)
-      .def_readwrite("next", &PointNode::next)
-      .def_readwrite("prev", &PointNode::prev)
-      .def("reverse", &mapbox::geometry::wagyu::reverse_ring<coordinate_t>);
-
   py::class_<Box>(m, BOX_NAME)
       .def(py::init<Point, Point>(), py::arg("minimum"), py::arg("maximum"))
       .def(py::pickle(
@@ -543,11 +518,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            mapbox::geometry::wagyu::reverse_horizontal<coordinate_t>);
 
   py::class_<Ring, std::unique_ptr<Ring, py::nodelete>>(m, RING_NAME)
-      .def(py::init<std::size_t, const RingVector&, PointNodePtr, PointNodePtr,
-                    bool>(),
+      .def(py::init<std::size_t, const RingVector&, bool>(),
            py::arg("index") = 0, py::arg("children") = RingVector{},
-           py::arg("node").none(true) = nullptr,
-           py::arg("bottom_node").none(true) = nullptr,
            py::arg("corrected") = false)
       .def(py::self == py::self)
       .def("__repr__", repr<Ring>)
@@ -555,8 +527,16 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("box", &Ring::bbox)
       .def_readonly("parent", &Ring::parent)
       .def_readonly("children", &Ring::children)
-      .def_readonly("node", &Ring::points)
-      .def_readonly("bottom_node", &Ring::bottom_point)
+      .def_property_readonly("points", [](const Ring& self) {
+        if (self.points == nullptr)
+            return new std::vector<const Point *>{};
+        return point_node_to_points(*self.points);
+      })
+      .def_property_readonly("bottom_points", [](const Ring& self) {
+        if (self.bottom_point == nullptr)
+            return new std::vector<const Point *>{};
+        return point_node_to_points(*self.bottom_point);
+      })
       .def_readonly("corrected", &Ring::corrected)
       .def_property_readonly("size", &Ring::size)
       .def_property_readonly("area", &Ring::area)
@@ -715,24 +695,35 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("reverse_output", &Wagyu::reverse_output);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
-      .def(py::init<const RingVector&, const PointNodeVector&,
-                    const HotPixelVector&, const std::deque<PointNode>&,
-                    const std::deque<Ring>&, const std::vector<PointNode>&,
+      .def(py::init<const RingVector&, const HotPixelVector&, const std::deque<Ring>&,
                     std::size_t>(),
            py::arg("children") = RingVector{},
-           py::arg("all_points") = PointNodeVector{},
            py::arg("hot_pixels") = HotPixelVector{},
-           py::arg("points") = std::deque<PointNode>{},
            py::arg("rings") = std::deque<Ring>{},
-           py::arg("storage") = std::vector<PointNode>{}, py::arg("index") = 0)
+           py::arg("index") = 0)
       .def(py::self == py::self)
       .def("__repr__", repr<RingManager>)
       .def_readonly("children", &RingManager::children)
-      .def_readonly("all_nodes", &RingManager::all_points)
       .def_readonly("hot_pixels", &RingManager::hot_pixels)
-      .def_readonly("nodes", &RingManager::points)
+      .def_property_readonly("all_points", [](const RingManager& self) {
+        auto* result = new std::vector<std::vector<const Point*>*>{};
+        for (const auto* node: self.all_points)
+            result->push_back(point_node_to_points(*node));
+        return result;
+      })
+      .def_property_readonly("points", [](const RingManager& self) {
+        auto* result = new std::vector<std::vector<const Point*>*>{};
+        for (const auto node: self.points)
+            result->push_back(point_node_to_points(node));
+        return result;
+      })
       .def_readonly("rings", &RingManager::rings)
-      .def_readonly("storage", &RingManager::storage)
+      .def_property_readonly("stored_points", [](const RingManager& self) {
+        auto* result = new std::vector<std::vector<const Point*>*>{};
+        for (const auto node: self.storage)
+            result->push_back(point_node_to_points(node));
+        return result;
+      })
       .def_readonly("index", &RingManager::index)
       .def("build_hot_pixels",
            [](RingManager& self, LocalMinimumList& minimums) {
@@ -754,14 +745,6 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                 ring, point, self);
           },
           py::arg("ring"), py::arg("point"))
-      .def(
-          "create_new_point_after_node",
-          [](RingManager& self, RingPtr ring, PointNodePtr node,
-             const Point& point) {
-            return mapbox::geometry::wagyu::create_new_point<coordinate_t>(
-                ring, point, node, self);
-          },
-          py::arg("ring"), py::arg("node"), py::arg("point"))
       .def(
           "assign_as_child",
           [](RingManager& manager, RingPtr ring, RingPtr parent) {
@@ -822,11 +805,6 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                                       const Point& pt3) {
     return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(pt1, pt2, pt3);
   });
-  m.def("are_points_slopes_equal",
-        [](const PointNode& pt1, const PointNode& pt2, const PointNode& pt3) {
-          return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(pt1, pt2,
-                                                                     pt3);
-        });
 
   m.def("are_edges_slopes_equal", [](const Edge& e1, const Edge& e2) {
     return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(e1, e2);

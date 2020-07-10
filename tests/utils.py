@@ -1,7 +1,6 @@
 import pickle
 from enum import Enum
 from functools import partial
-from itertools import zip_longest
 from typing import (Callable,
                     Iterable,
                     List,
@@ -19,7 +18,6 @@ from _wagyu import (Bound as BoundBound,
                     LocalMinimum as BoundLocalMinimum,
                     LocalMinimumList as BoundLocalMinimumList,
                     Point as BoundPoint,
-                    PointNode as BoundPointNode,
                     Polygon as BoundPolygon,
                     PolygonKind as BoundPolygonKind,
                     Ring as BoundRing,
@@ -37,7 +35,6 @@ from wagyu.linear_ring import LinearRing as PortedLinearRing
 from wagyu.local_minimum import (LocalMinimum as PortedLocalMinimum,
                                  LocalMinimumList as PortedLocalMinimumList)
 from wagyu.point import Point as PortedPoint
-from wagyu.point_node import PointNode as PortedPointNode
 from wagyu.ring import Ring as PortedRing
 from wagyu.ring_manager import RingManager as PortedRingManager
 
@@ -57,7 +54,6 @@ BoundLinearRingWithPolygonKind = Tuple[BoundLinearRing, BoundPolygonKind]
 BoundLocalMinimum = BoundLocalMinimum
 BoundLocalMinimumList = BoundLocalMinimumList
 BoundPoint = BoundPoint
-BoundPointNode = BoundPointNode
 BoundPolygonKind = BoundPolygonKind
 BoundRing = BoundRing
 BoundRingManager = BoundRingManager
@@ -70,7 +66,6 @@ PortedLinearRingWithPolygonKind = Tuple[PortedLinearRing, PortedPolygonKind]
 PortedLocalMinimum = PortedLocalMinimum
 PortedLocalMinimumList = PortedLocalMinimumList
 PortedPoint = PortedPoint
-PortedPointNode = PortedPointNode
 PortedPolygonKind = PortedPolygonKind
 PortedRing = PortedRing
 PortedRingManager = PortedRingManager
@@ -87,16 +82,11 @@ BoundPortedLocalMinimumsPair = Tuple[BoundLocalMinimum, PortedLocalMinimum]
 BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
     List[BoundLinearRingWithPolygonKind],
     List[PortedLinearRingWithPolygonKind]]
-BoundPortedMaybePointsNodesListsPair = Tuple[List[Optional[BoundPointNode]],
-                                             List[Optional[PortedPointNode]]]
 BoundPortedMaybeRingsPair = Tuple[Optional[BoundRing], Optional[PortedRing]]
 BoundPortedMaybeRingsListsPair = Tuple[List[Optional[BoundRing]],
                                        List[Optional[PortedRing]]]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
 BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
-BoundPortedPointsNodesListsPair = Tuple[List[BoundPointNode],
-                                        List[PortedPointNode]]
-BoundPortedPointsNodesPair = Tuple[BoundPointNode, PortedPointNode]
 BoundPortedPolygonKindsPair = Tuple[BoundPolygonKind, PortedPolygonKind]
 BoundPortedRingManagersPair = Tuple[BoundRingManager, PortedRingManager]
 BoundPortedRingsListsPair = Tuple[List[BoundRing], List[PortedRing]]
@@ -256,21 +246,8 @@ are_bound_ported_maybe_points_equal = to_maybe_equals(
         are_bound_ported_points_equal)
 are_bound_ported_points_lists_equal = to_sequences_equals(
         are_bound_ported_points_equal)
-
-
-def are_bound_ported_points_nodes_equal(bound: BoundPointNode,
-                                        ported: PortedPointNode) -> bool:
-    return all(
-            bound_node is not None
-            and ported_node is not None
-            and bound_node.x == ported_node.x
-            and bound_node.y == ported_node.y
-            for bound_node, ported_node in zip_longest(bound, ported,
-                                                       fillvalue=None))
-
-
-are_bound_ported_maybe_points_nodes_equal = to_maybe_equals(
-        are_bound_ported_points_nodes_equal)
+are_bound_ported_points_lists_lists_equal = to_sequences_equals(
+        are_bound_ported_points_lists_equal)
 
 
 def are_bound_ported_rings_equal(bound: BoundRing,
@@ -278,17 +255,33 @@ def are_bound_ported_rings_equal(bound: BoundRing,
     return (bound.index == ported.index
             and are_bound_ported_maybe_rings_lists_equal(bound.children,
                                                          ported.children)
-            and are_bound_ported_maybe_points_nodes_equal(bound.node,
-                                                          ported.node)
-            and are_bound_ported_maybe_points_nodes_equal(bound.bottom_node,
-                                                          ported.bottom_node)
+            and are_bound_ported_points_lists_equal(bound.points,
+                                                    ported.points)
+            and are_bound_ported_points_lists_equal(bound.bottom_points,
+                                                    ported.bottom_points)
             and bound.corrected is ported.corrected)
 
 
 are_bound_ported_maybe_rings_equal = to_maybe_equals(
         are_bound_ported_rings_equal)
+are_bound_ported_rings_lists_equal = to_sequences_equals(
+        are_bound_ported_rings_equal)
 are_bound_ported_maybe_rings_lists_equal = to_sequences_equals(
         are_bound_ported_maybe_rings_equal)
+
+
+def are_bound_ported_ring_managers_equal(bound: BoundRingManager,
+                                         ported: PortedRingManager) -> bool:
+    return (are_bound_ported_maybe_rings_lists_equal(bound.children,
+                                                     ported.children)
+            and are_bound_ported_points_lists_equal(bound.hot_pixels,
+                                                    ported.hot_pixels)
+            and are_bound_ported_points_lists_lists_equal(bound.points,
+                                                          ported.points)
+            and are_bound_ported_rings_lists_equal(bound.rings, ported.rings)
+            and are_bound_ported_points_lists_lists_equal(bound.stored_points,
+                                                          ported.stored_points)
+            and bound.index == ported.index)
 
 
 def to_bound_with_ported_bounds_pair(edges: BoundPortedEdgesListsPair,
@@ -365,48 +358,29 @@ def to_bound_with_ported_local_minimum_lists(
 def to_bound_with_ported_rings_pair(index: int,
                                     children_pairs
                                     : BoundPortedMaybeRingsListsPair,
-                                    nodes_pairs: BoundPortedPointsNodesPair,
-                                    bottom_nodes_pairs
-                                    : BoundPortedPointsNodesPair,
                                     corrected: bool) -> BoundPortedRingsPair:
     bound_children, ported_children = children_pairs
-    bound_node, ported_node = nodes_pairs
-    bound_bottom_node, ported_bottom_node = bottom_nodes_pairs
-    return (BoundRing(index, bound_children, bound_node, bound_bottom_node,
-                      corrected),
-            PortedRing(index, ported_children, ported_node, ported_bottom_node,
-                       corrected))
+    return (BoundRing(index, bound_children, corrected),
+            PortedRing(index, ported_children, corrected))
 
 
 def to_bound_with_ported_ring_managers_pair(
         children_pair: BoundPortedMaybeRingsListsPair,
-        all_nodes_pair: BoundPortedMaybePointsNodesListsPair,
         hot_pixels_pair: BoundPortedPointsListsPair,
-        nodes_pair: BoundPortedPointsNodesListsPair,
         rings_pair: BoundPortedMaybeRingsListsPair,
-        storage_pair: BoundPortedPointsNodesListsPair,
         index: int) -> BoundPortedRingManagersPair:
     bound_children, ported_children = children_pair
-    bound_all_nodes, ported_all_nodes = all_nodes_pair
     bound_hot_pixels, ported_hot_pixels = hot_pixels_pair
-    bound_nodes, ported_nodes = nodes_pair
     bound_rings, ported_rings = rings_pair
-    bound_storage, ported_storage = storage_pair
-    return (BoundRingManager(bound_children, bound_all_nodes, bound_hot_pixels,
-                             bound_nodes, bound_rings, bound_storage, index),
-            PortedRingManager(ported_children, ported_all_nodes,
-                              ported_hot_pixels, ported_nodes, ported_rings,
-                              ported_storage, index))
+    return (BoundRingManager(bound_children, bound_hot_pixels, bound_rings,
+                             index),
+            PortedRingManager(ported_children, ported_hot_pixels, ported_rings,
+                              index))
 
 
 def to_bound_with_ported_points_pair(x: float, y: float
                                      ) -> BoundPortedPointsPair:
     return BoundPoint(x, y), PortedPoint(x, y)
-
-
-def to_bound_with_ported_points_nodes_pair(x: float, y: float
-                                           ) -> BoundPortedPointsNodesPair:
-    return BoundPointNode(x, y), PortedPointNode(x, y)
 
 
 def to_bound_linear_rings_points(raw_points: RawPointsList

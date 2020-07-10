@@ -12,7 +12,8 @@ from .bubble_sort import bubble_sort
 from .hints import Coordinate
 from .local_minimum import LocalMinimumList
 from .point import Point
-from .point_node import PointNode
+from .point_node import (PointNode,
+                         maybe_point_node_to_points)
 from .ring import Ring
 from .utils import (are_edges_slopes_equal,
                     are_floats_almost_equal,
@@ -27,19 +28,16 @@ class RingManager:
 
     def __init__(self,
                  children: Optional[List[Optional[Ring]]] = None,
-                 all_nodes: Optional[List[Optional[PointNode]]] = None,
                  hot_pixels: Optional[List[Point]] = None,
-                 nodes: Optional[List[PointNode]] = None,
                  rings: Optional[List[Ring]] = None,
-                 storage: Optional[List[PointNode]] = None,
                  index: int = 0) -> None:
         self.children = [] if children is None else children
-        self.all_nodes = [] if all_nodes is None else all_nodes
         self.hot_pixels = [] if hot_pixels is None else hot_pixels
-        self.nodes = [] if nodes is None else nodes
         self.rings = [] if rings is None else rings
-        self.storage = [] if storage is None else storage
         self.index = index
+        self.all_nodes = []  # type: List[Optional[PointNode]]
+        self.nodes = []  # type: List[PointNode]
+        self.storage = []  # type: List[PointNode]
 
     __repr__ = generate_repr(__init__)
 

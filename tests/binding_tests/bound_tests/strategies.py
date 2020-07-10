@@ -2,7 +2,6 @@ from _wagyu import (Bound,
                     Box,
                     Edge,
                     Point,
-                    PointNode,
                     Ring)
 from hypothesis import strategies
 
@@ -20,12 +19,9 @@ floats = floats
 sizes = sizes
 points = strategies.builds(Point, coordinates, coordinates)
 boxes = strategies.builds(Box, points, points)
-maybe_points_nodes = to_maybe(strategies.builds(PointNode, coordinates,
-                                                coordinates))
 maybe_rings = to_maybe(strategies.deferred(lambda: rings))
 maybe_rings_lists = strategies.lists(maybe_rings)
-rings = strategies.builds(Ring, sizes, maybe_rings_lists, maybe_points_nodes,
-                          maybe_points_nodes, booleans)
+rings = strategies.builds(Ring, sizes, maybe_rings_lists, booleans)
 edges = strategies.builds(Edge, points, points)
 integers_32 = integers_32
 edges_lists = strategies.lists(edges)

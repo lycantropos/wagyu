@@ -14,7 +14,6 @@ from tests.utils import (bound_edges_sides,
                          to_bound_with_ported_edges_lists,
                          to_bound_with_ported_linear_rings,
                          to_bound_with_ported_linear_rings_points,
-                         to_bound_with_ported_points_nodes_pair,
                          to_bound_with_ported_points_pair,
                          to_bound_with_ported_rings_pair,
                          to_maybe_pairs,
@@ -24,16 +23,11 @@ points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,
                                  coordinates)
 booleans = strategies.booleans()
 sizes = sizes
-points_nodes_pairs = strategies.builds(to_bound_with_ported_points_nodes_pair,
-                                       coordinates, coordinates)
-maybe_points_nodes_pairs = to_maybe_pairs(points_nodes_pairs)
 maybe_rings_pairs = to_maybe_pairs(strategies.deferred(lambda: rings_pairs))
 maybe_rings_lists_pairs = (strategies.lists(maybe_rings_pairs)
                            .map(transpose_pairs))
 rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
-                                sizes, maybe_rings_lists_pairs,
-                                maybe_points_nodes_pairs,
-                                maybe_points_nodes_pairs, booleans)
+                                sizes, maybe_rings_lists_pairs, booleans)
 linear_rings_points_pairs = (planar.contours(coordinates)
                              .map(to_bound_with_ported_linear_rings_points))
 linear_rings_pairs = (linear_rings_points_pairs

@@ -1,4 +1,6 @@
 from typing import (Iterator,
+                    List,
+                    Optional,
                     Tuple)
 
 from reprit.base import generate_repr
@@ -24,10 +26,10 @@ class PointNode:
                 if isinstance(other, PointNode)
                 else NotImplemented)
 
-    def __iter__(self) -> Iterator['PointNode']:
+    def __iter__(self) -> Iterator[Point]:
         cursor = self
         while True:
-            yield cursor
+            yield Point(cursor.x, cursor.y)
             cursor = cursor.next
             if cursor == self:
                 break
@@ -61,3 +63,7 @@ class PointNode:
                                                 cursor.next)
             if cursor is self:
                 break
+
+
+def maybe_point_node_to_points(node: Optional[PointNode]) -> List[Point]:
+    return [] if node is None else list(node)

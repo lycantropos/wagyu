@@ -6,7 +6,8 @@ from reprit.base import generate_repr
 
 from .box import Box
 from .point import Point
-from .point_node import PointNode
+from .point_node import (PointNode,
+                         maybe_point_node_to_points)
 
 
 class Ring:
@@ -16,14 +17,12 @@ class Ring:
     def __init__(self,
                  index: int = 0,
                  children: Optional[List[Optional['Ring']]] = None,
-                 node: Optional[PointNode] = None,
-                 bottom_node: Optional[PointNode] = None,
                  corrected: bool = False) -> None:
         self.index = index
         self.parent = None  # type: Optional[Ring]
         self.children = children or []
-        self.node = node
-        self.bottom_node = bottom_node
+        self.node = None  # type: Optional[PointNode]
+        self.bottom_node = None  # type: Optional[PointNode]
         self.corrected = corrected
         self.box = Box(Point(0, 0), Point(0, 0))  # type: Box
         self._area = math.nan  # type: float
@@ -61,6 +60,14 @@ class Ring:
         if math.isnan(self._area):
             self.recalculate_stats()
         return self._is_hole
+
+    @property
+    def points(self) -> List[Point]:
+        return maybe_point_node_to_points(self.node)
+
+    @property
+    def bottom_points(self) -> List[Point]:
+        return maybe_point_node_to_points(self.bottom_node)
 
     @property
     def size(self) -> int:
