@@ -805,7 +805,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                 ring, manager, remove_children, remove_from_parent);
           },
           py::arg("ring").none(false), py::arg("remove_children") = true,
-          py::arg("remove_from_parent") = true);
+          py::arg("remove_from_parent") = true)
+      .def("sort_hot_pixels",
+           mapbox::geometry::wagyu::sort_hot_pixels<coordinate_t>);
 
   m.def("are_points_slopes_equal", [](const Point& pt1, const Point& pt2,
                                       const Point& pt3) {
