@@ -1,6 +1,9 @@
 import struct
+from bisect import bisect_left
+from typing import MutableSequence
 
 from .edge import Edge
+from .hints import Domain
 from .point import Point
 
 
@@ -24,6 +27,14 @@ def is_point_between_others(pt1: Point, pt2: Point, pt3: Point) -> bool:
         return (pt2.y > pt1.y) is (pt2.y < pt3.y)
 
 
+def are_floats_greater_than(x, y) -> bool:
+    return not are_floats_almost_equal(x, y) and x > y
+
+
+def are_floats_less_than(x, y) -> bool:
+    return not are_floats_almost_equal(x, y) and x < y
+
+
 def are_floats_almost_equal(left: float, right: float,
                             *,
                             max_ulps: int = 4) -> bool:
@@ -40,3 +51,9 @@ def _double_to_biased(value: float,
         return (~result + 1) % sign_bit_mask
     else:
         return (sign_bit_mask | result) % sign_bit_mask
+
+
+def insort_unique(sequence: MutableSequence[Domain], value: Domain) -> None:
+    index = bisect_left(sequence, value)
+    if index == len(sequence) or value < sequence[index]:
+        sequence.insert(index, value)

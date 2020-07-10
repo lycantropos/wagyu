@@ -13,7 +13,8 @@ from .ring import Ring
 class Bound:
     __slots__ = ('edges', 'last_point', 'ring', 'current_x', 'position',
                  'winding_count', 'opposite_winding_count', 'winding_delta',
-                 'polygon_kind', 'side', 'maximum_bound')
+                 'polygon_kind', 'side', 'current_edge_index', 
+                 'next_edge_index', 'maximum_bound')
 
     def __init__(self,
                  edges: Optional[List[Edge]] = None,
@@ -36,6 +37,8 @@ class Bound:
         self.winding_delta = winding_delta
         self.polygon_kind = polygon_kind
         self.side = side
+        self.current_edge_index = len(self.edges)  # type: int
+        self.next_edge_index = len(self.edges)  # type: int
         self.maximum_bound = None  # type: Optional[Bound]
 
     __repr__ = generate_repr(__init__)
@@ -53,6 +56,14 @@ class Bound:
                 and self.side is other.side
                 if isinstance(other, Bound)
                 else NotImplemented)
+
+    @property
+    def current_edge(self) -> Edge:
+        return self.edges[self.current_edge_index]
+
+    @property
+    def next_edge(self) -> Edge:
+        return self.edges[self.next_edge_index]
 
     def fix_horizontals(self) -> None:
         edge_index = 0

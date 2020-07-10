@@ -1,11 +1,24 @@
+import math
+from functools import partial
+from itertools import groupby
+from operator import is_not
 from typing import (List,
                     Optional)
 
 from reprit.base import generate_repr
 
+from .bound import Bound
+from .bubble_sort import bubble_sort
+from .hints import Coordinate
+from .local_minimum import LocalMinimumList
 from .point import Point
 from .point_node import PointNode
 from .ring import Ring
+from .utils import (are_edges_slopes_equal,
+                    are_floats_almost_equal,
+                    are_floats_greater_than,
+                    are_floats_less_than,
+                    insort_unique)
 
 
 class RingManager:
@@ -40,3 +53,226 @@ class RingManager:
                 and self.index == other.index
                 if isinstance(other, RingManager)
                 else NotImplemented)
+
+    @property
+    def all_points(self) -> List[List[Point]]:
+        return [maybe_point_node_to_points(node) for node in self.all_nodes]
+
+    @property
+    def points(self) -> List[List[Point]]:
+        return [list(node) for node in self.nodes]
+
+    @property
+    def stored_points(self) -> List[List[Point]]:
+        return [list(node) for node in self.storage]
+
+    def build_hot_pixels(self, minimums: LocalMinimumList) -> None:
+        sorted_minimums = sorted(minimums)
+        current_lm_index = 0
+        scanbeams = minimums.scanbeams
+        active_bounds = []  # type: List[Optional[Bound]]
+        while current_lm_index < len(minimums):
+            try:
+                scanline_y = scanbeams.pop()
+            except IndexError:
+                scanline_y = math.inf
+            self.process_hot_pixel_intersections(scanline_y, active_bounds)
+            while (current_lm_index < len(sorted_minimums)
+                   and minimums[current_lm_index].y == scanline_y):
+                current_lm = minimums[current_lm_index]
+                self.hot_pixels.append(current_lm.left_bound.edges[0].bottom)
+                left_bound, right_bound = (current_lm.left_bound,
+                                           current_lm.right_bound)
+                left_bound.current_edge_index = 0
+                left_bound.next_edge_index = 1
+                left_bound.current_x = left_bound.current_edge.bottom.x
+                right_bound.current_edge_index = 0
+                right_bound.next_edge_index = 1
+                right_bound.current_x = right_bound.current_edge.bottom.x
+                lb_abl_index = insert_bound_into_abl(left_bound, right_bound,
+                                                     active_bounds)
+                lb_abl_current_edge = active_bounds[lb_abl_index].current_edge
+                if not lb_abl_current_edge.is_horizontal:
+                    insort_unique(scanbeams, lb_abl_current_edge.top.y)
+                rb_abl_index = lb_abl_index + 1
+                rb_abl_current_edge = active_bounds[rb_abl_index].current_edge
+                if not rb_abl_current_edge.is_horizontal:
+                    insort_unique(scanbeams, rb_abl_current_edge.top.y)
+                current_lm_index += 1
+
+            index = 0
+            while index < len(active_bounds):
+                bound = active_bounds[index]
+                if bound is None:
+                    index += 1
+                    continue
+                shifted = False
+                while bound.current_edge_index < len(
+                        bound.edges) and bound.current_edge.top.y == scanline_y:
+                    current_edge = bound.current_edge
+                    self.hot_pixels.append(current_edge.top)
+                    if current_edge.is_horizontal:
+                        if horizontals_at_top_scanbeam(scanline_y, index,
+                                                       active_bounds, self):
+                            shifted = True
+                    next_edge_in_bound(bound, scanbeams)
+                if bound.current_edge_index == len(bound.edges):
+                    active_bounds[index] = None
+                if not shifted:
+                    index += 1
+            active_bounds[:] = filter(partial(is_not, None), active_bounds)
+        self.sort_hot_pixels()
+
+    def sort_hot_pixels(self) -> None:
+        quicksort(self.hot_pixels,
+                  hot_pixels_compare)
+        self.hot_pixels = [key for key, _ in groupby(self.hot_pixels)]
+
+    def process_hot_pixel_intersections(self,
+                                        top_y: Coordinate,
+                                        active_bounds: List[Bound]) -> None:
+        if not active_bounds:
+            return
+        update_current_x(active_bounds, top_y)
+        bubble_sort(active_bounds, intersection_compare,
+                    self.hot_pixels_on_swap)
+
+    def hot_pixels_on_swap(self,
+                           first_bound: Bound,
+                           second_bound: Bound) -> None:
+        intersection = first_bound.current_edge & second_bound.current_edge
+        if intersection is None:
+            raise RuntimeError('Trying to find intersection of lines '
+                               'that do not intersect')
+        self.hot_pixels.append(intersection)
+
+
+def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
+    for position, bound in enumerate(active_bounds):
+        bound.position = position
+        bound.current_x = bound.current_edge.get_current_x(top_y)
+
+
+def intersection_compare(left: Bound, right: Bound) -> bool:
+    return not (left.current_x > right.current_x and
+                not are_edges_slopes_equal(left.current_edge,
+                                           right.current_edge))
+
+
+def bound_insert_location(left: Bound, right: Bound) -> bool:
+    if are_floats_almost_equal(left.current_x, right.current_x):
+        if left.current_edge.top.y > right.current_edge.top.y:
+            return are_floats_less_than(left.current_edge.top.x,
+                                        right.current_edge.get_current_x(
+                                                left.current_edge.top.y))
+        else:
+            return are_floats_greater_than(right.current_edge.top.x,
+                                           left.current_edge.get_current_x(
+                                                   right.current_edge.top.y))
+    else:
+        return left.current_x < right.current_x
+
+
+def insert_bound_into_abl(left: Bound,
+                          right: Bound,
+                          active_bounds: List[Bound]) -> int:
+    index = 0
+    for index, bound in enumerate(active_bounds):
+        if bound_insert_location(left, bound):
+            break
+    active_bounds.insert(index, right)
+    active_bounds.insert(index, left)
+    return index
+
+
+def horizontals_at_top_scanbeam(top_y: Coordinate,
+                                bnd_curr_index: int,
+                                active_bounds: List[Bound],
+                                manager: RingManager) -> bool:
+    shifted = False
+    bnd_curr = active_bounds[bnd_curr_index]
+    current_edge = bnd_curr.current_edge
+    bnd_curr.current_x = current_edge.top.x
+    if current_edge.bottom.x < current_edge.top.x:
+        bnd_next_index = bnd_curr_index + 1
+        while (bnd_next_index < len(active_bounds)
+               and (active_bounds[bnd_next_index] is None
+                    or active_bounds[bnd_next_index].current_x
+                    < bnd_curr.current_x)):
+            bnd_next = active_bounds[bnd_next_index]
+            if (bnd_next is not None and bnd_next.current_edge.top.y != top_y
+                    and bnd_next.current_edge.bottom.y != top_y):
+                pt = Point(wround(bnd_next.current_x), top_y)
+                manager.hot_pixels.append(pt)
+            active_bounds[bnd_curr_index], active_bounds[bnd_next_index] = (
+                active_bounds[bnd_next_index], active_bounds[bnd_curr_index])
+            bnd_curr_index += 1
+            bnd_next_index += 1
+            shifted = True
+    else:
+        if bnd_curr_index != 0:
+            bnd_prev_index = bnd_curr_index - 1
+            while (bnd_curr_index < len(active_bounds) and
+                   (active_bounds[bnd_curr_index] is None
+                    or active_bounds[bnd_curr_index].current_x
+                    > bnd_curr.current_x)):
+                bnd_prev = active_bounds[bnd_curr_index]
+                if (bnd_prev is not None
+                        and bnd_prev.current_edge.top.y != top_y
+                        and bnd_prev.current_edge.bottom.y != top_y):
+                    pt = Point(wround(bnd_prev.current_x), top_y)
+                    manager.hot_pixels.append(pt)
+                active_bounds[bnd_curr_index], active_bounds[
+                    bnd_prev_index] = (
+                    active_bounds[bnd_prev_index],
+                    active_bounds[bnd_curr_index])
+                bnd_curr -= 1
+                if bnd_curr_index != 0:
+                    bnd_prev_index -= 0
+    return shifted
+
+
+def next_edge_in_bound(bnd: Bound, scanbeams: List[Coordinate]) -> None:
+    bnd.current_edge_index += 1
+    current_edge_index = bnd.current_edge_index
+    if current_edge_index < len(bnd.edges):
+        bnd.next_edge_index += 1
+        bnd.current_x = bnd.current_edge.bottom.x
+        if not bnd.current_edge.is_horizontal:
+            insort_unique(scanbeams, bnd.current_edge.top.y)
+
+
+def hot_pixels_compare(left: Point, right: Point) -> bool:
+    return not (left.x < right.x
+                if left.y == right.y
+                else left.y > right.y)
+
+
+def quicksort(array, compare_func):
+    _quicksort(array, 0, len(array) - 1, compare_func)
+
+
+def _quicksort(array, start, end, compare_func):
+    if start >= end:
+        return
+
+    p = partition(array, start, end, compare_func)
+    _quicksort(array, start, p - 1, compare_func)
+    _quicksort(array, p + 1, end, compare_func)
+
+
+def partition(array, start, end, compare_func):
+    pivot = array[start]
+    low = start + 1
+    high = end
+    while True:
+        while low <= high and compare_func(array[high], pivot):
+            high = high - 1
+        while low <= high and not compare_func(array[low], pivot):
+            low = low + 1
+        if low <= high:
+            array[low], array[high] = array[high], array[low]
+        else:
+            break
+    array[start], array[high] = array[high], array[start]
+    return high
