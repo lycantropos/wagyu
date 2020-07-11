@@ -2,14 +2,19 @@ from enum import (IntEnum,
                   unique)
 
 
+class Base(IntEnum):
+    def __repr__(self) -> str:
+        return type(self).__qualname__ + '.' + self._name_
+
+
 @unique
-class EdgeSide(IntEnum):
+class EdgeSide(Base):
     LEFT = 0
     RIGHT = 1
 
 
 @unique
-class FillKind(IntEnum):
+class FillKind(Base):
     EVEN_ODD = 0
     NON_ZERO = 1
     POSITIVE = 2
@@ -17,7 +22,7 @@ class FillKind(IntEnum):
 
 
 @unique
-class OperationKind(IntEnum):
+class OperationKind(Base):
     INTERSECTION = 0
     UNION = 1
     DIFFERENCE = 2
@@ -25,6 +30,6 @@ class OperationKind(IntEnum):
 
 
 @unique
-class PolygonKind(IntEnum):
+class PolygonKind(Base):
     SUBJECT = 0
     CLIP = 1
