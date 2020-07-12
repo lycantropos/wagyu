@@ -171,8 +171,7 @@ struct ring_manager {
 
   ring_manager(const ring_vector<T>& children_ = {},
                const hot_pixel_vector<T>& hot_pixels_ = {},
-               const std::deque<ring<T>>& rings_ = {},
-               std::size_t index_ = 0)
+               const std::deque<ring<T>>& rings_ = {}, std::size_t index_ = 0)
       : children(children_),
         all_points(),
         hot_pixels(hot_pixels_),
