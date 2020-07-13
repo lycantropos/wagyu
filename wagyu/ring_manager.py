@@ -156,11 +156,9 @@ class RingManager:
     def process_hot_pixel_intersections(self,
                                         top_y: Coordinate,
                                         active_bounds: List[Bound]) -> None:
-        if not active_bounds:
-            return
         update_current_x(active_bounds, top_y)
-        bubble_sort(active_bounds, intersection_compare,
-                    self.hot_pixels_on_swap)
+        active_bounds[:] = bubble_sort(active_bounds, intersection_compare,
+                                       self.hot_pixels_on_swap)
 
     def hot_pixels_on_swap(self,
                            first_bound: Bound,

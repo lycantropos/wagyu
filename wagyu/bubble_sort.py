@@ -8,8 +8,6 @@ def bubble_sort(sequence: MutableSequence[Domain],
                 comparator: Callable[[Domain, Domain], bool],
                 on_swap: Callable[[Domain, Domain], None]
                 ) -> MutableSequence[Domain]:
-    if not sequence:
-        return sequence
     result = sequence[:]
     while True:
         no_swaps = True
