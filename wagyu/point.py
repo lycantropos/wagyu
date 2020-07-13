@@ -1,3 +1,6 @@
+from decimal import (ROUND_HALF_UP,
+                     Decimal)
+
 from reprit.base import generate_repr
 
 from wagyu.hints import Coordinate
@@ -18,4 +21,8 @@ class Point:
                 else NotImplemented)
 
     def round(self) -> 'Point':
-        return Point(round(self.x), round(self.y))
+        return Point(round_up(self.x), round_up(self.y))
+
+
+def round_up(value: Coordinate) -> Coordinate:
+    return int(Decimal(value).quantize(1, ROUND_HALF_UP))
