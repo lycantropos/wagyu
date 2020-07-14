@@ -81,9 +81,8 @@ class RingManager:
             minimums_index = self.insert_local_minima_into_abl_hot_pixel(
                     scanline_y, sorted_minimums, minimums_index, active_bounds,
                     scanbeams)
-            self.process_hot_pixel_edges_at_top_of_scanbeam(scanline_y,
-                                                            scanbeams,
-                                                            active_bounds)
+            active_bounds = self.process_hot_pixel_edges_at_top_of_scanbeam(
+                    scanline_y, scanbeams, active_bounds)
         self.sort_hot_pixels()
 
     def insert_local_minima_into_abl_hot_pixel(self,
@@ -124,7 +123,7 @@ class RingManager:
                                                    top_y: Coordinate,
                                                    scanbeams: List[Coordinate],
                                                    active_bounds: List[Bound]
-                                                   ) -> None:
+                                                   ) -> List[Bound]:
         index = 0
         while index < len(active_bounds):
             bound = active_bounds[index]
@@ -137,15 +136,60 @@ class RingManager:
                 current_edge = bound.current_edge
                 self.hot_pixels.append(current_edge.top)
                 if current_edge.is_horizontal:
-                    index, shifted = horizontals_at_top_scanbeam(top_y, index,
-                                                                 active_bounds,
-                                                                 self)
+                    index, shifted = self.horizontals_at_top_scanbeam(
+                            top_y, index, active_bounds)
                 next_edge_in_bound(bound, scanbeams)
             if bound.current_edge_index == len(bound.edges):
                 active_bounds[index] = None
             if not shifted:
                 index += 1
-        active_bounds[:] = filter(partial(is_not, None), active_bounds)
+        return list(filter(partial(is_not, None), active_bounds))
+
+    def horizontals_at_top_scanbeam(self,
+                                    top_y: Coordinate,
+                                    bound_index: int,
+                                    active_bounds: List[Bound]
+                                    ) -> Tuple[int, bool]:
+        shifted = False
+        current_edge = active_bounds[bound_index].current_edge
+        active_bounds[bound_index].current_x = current_edge.top.x
+        if current_edge.bottom.x < current_edge.top.x:
+            bound_next_index = bound_index + 1
+            while (bound_next_index < len(active_bounds)
+                   and (active_bounds[bound_next_index] is None
+                        or active_bounds[bound_next_index].current_x
+                        < active_bounds[bound_index].current_x)):
+                bound_next = active_bounds[bound_next_index]
+                if (bound_next is not None
+                        and bound_next.current_edge.top.y != top_y
+                        and bound_next.current_edge.bottom.y != top_y):
+                    self.hot_pixels.append(Point(round(bound_next.current_x),
+                                                 top_y))
+                active_bounds[bound_index], active_bounds[bound_next_index] = (
+                    active_bounds[bound_next_index],
+                    active_bounds[bound_index])
+                bound_index += 1
+                bound_next_index += 1
+                shifted = True
+        elif bound_index > 0:
+            bound_prev_index = bound_index - 1
+            while (bound_index > 0
+                   and (active_bounds[bound_prev_index] is None
+                        or active_bounds[bound_prev_index].current_x
+                        > active_bounds[bound_index].current_x)):
+                bound_prev = active_bounds[bound_prev_index]
+                if (bound_prev is not None
+                        and bound_prev.current_edge.top.y != top_y
+                        and bound_prev.current_edge.bottom.y != top_y):
+                    self.hot_pixels.append(Point(round(bound_prev.current_x),
+                                                 top_y))
+                active_bounds[bound_index], active_bounds[bound_prev_index] = (
+                    active_bounds[bound_prev_index],
+                    active_bounds[bound_index])
+                bound_index -= 1
+                if bound_index > 0:
+                    bound_prev_index -= 1
+        return bound_index, shifted
 
     def sort_hot_pixels(self) -> None:
         quicksort(self.hot_pixels,
@@ -180,51 +224,6 @@ def intersection_compare(left: Bound, right: Bound) -> bool:
     return not (left.current_x > right.current_x and
                 not are_edges_slopes_equal(left.current_edge,
                                            right.current_edge))
-
-
-def horizontals_at_top_scanbeam(top_y: Coordinate,
-                                bound_index: int,
-                                active_bounds: List[Bound],
-                                manager: RingManager) -> Tuple[int, bool]:
-    shifted = False
-    current_edge = active_bounds[bound_index].current_edge
-    active_bounds[bound_index].current_x = current_edge.top.x
-    if current_edge.bottom.x < current_edge.top.x:
-        bound_next_index = bound_index + 1
-        while (bound_next_index < len(active_bounds)
-               and (active_bounds[bound_next_index] is None
-                    or active_bounds[bound_next_index].current_x
-                    < active_bounds[bound_index].current_x)):
-            bound_next = active_bounds[bound_next_index]
-            if (bound_next is not None
-                    and bound_next.current_edge.top.y != top_y
-                    and bound_next.current_edge.bottom.y != top_y):
-                manager.hot_pixels.append(Point(round(bound_next.current_x),
-                                                top_y))
-            active_bounds[bound_index], active_bounds[bound_next_index] = (
-                active_bounds[bound_next_index], active_bounds[bound_index])
-            bound_index += 1
-            bound_next_index += 1
-            shifted = True
-    elif bound_index > 0:
-        bound_prev_index = bound_index - 1
-        while (bound_index > 0
-               and (active_bounds[bound_prev_index] is None
-                    or active_bounds[bound_prev_index].current_x
-                    > active_bounds[bound_index].current_x)):
-            bound_prev = active_bounds[bound_prev_index]
-            if (bound_prev is not None
-                    and bound_prev.current_edge.top.y != top_y
-                    and bound_prev.current_edge.bottom.y != top_y):
-                manager.hot_pixels.append(Point(round(bound_prev.current_x),
-                                                top_y))
-            active_bounds[bound_index], active_bounds[bound_prev_index] = (
-                active_bounds[bound_prev_index],
-                active_bounds[bound_index])
-            bound_index -= 1
-            if bound_index > 0:
-                bound_prev_index -= 1
-    return bound_index, shifted
 
 
 def next_edge_in_bound(bound: Bound, scanbeams: List[Coordinate]) -> None:
