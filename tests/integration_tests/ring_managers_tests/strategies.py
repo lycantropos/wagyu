@@ -30,6 +30,7 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          to_maybe_pairs,
                          to_pairs,
                          transpose_pairs)
+from wagyu.hints import Coordinate
 from wagyu.linear_ring import LinearRing
 from wagyu.point import Point
 
@@ -77,17 +78,20 @@ local_minimum_lists_pairs = (strategies.lists(linear_rings_pairs)
                              .map(to_bound_with_ported_local_minimum_lists))
 
 
-def to_local_minimum_lists_pairs_with_indices(
+def to_local_minimum_lists_pairs_indices_coordinates(
         local_minimum_lists_pair: BoundPortedLocalMinimumListsPair
-) -> Strategy[Tuple[BoundPortedLocalMinimumListsPair, int]]:
+) -> Strategy[Tuple[BoundPortedLocalMinimumListsPair, int, Coordinate]]:
     bound_local_minimum_list, _ = local_minimum_lists_pair
     indices = strategies.integers(0, max(len(bound_local_minimum_list) - 1, 0))
     return strategies.tuples(strategies.just(local_minimum_lists_pair),
-                             indices)
+                             indices,
+                             strategies.sampled_from(
+                                     bound_local_minimum_list.scanbeams))
 
 
-local_minimum_lists_pairs_with_indices = local_minimum_lists_pairs.flatmap(
-        to_local_minimum_lists_pairs_with_indices)
+local_minimum_lists_pairs_indices_coordinates = (
+    local_minimum_lists_pairs.flatmap(
+            to_local_minimum_lists_pairs_indices_coordinates))
 booleans = strategies.booleans()
 sizes = sizes
 points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,
@@ -121,7 +125,5 @@ initialized_bounds_lists_pairs = (strategies.lists(initialized_bounds_pairs)
 points_lists_pairs = strategies.lists(points_pairs).map(transpose_pairs)
 rings_lists_pairs = strategies.lists(rings_pairs).map(transpose_pairs)
 ring_managers_pairs = strategies.builds(
-        to_bound_with_ported_ring_managers_pair,
-        to_pairs(strategies.builds(list)),
-        to_pairs(strategies.builds(list)), to_pairs(strategies.builds(list)),
-        sizes)
+        to_bound_with_ported_ring_managers_pair, maybe_rings_lists_pairs,
+        points_lists_pairs, rings_lists_pairs, sizes)

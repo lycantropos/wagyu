@@ -11,18 +11,17 @@ from wagyu.hints import Coordinate
 from . import strategies
 
 
-@given(strategies.ring_managers_pairs, strategies.floats,
-       strategies.local_minimum_lists_pairs_with_indices,
+@given(strategies.ring_managers_pairs,
+       strategies.local_minimum_lists_pairs_indices_coordinates,
        strategies.initialized_bounds_lists_pairs)
 def test_basic(pair: BoundPortedRingManagersPair,
-               top_y: Coordinate,
-               local_minimum_lists_pair_with_index
-               : Tuple[BoundPortedLocalMinimumListsPair, int],
+               local_minimum_lists_pair_index_top_y
+               : Tuple[BoundPortedLocalMinimumListsPair, int, Coordinate],
                active_bounds_pair: BoundPortedBoundsListsPair
                ) -> None:
     bound, ported = pair
-    (bound_local_minimum_list,
-     ported_local_minimum_list), index = local_minimum_lists_pair_with_index
+    ((bound_local_minimum_list, ported_local_minimum_list), index,
+     top_y) = local_minimum_lists_pair_index_top_y
     bound_active_bounds, ported_active_bounds = active_bounds_pair
     bound_scanbeams = bound_local_minimum_list.scanbeams
     ported_scanbeams = ported_local_minimum_list.scanbeams
