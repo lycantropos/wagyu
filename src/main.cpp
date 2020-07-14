@@ -785,6 +785,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               ActiveBoundList& active_bounds) {
              mapbox::geometry::wagyu::process_hot_pixel_intersections<
                  coordinate_t>(top_y, active_bounds, self);
+             return active_bounds;
            })
       .def("create_ring",
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
