@@ -437,3 +437,10 @@ def to_ported_polygon_linear_rings(raw_polygon: RawPolygon
     return ([PortedLinearRing(to_ported_linear_rings_points(raw_border))]
             + [PortedLinearRing(to_ported_linear_rings_points(raw_hole))
                for raw_hole in raw_holes])
+
+
+def initialize_bounds(bounds_pair: BoundPortedBoundsPair,
+                      current_edge_index: int) -> BoundPortedBoundsPair:
+    bound, ported = bounds_pair
+    bound.current_edge_index = ported.current_edge_index = current_edge_index
+    return bounds_pair
