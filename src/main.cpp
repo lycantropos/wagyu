@@ -47,6 +47,7 @@ using ActiveBoundList =
     mapbox::geometry::wagyu::active_bound_list<coordinate_t>;
 using Box = mapbox::geometry::box<coordinate_t>;
 using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
+using BoundPtr = mapbox::geometry::wagyu::bound_ptr<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
 using HotPixelVector = mapbox::geometry::wagyu::hot_pixel_vector<coordinate_t>;
@@ -835,6 +836,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           py::arg("remove_from_parent") = true)
       .def("sort_hot_pixels",
            mapbox::geometry::wagyu::sort_hot_pixels<coordinate_t>);
+
+  m.def("bound_insert_location", [](const Bound& self, const BoundPtr& other) {
+    return mapbox::geometry::wagyu::bound_insert_location{self}(other);
+  });
 
   m.def("are_points_slopes_equal", [](const Point& pt1, const Point& pt2,
                                       const Point& pt3) {
