@@ -89,7 +89,7 @@ struct bound_insert_location {
 
   bound_insert_location(bound<T> const& b) : bound2(b) {}
 
-  bool operator()(bound_ptr<T> const& b) {
+  bool operator()(bound_ptr<T> const& b) const {
     auto const& bound1 = *b;
     if (values_are_equal(bound2.current_x, bound1.current_x)) {
       if (bound2.current_edge->top.y > bound1.current_edge->top.y) {
