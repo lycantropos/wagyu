@@ -22,6 +22,7 @@ from tests.utils import (BoundPortedBoundsPair,
                          to_maybe_pairs,
                          transpose_pairs)
 
+coordinates_lists = strategies.lists(coordinates)
 points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,
                                  coordinates)
 booleans = strategies.booleans()
