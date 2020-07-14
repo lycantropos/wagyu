@@ -67,19 +67,19 @@ class RingManager:
     def build_hot_pixels(self, minimums: LocalMinimumList) -> None:
         sorted_minimums = sorted(minimums,
                                  reverse=True)
-        current_lm_index = 0
+        minimums_index = 0
         scanbeams = minimums.scanbeams
         active_bounds = []  # type: List[Optional[Bound]]
         scanline_y = math.inf
-        while scanbeams or current_lm_index < len(minimums):
+        while scanbeams or minimums_index < len(minimums):
             try:
                 scanline_y = scanbeams.pop()
             except IndexError:
                 pass
             self.process_hot_pixel_intersections(scanline_y, active_bounds)
-            current_lm_index = self.insert_local_minima_into_abl_hot_pixel(
-                    scanline_y, current_lm_index, scanbeams, sorted_minimums,
-                    active_bounds)
+            minimums_index = self.insert_local_minima_into_abl_hot_pixel(
+                    scanline_y, sorted_minimums, minimums_index, active_bounds,
+                    scanbeams)
             self.process_hot_pixel_edges_at_top_of_scanbeam(scanline_y,
                                                             scanbeams,
                                                             active_bounds)
@@ -87,14 +87,14 @@ class RingManager:
 
     def insert_local_minima_into_abl_hot_pixel(self,
                                                top_y: Coordinate,
-                                               current_lm_index: int,
-                                               scanbeams: List[Coordinate],
                                                minimums: List[LocalMinimum],
-                                               active_bounds: List[Bound]
+                                               minimums_index: int,
+                                               active_bounds: List[Bound],
+                                               scanbeams: List[Coordinate]
                                                ) -> int:
-        while (current_lm_index < len(minimums)
-               and minimums[current_lm_index].y == top_y):
-            current_lm = minimums[current_lm_index]
+        while (minimums_index < len(minimums)
+               and minimums[minimums_index].y == top_y):
+            current_lm = minimums[minimums_index]
             self.hot_pixels.append(current_lm.left_bound.edges[0].bottom)
             left_bound, right_bound = (current_lm.left_bound,
                                        current_lm.right_bound)
@@ -116,8 +116,8 @@ class RingManager:
             rb_abl_current_edge = active_bounds[rb_abl_index].current_edge
             if not rb_abl_current_edge.is_horizontal:
                 insort_unique(scanbeams, rb_abl_current_edge.top.y)
-            current_lm_index += 1
-        return current_lm_index
+            minimums_index += 1
+        return minimums_index
 
     def process_hot_pixel_edges_at_top_of_scanbeam(self,
                                                    top_y: Coordinate,
