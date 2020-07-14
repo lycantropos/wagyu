@@ -838,7 +838,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            mapbox::geometry::wagyu::sort_hot_pixels<coordinate_t>);
 
   m.def("bound_insert_location", [](const Bound& self, const BoundPtr& other) {
-    return mapbox::geometry::wagyu::bound_insert_location{self}(other);
+    const auto comparator = mapbox::geometry::wagyu::bound_insert_location(self);
+    return comparator(other);
   });
 
   m.def("are_points_slopes_equal", [](const Point& pt1, const Point& pt2,
