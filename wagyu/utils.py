@@ -1,3 +1,4 @@
+import ctypes
 import struct
 from bisect import bisect_left
 from typing import MutableSequence
@@ -48,9 +49,9 @@ def _double_to_biased(value: float,
                       sign_bit_mask: int = 2 ** 63) -> int:
     result, = struct.unpack('!Q', struct.pack('!d', value))
     if sign_bit_mask & result:
-        return (~result + 1) % sign_bit_mask
+        return ctypes.c_uint64(~result + 1).value
     else:
-        return (sign_bit_mask | result) % sign_bit_mask
+        return ctypes.c_uint64(sign_bit_mask | result).value
 
 
 def insort_unique(sequence: MutableSequence[Domain], value: Domain) -> None:
