@@ -1,3 +1,4 @@
+from functools import partial
 from typing import (List,
                     Optional)
 
@@ -10,7 +11,8 @@ from .point import Point
 from .ring import Ring
 from .utils import (are_floats_almost_equal,
                     are_floats_greater_than,
-                    are_floats_less_than)
+                    are_floats_less_than,
+                    find_if)
 
 
 class Bound:
@@ -201,10 +203,8 @@ def bound_insert_location(left: Bound, right: Bound) -> bool:
 def insert_bound_into_abl(left: Bound,
                           right: Bound,
                           active_bounds: List[Bound]) -> int:
-    index = 0
-    for index, bound in enumerate(active_bounds):
-        if bound_insert_location(left, bound):
-            break
+    index = find_if(partial(bound_insert_location, left),
+                    active_bounds)
     active_bounds.insert(index, right)
     active_bounds.insert(index, left)
     return index

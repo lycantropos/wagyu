@@ -1,7 +1,9 @@
 import ctypes
 import struct
 from bisect import bisect_left
-from typing import MutableSequence
+from typing import (Callable,
+                    MutableSequence,
+                    Sequence)
 
 from .edge import Edge
 from .hints import Domain
@@ -58,3 +60,14 @@ def insort_unique(sequence: MutableSequence[Domain], value: Domain) -> None:
     index = bisect_left(sequence, value)
     if index == len(sequence) or value < sequence[index]:
         sequence.insert(index, value)
+
+
+def find_if(predicate: Callable[[Domain], bool],
+            values: Sequence[Domain]) -> int:
+    """
+    Equivalent of C++'s ``std::find_if``.
+    """
+    for index, value in enumerate(values):
+        if predicate(value):
+            return index
+    return len(values)
