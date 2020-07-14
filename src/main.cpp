@@ -575,6 +575,14 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("winding_delta", &Bound::winding_delta)
       .def_readonly("polygon_kind", &Bound::poly_type)
       .def_readonly("side", &Bound::side)
+      .def_property(
+          "current_edge_index",
+          [](const Bound& self) {
+            return self.current_edge - self.edges.begin();
+          },
+          [](Bound& self, std::size_t value) {
+            self.current_edge = self.edges.begin() + value;
+          })
       .def("is_maxima",
            [](const Bound& self, coordinate_t y) {
              return mapbox::geometry::wagyu::is_maxima<coordinate_t>(self, y);
