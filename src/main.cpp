@@ -583,6 +583,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           [](Bound& self, std::size_t value) {
             self.current_edge = self.edges.begin() + value;
           })
+      .def_property(
+          "next_edge_index",
+          [](const Bound& self) { return self.next_edge - self.edges.begin(); },
+          [](Bound& self, std::size_t value) {
+            self.next_edge = self.edges.begin() + value;
+          })
       .def("is_maxima",
            [](const Bound& self, coordinate_t y) {
              return mapbox::geometry::wagyu::is_maxima<coordinate_t>(self, y);
