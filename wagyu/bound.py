@@ -8,12 +8,15 @@ from .enums import (EdgeSide,
                     PolygonKind)
 from .point import Point
 from .ring import Ring
+from .utils import (are_floats_almost_equal,
+                    are_floats_greater_than,
+                    are_floats_less_than)
 
 
 class Bound:
     __slots__ = ('edges', 'last_point', 'ring', 'current_x', 'position',
                  'winding_count', 'opposite_winding_count', 'winding_delta',
-                 'polygon_kind', 'side', 'current_edge_index', 
+                 'polygon_kind', 'side', 'current_edge_index',
                  'next_edge_index', 'maximum_bound')
 
     def __init__(self,
@@ -179,3 +182,29 @@ def create_bound_towards_minimum(edges: List[Edge]) -> Bound:
         del edges[:next_edge_index]
     result.edges.reverse()
     return result
+
+
+def bound_insert_location(left: Bound, right: Bound) -> bool:
+    if are_floats_almost_equal(left.current_x, right.current_x):
+        if left.current_edge.top.y > right.current_edge.top.y:
+            return are_floats_less_than(float(left.current_edge.top.x),
+                                        right.current_edge.get_current_x(
+                                                left.current_edge.top.y))
+        else:
+            return are_floats_greater_than(float(right.current_edge.top.x),
+                                           left.current_edge.get_current_x(
+                                                   right.current_edge.top.y))
+    else:
+        return left.current_x < right.current_x
+
+
+def insert_bound_into_abl(left: Bound,
+                          right: Bound,
+                          active_bounds: List[Bound]) -> int:
+    index = 0
+    for index, bound in enumerate(active_bounds):
+        if bound_insert_location(left, bound):
+            break
+    active_bounds.insert(index, right)
+    active_bounds.insert(index, left)
+    return index

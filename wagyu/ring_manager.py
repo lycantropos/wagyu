@@ -8,7 +8,8 @@ from typing import (List,
 
 from reprit.base import generate_repr
 
-from .bound import Bound
+from .bound import (Bound,
+                    insert_bound_into_abl)
 from .bubble_sort import bubble_sort
 from .hints import Coordinate
 from .local_minimum import (LocalMinimum,
@@ -18,9 +19,6 @@ from .point_node import (PointNode,
                          maybe_point_node_to_points)
 from .ring import Ring
 from .utils import (are_edges_slopes_equal,
-                    are_floats_almost_equal,
-                    are_floats_greater_than,
-                    are_floats_less_than,
                     insort_unique)
 
 
@@ -180,32 +178,6 @@ def intersection_compare(left: Bound, right: Bound) -> bool:
     return not (left.current_x > right.current_x and
                 not are_edges_slopes_equal(left.current_edge,
                                            right.current_edge))
-
-
-def bound_insert_location(left: Bound, right: Bound) -> bool:
-    if are_floats_almost_equal(left.current_x, right.current_x):
-        if left.current_edge.top.y > right.current_edge.top.y:
-            return are_floats_less_than(left.current_edge.top.x,
-                                        right.current_edge.get_current_x(
-                                                left.current_edge.top.y))
-        else:
-            return are_floats_greater_than(right.current_edge.top.x,
-                                           left.current_edge.get_current_x(
-                                                   right.current_edge.top.y))
-    else:
-        return left.current_x < right.current_x
-
-
-def insert_bound_into_abl(left: Bound,
-                          right: Bound,
-                          active_bounds: List[Bound]) -> int:
-    index = 0
-    for index, bound in enumerate(active_bounds):
-        if bound_insert_location(left, bound):
-            break
-    active_bounds.insert(index, right)
-    active_bounds.insert(index, left)
-    return index
 
 
 def horizontals_at_top_scanbeam(top_y: Coordinate,
