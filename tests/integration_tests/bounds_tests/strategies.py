@@ -6,7 +6,9 @@ from tests.strategies import (coordinates,
                               integers_32,
                               sizes,
                               trits)
-from tests.utils import (bound_edges_sides,
+from tests.utils import (BoundPortedBoundsPair,
+                         Strategy,
+                         bound_edges_sides,
                          bound_polygons_kinds,
                          ported_edges_sides,
                          ported_polygons_kinds,
@@ -42,3 +44,21 @@ bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
                                  maybe_rings_pairs, floats, sizes, integers_32,
                                  integers_32, trits, polygons_kinds_pairs,
                                  edges_sides_pairs)
+
+
+def to_initialized_bounds_pairs(bounds_pair: BoundPortedBoundsPair
+                                ) -> Strategy[BoundPortedBoundsPair]:
+    bound, ported = bounds_pair
+    return strategies.builds(initialize_bounds,
+                             strategies.just(bounds_pair),
+                             strategies.integers(0, len(ported.edges) - 1))
+
+
+def initialize_bounds(bounds_pair: BoundPortedBoundsPair,
+                      current_edge_index: int) -> BoundPortedBoundsPair:
+    bound, ported = bounds_pair
+    bound.current_edge_index = ported.current_edge_index = current_edge_index
+    return bounds_pair
+
+
+initialized_bounds_pairs = bounds_pairs.flatmap(to_initialized_bounds_pairs)
