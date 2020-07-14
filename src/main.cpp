@@ -766,6 +766,20 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::build_hot_pixels<coordinate_t>(minimums,
                                                                      self);
            })
+      .def("insert_local_minima_into_abl_hot_pixel",
+           [](RingManager& self, coordinate_t top_y, LocalMinimumList& minimums,
+              std::size_t minimums_index, ActiveBoundList& active_bounds,
+              ScanbeamList& scanbeams) {
+             mapbox::geometry::wagyu::local_minimum_ptr_list<coordinate_t>
+                 minimums_ptr;
+             for (auto& minimum : minimums) minimums_ptr.push_back(&minimum);
+             auto minimums_itr = minimums_ptr.begin() + minimums_index;
+             mapbox::geometry::wagyu::insert_local_minima_into_ABL_hot_pixel<
+                 coordinate_t>(top_y, minimums_ptr, minimums_itr, active_bounds,
+                               self, scanbeams);
+             return py::make_tuple(active_bounds, scanbeams,
+                                   minimums_itr - minimums_ptr.begin());
+           })
       .def("process_hot_pixel_intersections",
            [](RingManager& self, coordinate_t top_y,
               ActiveBoundList& active_bounds) {
