@@ -48,7 +48,8 @@ class Edge:
         return math.isinf(self.slope)
 
     def get_current_x(self, current_y: Coordinate) -> Coordinate:
-        return (self.top.x
+        return float(
+                self.top.x
                 if current_y == self.top.y
                 else self.bottom.x + self.slope * (current_y - self.bottom.y))
 
