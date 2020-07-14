@@ -76,7 +76,8 @@ class RingManager:
                 scanline_y = scanbeams.pop()
             except IndexError:
                 pass
-            self.process_hot_pixel_intersections(scanline_y, active_bounds)
+            active_bounds = self.process_hot_pixel_intersections(scanline_y,
+                                                                 active_bounds)
             minimums_index = self.insert_local_minima_into_abl_hot_pixel(
                     scanline_y, sorted_minimums, minimums_index, active_bounds,
                     scanbeams)
@@ -153,10 +154,11 @@ class RingManager:
 
     def process_hot_pixel_intersections(self,
                                         top_y: Coordinate,
-                                        active_bounds: List[Bound]) -> None:
+                                        active_bounds: List[Bound]
+                                        ) -> List[Bound]:
         update_current_x(active_bounds, top_y)
-        active_bounds[:] = bubble_sort(active_bounds, intersection_compare,
-                                       self.hot_pixels_on_swap)
+        return bubble_sort(active_bounds, intersection_compare,
+                           self.hot_pixels_on_swap)
 
     def hot_pixels_on_swap(self,
                            first_bound: Bound,

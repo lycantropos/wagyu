@@ -1,13 +1,12 @@
 from typing import (Callable,
-                    MutableSequence)
+                    List)
 
 from .hints import Domain
 
 
-def bubble_sort(sequence: MutableSequence[Domain],
+def bubble_sort(sequence: List[Domain],
                 comparator: Callable[[Domain, Domain], bool],
-                on_swap: Callable[[Domain, Domain], None]
-                ) -> MutableSequence[Domain]:
+                on_swap: Callable[[Domain, Domain], None]) -> List[Domain]:
     result = sequence[:]
     while True:
         no_swaps = True
