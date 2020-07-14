@@ -847,7 +847,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
         [](Bound& left, Bound& right, ActiveBoundList& active_bounds) {
           auto result = mapbox::geometry::wagyu::insert_bound_into_ABL(
               left, right, active_bounds);
-          return result - active_bounds.begin();
+          return py::make_tuple(active_bounds, result - active_bounds.begin());
         });
 
   m.def("are_points_slopes_equal", [](const Point& pt1, const Point& pt2,
