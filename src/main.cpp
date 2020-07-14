@@ -838,7 +838,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            mapbox::geometry::wagyu::sort_hot_pixels<coordinate_t>);
 
   m.def("bound_insert_location", [](const Bound& self, const BoundPtr& other) {
-    const auto comparator = mapbox::geometry::wagyu::bound_insert_location(self);
+    const auto comparator =
+        mapbox::geometry::wagyu::bound_insert_location<coordinate_t>(self);
     return comparator(other);
   });
 
