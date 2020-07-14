@@ -28,11 +28,11 @@ def is_point_between_others(pt1: Point, pt2: Point, pt3: Point) -> bool:
         return (pt2.y > pt1.y) is (pt2.y < pt3.y)
 
 
-def are_floats_greater_than(x, y) -> bool:
+def are_floats_greater_than(x: float, y: float) -> bool:
     return not are_floats_almost_equal(x, y) and x > y
 
 
-def are_floats_less_than(x, y) -> bool:
+def are_floats_less_than(x: float, y: float) -> bool:
     return not are_floats_almost_equal(x, y) and x < y
 
 
