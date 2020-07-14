@@ -612,7 +612,11 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            mapbox::geometry::wagyu::fix_horizontals<coordinate_t>)
       .def("move_horizontals",
            mapbox::geometry::wagyu::move_horizontals_on_left_to_right<
-               coordinate_t>);
+               coordinate_t>)
+      .def("to_next_edge", [](Bound& self, ScanbeamList& scanbeams) {
+        mapbox::geometry::wagyu::next_edge_in_bound(self, scanbeams);
+        return scanbeams;
+      });
 
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
       .def(py::self == py::self)
