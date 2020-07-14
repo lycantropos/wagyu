@@ -7,12 +7,14 @@ from reprit.base import generate_repr
 from .edge import Edge
 from .enums import (EdgeSide,
                     PolygonKind)
+from .hints import Coordinate
 from .point import Point
 from .ring import Ring
 from .utils import (are_floats_almost_equal,
                     are_floats_greater_than,
                     are_floats_less_than,
-                    find_if)
+                    find_if,
+                    insort_unique)
 
 
 class Bound:
@@ -103,6 +105,14 @@ class Bound:
         other_edges.extend(reversed(edges[:index]))
         del edges[:index]
         other_edges[:] = other_edges[-index:] + other_edges[:-index]
+
+    def to_next_edge(self, scanbeams: List[Coordinate]) -> None:
+        self.current_edge_index += 1
+        if self.current_edge_index < len(self.edges):
+            self.next_edge_index += 1
+            self.current_x = self.current_edge.bottom.x
+            if not self.current_edge.is_horizontal:
+                insort_unique(scanbeams, self.current_edge.top.y)
 
 
 def create_bound_towards_maximum(edges: List[Edge]) -> Bound:

@@ -138,7 +138,7 @@ class RingManager:
                 if current_edge.is_horizontal:
                     index, shifted = self.horizontals_at_top_scanbeam(
                             top_y, index, active_bounds)
-                next_edge_in_bound(bound, scanbeams)
+                bound.to_next_edge(scanbeams)
             if bound.current_edge_index == len(bound.edges):
                 active_bounds[index] = None
             if not shifted:
@@ -224,15 +224,6 @@ def intersection_compare(left: Bound, right: Bound) -> bool:
     return not (left.current_x > right.current_x and
                 not are_edges_slopes_equal(left.current_edge,
                                            right.current_edge))
-
-
-def next_edge_in_bound(bound: Bound, scanbeams: List[Coordinate]) -> None:
-    bound.current_edge_index += 1
-    if bound.current_edge_index < len(bound.edges):
-        bound.next_edge_index += 1
-        bound.current_x = bound.current_edge.bottom.x
-        if not bound.current_edge.is_horizontal:
-            insort_unique(scanbeams, bound.current_edge.top.y)
 
 
 def hot_pixels_compare(left: Point, right: Point) -> bool:
