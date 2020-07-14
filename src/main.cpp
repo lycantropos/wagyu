@@ -589,6 +589,20 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           [](Bound& self, std::size_t value) {
             self.next_edge = self.edges.begin() + value;
           })
+      .def_property_readonly(
+          "current_edge",
+          [](const Bound& self) {
+            if (self.current_edge == self.edges.end())
+              throw std::out_of_range("list index out of range");
+            return *self.current_edge;
+          })
+      .def_property_readonly(
+          "next_edge",
+          [](const Bound& self) {
+            if (self.next_edge == self.edges.end())
+              throw std::out_of_range("list index out of range");
+            return *self.next_edge;
+          })
       .def("is_maxima",
            [](const Bound& self, coordinate_t y) {
              return mapbox::geometry::wagyu::is_maxima<coordinate_t>(self, y);
