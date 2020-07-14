@@ -228,8 +228,7 @@ def intersection_compare(left: Bound, right: Bound) -> bool:
 
 def next_edge_in_bound(bound: Bound, scanbeams: List[Coordinate]) -> None:
     bound.current_edge_index += 1
-    current_edge_index = bound.current_edge_index
-    if current_edge_index < len(bound.edges):
+    if bound.current_edge_index < len(bound.edges):
         bound.next_edge_index += 1
         bound.current_x = bound.current_edge.bottom.x
         if not bound.current_edge.is_horizontal:
