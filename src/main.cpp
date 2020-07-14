@@ -842,6 +842,13 @@ PYBIND11_MODULE(MODULE_NAME, m) {
     return comparator(other);
   });
 
+  m.def("insert_bound_into_abl",
+        [](Bound& left, Bound& right, ActiveBoundList& active_bounds) {
+          auto result = mapbox::geometry::wagyu::insert_bound_into_ABL(
+              left, right, active_bounds);
+          return result - active_bounds.begin();
+        });
+
   m.def("are_points_slopes_equal", [](const Point& pt1, const Point& pt2,
                                       const Point& pt3) {
     return mapbox::geometry::wagyu::slopes_equal<coordinate_t>(pt1, pt2, pt3);
