@@ -71,6 +71,7 @@ PortedRing = PortedRing
 PortedRingManager = PortedRingManager
 
 BoundPortedBoundsPair = Tuple[BoundBound, PortedBound]
+BoundPortedBoundsListsPair = Tuple[List[BoundBound], List[PortedBound]]
 BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedEdgesListsPair = Tuple[List[BoundEdge], List[PortedEdge]]
@@ -197,6 +198,9 @@ def are_bound_ported_bounds_equal(bound: BoundBound,
     return are_bound_ported_plain_bounds_lists_equal(
             list(traverse_bound(bound)), list(traverse_bound(ported)))
 
+
+are_bound_ported_bounds_lists_equal = to_sequences_equals(
+        are_bound_ported_bounds_equal)
 
 AnyBound = TypeVar('AnyBound', BoundBound, PortedBound)
 
