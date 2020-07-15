@@ -552,11 +552,25 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            py::arg("box"));
 
   py::class_<Bound, std::unique_ptr<Bound, py::nodelete>>(m, BOUND_NAME)
-      .def(py::init<const EdgeList&, const Point&, RingPtr, double, std::size_t,
-                    std::int32_t, std::int32_t, std::int8_t,
-                    mapbox::geometry::wagyu::polygon_type,
-                    mapbox::geometry::wagyu::edge_side>(),
-           py::arg("edges") = EdgeList{}, py::arg("last_point") = Point{0, 0},
+      .def(py::init([](const EdgeList& edges, std::size_t current_edge_index,
+                       const Point& last_point, RingPtr ring, double current_x,
+                       std::size_t position, std::int32_t winding_count,
+                       std::int32_t opposite_winding_count,
+                       std::int8_t winding_delta,
+                       mapbox::geometry::wagyu::polygon_type polygon_kind,
+                       mapbox::geometry::wagyu::edge_side edge_side) {
+             auto result = new Bound(
+                 edges, last_point, ring, current_x, position, winding_count,
+                 opposite_winding_count, winding_delta, polygon_kind,
+                 edge_side);
+             result->current_edge =
+                 current_edge_index < result->edges.size()
+                     ? result->edges.begin() + current_edge_index
+                     : result->edges.end();
+             return result;
+           }),
+           py::arg("edges") = EdgeList{}, py::arg("current_edge_index") = 0,
+           py::arg("last_point") = Point{0, 0},
            py::arg("ring").none(true) = nullptr, py::arg("current_x") = 0.,
            py::arg("position") = 0, py::arg("winding_count") = 0,
            py::arg("opposite_winding_count") = 0, py::arg("winding_delta") = 0,
