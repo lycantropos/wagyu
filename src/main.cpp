@@ -355,7 +355,10 @@ static bool operator==(const RingManager& left, const RingManager& right) {
 }
 
 static bool operator==(const Bound& self, const Bound& other) {
-  return self.edges == other.edges && self.last_point == other.last_point &&
+  return self.edges == other.edges &&
+         bound_to_current_edge_index(self) ==
+             bound_to_current_edge_index(other) &&
+         self.last_point == other.last_point &&
          pointers_equal(self.ring, other.ring) &&
          self.current_x == other.current_x && self.pos == other.pos &&
          self.winding_count == other.winding_count &&
