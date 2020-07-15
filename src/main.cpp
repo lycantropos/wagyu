@@ -113,6 +113,10 @@ static const typename Sequence::value_type& to_item(const Sequence& sequence,
   return sequence[normalized_index];
 }
 
+std::size_t bound_to_current_edge_index(const Bound& self) {
+  return self.current_edge - self.edges.begin();
+}
+
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
 
 template <class Object>
@@ -294,7 +298,8 @@ static std::ostream& operator<<(std::ostream& stream,
 static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
   stream << C_STR(MODULE_NAME) "." BOUND_NAME "(";
   write_sequence(stream, bound.edges);
-  stream << ", " << bound.last_point << ", ";
+  stream << ", " << bound_to_current_edge_index(bound) << ", "
+         << bound.last_point << ", ";
   write_pointer(stream, bound.ring);
   return stream << ", " << bound.current_x << ", " << bound.pos << ", "
                 << bound.winding_count << ", " << bound.winding_count2 << ", "
@@ -589,14 +594,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("winding_delta", &Bound::winding_delta)
       .def_readonly("polygon_kind", &Bound::poly_type)
       .def_readonly("side", &Bound::side)
-      .def_property(
-          "current_edge_index",
-          [](const Bound& self) {
-            return self.current_edge - self.edges.begin();
-          },
-          [](Bound& self, std::size_t value) {
-            self.current_edge = self.edges.begin() + value;
-          })
+      .def_property("current_edge_index", bound_to_current_edge_index,
+                    [](Bound& self, std::size_t value) {
+                      self.current_edge = self.edges.begin() + value;
+                    })
       .def_property(
           "next_edge_index",
           [](const Bound& self) { return self.next_edge - self.edges.begin(); },
