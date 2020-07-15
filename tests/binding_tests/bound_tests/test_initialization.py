@@ -12,11 +12,12 @@ from hypothesis import given
 from . import strategies
 
 
-@given(strategies.edges_lists, strategies.points, strategies.maybe_rings,
-       strategies.floats, strategies.sizes, strategies.integers_32,
-       strategies.integers_32, strategies.trits, strategies.polygons_kinds,
-       strategies.edges_sides)
+@given(strategies.edges_lists, strategies.sizes, strategies.points,
+       strategies.maybe_rings, strategies.floats, strategies.sizes,
+       strategies.integers_32, strategies.integers_32, strategies.trits,
+       strategies.polygons_kinds, strategies.edges_sides)
 def test_basic(edges: List[Edge],
+               current_edge_index: int,
                last_point: Point,
                ring: Optional[Ring],
                current_x: float,
@@ -26,10 +27,12 @@ def test_basic(edges: List[Edge],
                winding_delta: int,
                polygon_kind: PolygonKind,
                side: EdgeSide) -> None:
-    result = Bound(edges, last_point, ring, current_x, position, winding_count,
-                   opposite_winding_count, winding_delta, polygon_kind, side)
+    result = Bound(edges, current_edge_index, last_point, ring, current_x,
+                   position, winding_count, opposite_winding_count,
+                   winding_delta, polygon_kind, side)
 
     assert result.edges == edges
+    assert result.current_edge_index == min(current_edge_index, len(edges))
     assert result.last_point == last_point
     assert result.ring == ring
     assert result.maximum_bound is None
