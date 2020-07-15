@@ -25,7 +25,8 @@ class Bound:
 
     def __init__(self,
                  edges: Optional[List[Edge]] = None,
-                 last_point: Point = Point(0, 0),
+                 current_edge_index: int = 0,
+                 last_point: Optional[Point] = None,
                  ring: Optional[Ring] = None,
                  current_x: float = 0.,
                  position: int = 0,
@@ -35,7 +36,7 @@ class Bound:
                  polygon_kind: PolygonKind = PolygonKind.SUBJECT,
                  side: EdgeSide = EdgeSide.LEFT) -> None:
         self.edges = edges or []
-        self.last_point = last_point
+        self.last_point = Point(0, 0) if last_point is None else last_point
         self.ring = ring
         self.current_x = current_x
         self.position = position
@@ -44,7 +45,7 @@ class Bound:
         self.winding_delta = winding_delta
         self.polygon_kind = polygon_kind
         self.side = side
-        self.current_edge_index = len(self.edges)  # type: int
+        self.current_edge_index = min(current_edge_index, len(edges))
         self.next_edge_index = len(self.edges)  # type: int
         self.maximum_bound = None  # type: Optional[Bound]
 
