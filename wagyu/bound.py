@@ -53,6 +53,7 @@ class Bound:
 
     def __eq__(self, other: 'Bound') -> bool:
         return (self.edges == other.edges
+                and self.current_edge_index == other.current_edge_index
                 and self.last_point == other.last_point
                 and self.ring == other.ring
                 and self.current_x == other.current_x
