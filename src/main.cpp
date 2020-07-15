@@ -657,6 +657,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
 
   py::class_<LocalMinimumList>(m, LOCAL_MINIMUM_LIST_NAME)
       .def(py::init<>())
+      .def(py::init([](const std::vector<LocalMinimum>& minimums) {
+        return LocalMinimumList(minimums.begin(), minimums.end());
+      }))
       .def(py::self == py::self)
       .def("__repr__", repr<LocalMinimumList>)
       .def("__contains__", contains<LocalMinimumList>)
