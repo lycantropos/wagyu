@@ -68,8 +68,36 @@ struct bound {
         poly_type(std::move(b.poly_type)),
         side(std::move(b.side)) {}
 
-  bound(bound<T> const& b) = delete;
-  bound<T>& operator=(bound<T> const&) = delete;
+  bound(bound<T> const& b)
+      : edges(b.edges),
+        current_edge(edges.begin() + (b.current_edge - b.edges.begin())),
+        next_edge(edges.begin() + (b.next_edge - b.edges.begin())),
+        last_point(b.last_point),
+        ring(b.ring),
+        maximum_bound(b.maximum_bound),
+        current_x(b.current_x),
+        pos(b.pos),
+        winding_count(b.winding_count),
+        winding_count2(b.winding_count2),
+        winding_delta(b.winding_delta),
+        poly_type(b.poly_type),
+        side(b.side) {}
+
+  bound<T>& operator=(bound<T> const& b) {
+    edges = b.edges;
+    current_edge = edges.begin() + (b.current_edge - b.edges.begin());
+    next_edge = edges.begin() + (b.next_edge - b.edges.begin());
+    last_point = b.last_point;
+    ring = b.ring;
+    maximum_bound = b.maximum_bound;
+    current_x = b.current_x;
+    pos = b.pos;
+    winding_count = b.winding_count;
+    winding_count2 = b.winding_count2;
+    winding_delta = b.winding_delta;
+    poly_type = b.poly_type;
+    side = b.side;
+  }
 };
 
 #ifdef DEBUG
