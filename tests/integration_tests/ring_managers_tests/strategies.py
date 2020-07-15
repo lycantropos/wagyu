@@ -28,7 +28,6 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          to_bound_with_ported_ring_managers_pair,
                          to_bound_with_ported_rings_pair,
                          to_maybe_pairs,
-                         to_pairs,
                          transpose_pairs)
 from wagyu.hints import Coordinate
 from wagyu.linear_ring import LinearRing
@@ -105,7 +104,7 @@ edges_lists_pairs = linear_rings_pairs.map(to_bound_with_ported_edges_lists)
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
                                                      ported_edges_sides)))
 bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
-                                 edges_lists_pairs, points_pairs,
+                                 edges_lists_pairs, sizes, points_pairs,
                                  maybe_rings_pairs, floats, sizes, integers_32,
                                  integers_32, trits, polygons_kinds_pairs,
                                  edges_sides_pairs)

@@ -289,6 +289,7 @@ def are_bound_ported_ring_managers_equal(bound: BoundRingManager,
 
 
 def to_bound_with_ported_bounds_pair(edges: BoundPortedEdgesListsPair,
+                                     current_edge_index: int,
                                      last_points_pair: BoundPortedPointsPair,
                                      rings_pair: BoundPortedMaybeRingsListsPair,
                                      current_x: float,
@@ -305,11 +306,12 @@ def to_bound_with_ported_bounds_pair(edges: BoundPortedEdgesListsPair,
     bound_ring, ported_ring = rings_pair
     bound_polygon_kind, ported_polygon_kind = polygons_kinds_pair
     bound_edge_side, ported_edge_side = sides_pair
-    return (BoundBound(bound_edges, bound_last_point, bound_ring, current_x,
-                       position, winding_count, opposite_winding_count,
-                       winding_delta, bound_polygon_kind, bound_edge_side),
-            PortedBound(ported_edges, ported_last_point, ported_ring,
-                        current_x, position, winding_count,
+    return (BoundBound(bound_edges, current_edge_index, bound_last_point,
+                       bound_ring, current_x, position, winding_count,
+                       opposite_winding_count, winding_delta,
+                       bound_polygon_kind, bound_edge_side),
+            PortedBound(ported_edges, current_edge_index, ported_last_point,
+                        ported_ring, current_x, position, winding_count,
                         opposite_winding_count, winding_delta,
                         ported_polygon_kind, ported_edge_side))
 
