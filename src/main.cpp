@@ -636,6 +636,11 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       });
 
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
+      .def(py::init([](const Bound& left_bound, const Bound& right_bound,
+                       coordinate_t y, bool minimum_has_horizontal) {
+        return std::make_unique<LocalMinimum>(
+            Bound(left_bound), Bound(right_bound), y, minimum_has_horizontal);
+      }))
       .def(py::self == py::self)
       .def("__repr__", repr<LocalMinimum>)
       .def("__lt__",
