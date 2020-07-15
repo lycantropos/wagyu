@@ -113,8 +113,14 @@ static const typename Sequence::value_type& to_item(const Sequence& sequence,
   return sequence[normalized_index];
 }
 
-std::size_t bound_to_current_edge_index(const Bound& self) {
-  return self.current_edge - self.edges.begin();
+static std::size_t get_bound_current_edge_index(const Bound& self) {
+  std::size_t index = self.current_edge - self.edges.begin();
+  return std::min(index, self.edges.size());
+}
+
+static void set_bound_current_edge_index(Bound& bound, std::size_t value) {
+  bound.current_edge =
+      bound.edges.begin() + std::min(value, bound.edges.size());
 }
 
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
@@ -298,7 +304,7 @@ static std::ostream& operator<<(std::ostream& stream,
 static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
   stream << C_STR(MODULE_NAME) "." BOUND_NAME "(";
   write_sequence(stream, bound.edges);
-  stream << ", " << bound_to_current_edge_index(bound) << ", "
+  stream << ", " << get_bound_current_edge_index(bound) << ", "
          << bound.last_point << ", ";
   write_pointer(stream, bound.ring);
   return stream << ", " << bound.current_x << ", " << bound.pos << ", "
@@ -356,8 +362,8 @@ static bool operator==(const RingManager& left, const RingManager& right) {
 
 static bool operator==(const Bound& self, const Bound& other) {
   return self.edges == other.edges &&
-         bound_to_current_edge_index(self) ==
-             bound_to_current_edge_index(other) &&
+         get_bound_current_edge_index(self) ==
+             get_bound_current_edge_index(other) &&
          self.last_point == other.last_point &&
          pointers_equal(self.ring, other.ring) &&
          self.current_x == other.current_x && self.pos == other.pos &&
@@ -567,13 +573,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                        std::int8_t winding_delta,
                        mapbox::geometry::wagyu::polygon_type polygon_kind,
                        mapbox::geometry::wagyu::edge_side edge_side) {
-             auto result =
-                 new Bound(edges, last_point, ring, current_x, position,
-                           winding_count, opposite_winding_count, winding_delta,
-                           polygon_kind, edge_side);
-             result->current_edge =
-                 result->edges.begin() +
-                 std::min(current_edge_index, result->edges.size());
+             auto result = Bound(edges, last_point, ring, current_x, position,
+                                 winding_count, opposite_winding_count,
+                                 winding_delta, polygon_kind, edge_side);
+             set_bound_current_edge_index(result, current_edge_index);
              return result;
            }),
            py::arg("edges") = EdgeList{}, py::arg("current_edge_index") = 0,
@@ -597,10 +600,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("winding_delta", &Bound::winding_delta)
       .def_readonly("polygon_kind", &Bound::poly_type)
       .def_readonly("side", &Bound::side)
-      .def_property("current_edge_index", bound_to_current_edge_index,
-                    [](Bound& self, std::size_t value) {
-                      self.current_edge = self.edges.begin() + value;
-                    })
+      .def_property("current_edge_index", get_bound_current_edge_index,
+                    set_bound_current_edge_index)
       .def_property(
           "next_edge_index",
           [](const Bound& self) { return self.next_edge - self.edges.begin(); },
