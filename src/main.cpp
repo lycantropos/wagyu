@@ -559,14 +559,13 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                        std::int8_t winding_delta,
                        mapbox::geometry::wagyu::polygon_type polygon_kind,
                        mapbox::geometry::wagyu::edge_side edge_side) {
-             auto result = new Bound(
-                 edges, last_point, ring, current_x, position, winding_count,
-                 opposite_winding_count, winding_delta, polygon_kind,
-                 edge_side);
+             auto result =
+                 new Bound(edges, last_point, ring, current_x, position,
+                           winding_count, opposite_winding_count, winding_delta,
+                           polygon_kind, edge_side);
              result->current_edge =
-                 current_edge_index < result->edges.size()
-                     ? result->edges.begin() + current_edge_index
-                     : result->edges.end();
+                 result->edges.begin() +
+                 std::min(current_edge_index, result->edges.size());
              return result;
            }),
            py::arg("edges") = EdgeList{}, py::arg("current_edge_index") = 0,
