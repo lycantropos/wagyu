@@ -16,3 +16,10 @@ class IntersectNode:
         self.point = point
 
     __repr__ = generate_repr(__init__)
+
+    def __eq__(self, other: 'IntersectNode') -> bool:
+        return (self.first_bound == other.first_bound
+                and self.second_bound == other.second_bound
+                and self.point == other.point
+                if isinstance(other, IntersectNode)
+                else NotImplemented)
