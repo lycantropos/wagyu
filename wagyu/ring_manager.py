@@ -131,16 +131,17 @@ class RingManager:
                 index += 1
                 continue
             shifted = False
+            current_index = index
             while (bound.current_edge_index < len(bound.edges)
                    and bound.current_edge.top.y == top_y):
                 current_edge = bound.current_edge
                 self.hot_pixels.append(current_edge.top)
                 if current_edge.is_horizontal:
-                    index, shifted = self.horizontals_at_top_scanbeam(
-                            top_y, active_bounds, index)
+                    current_index, shifted = self.horizontals_at_top_scanbeam(
+                            top_y, active_bounds, current_index)
                 bound.to_next_edge(scanbeams)
             if bound.current_edge_index == len(bound.edges):
-                active_bounds[index] = None
+                active_bounds[current_index] = None
             if not shifted:
                 index += 1
         return list(filter(partial(is_not, None), active_bounds))
