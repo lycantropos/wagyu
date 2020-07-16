@@ -641,7 +641,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
         return scanbeams;
       });
 
-  py::class_<IntersectNode>(m, INTERSECT_NODE_NAME);
+  py::class_<IntersectNode>(m, INTERSECT_NODE_NAME)
+      .def(py::init<const BoundPtr&, const BoundPtr&, const Point&>(),
+           py::arg("first_bound"), py::arg("second_bound"), py::arg("point"));
 
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
       .def(py::init([](const Bound& left_bound, const Bound& right_bound,
