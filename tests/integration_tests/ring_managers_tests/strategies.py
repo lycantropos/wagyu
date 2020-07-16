@@ -11,6 +11,7 @@ from tests.strategies import (coordinates,
                               sizes,
                               trits)
 from tests.utils import (BoundLinearRingWithPolygonKind,
+                         BoundPortedBoundsListsPair,
                          BoundPortedBoundsPair,
                          BoundPortedLocalMinimumListsPair,
                          BoundPortedPolygonKindsPair,
@@ -121,6 +122,22 @@ def to_initialized_bounds_pairs(bounds_pair: BoundPortedBoundsPair
 initialized_bounds_pairs = bounds_pairs.flatmap(to_initialized_bounds_pairs)
 initialized_bounds_lists_pairs = (strategies.lists(initialized_bounds_pairs)
                                   .map(transpose_pairs))
+non_empty_initialized_bounds_lists_pairs = (
+    strategies.lists(initialized_bounds_pairs,
+                     min_size=1).map(transpose_pairs))
+
+
+def to_bounds_lists_pairs_indices(
+        bounds_lists_pair: BoundPortedBoundsListsPair
+) -> Strategy[Tuple[BoundPortedBoundsListsPair, int]]:
+    bound, _ = bounds_lists_pair
+    return strategies.tuples(strategies.just(bounds_lists_pair),
+                             strategies.integers(0, len(bound) - 1))
+
+
+non_empty_initialized_bounds_lists_pairs_indices = (
+    non_empty_initialized_bounds_lists_pairs.flatmap(
+            to_bounds_lists_pairs_indices))
 points_lists_pairs = strategies.lists(points_pairs).map(transpose_pairs)
 rings_lists_pairs = strategies.lists(rings_pairs).map(transpose_pairs)
 ring_managers_pairs = strategies.builds(
