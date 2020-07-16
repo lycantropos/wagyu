@@ -45,15 +45,6 @@ def to_linear_rings_with_polygons_kinds(
                     List[PortedLinearRingWithPolygonKind]]]:
     bound_linear_rings, ported_linear_rings = transpose_pairs(
             linear_rings_pairs)
-    bound_linear_rings = [_wagyu.LinearRing(
-            [_wagyu.Point(1, 0), _wagyu.Point(0, 1), _wagyu.Point(0, 0),
-             _wagyu.Point(1, 0)]), _wagyu.LinearRing(
-            [_wagyu.Point(-1, 0), _wagyu.Point(1, 0), _wagyu.Point(1, 1),
-             _wagyu.Point(-1, 1), _wagyu.Point(-1, 0)])]
-    ported_linear_rings = [
-        LinearRing([Point(1, 0), Point(0, 1), Point(0, 0), Point(1, 0)]),
-        LinearRing([Point(-1, 0), Point(1, 0), Point(1, 1), Point(-1, 1),
-                    Point(-1, 0)])]
 
     def merge_with_linear_rings(
             polygons_kinds: List[BoundPortedPolygonKindsPair]
