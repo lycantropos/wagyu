@@ -144,6 +144,11 @@ def to_maybe_pairs(strategy: Strategy[Tuple[Domain, Range]]
     return to_pairs(strategies.none()) | strategy
 
 
+def subsequences(sequence: Sequence) -> SearchStrategy[Sequence]:
+    return strategies.builds(sequence.__getitem__,
+                             strategies.slices(max(len(sequence), 1)))
+
+
 def to_maybe_equals(equals: Callable[[Domain, Range], bool]
                     ) -> Callable[[Optional[Domain], Optional[Range]], bool]:
     def maybe_equals(left: Optional[Domain], right: Optional[Range]) -> bool:

@@ -1,7 +1,6 @@
 from typing import (List,
                     Tuple)
 
-import _wagyu
 from hypothesis import strategies
 from hypothesis_geometry import planar
 
@@ -20,6 +19,7 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          bound_edges_sides, bound_polygons_kinds,
                          initialize_bounds, ported_edges_sides,
                          ported_polygons_kinds,
+                         subsequences,
                          to_bound_with_ported_bounds_pair,
                          to_bound_with_ported_edges_lists,
                          to_bound_with_ported_linear_rings,
@@ -31,8 +31,6 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          to_maybe_pairs,
                          transpose_pairs)
 from wagyu.hints import Coordinate
-from wagyu.linear_ring import LinearRing
-from wagyu.point import Point
 
 coordinates = coordinates
 polygons_kinds_pairs = strategies.sampled_from(
@@ -116,6 +114,21 @@ initialized_bounds_lists_pairs = (strategies.lists(initialized_bounds_pairs)
 non_empty_initialized_bounds_lists_pairs = (
     strategies.lists(initialized_bounds_pairs,
                      min_size=1).map(transpose_pairs))
+
+
+def to_lists_pairs_scanbeams_top_y(
+        bounds_lists_pair: BoundPortedBoundsListsPair
+) -> Strategy[Tuple[BoundPortedBoundsListsPair, List[Coordinate], Coordinate]]:
+    bound_list, _ = bounds_lists_pair
+    top_ys = [edge.top.y for bound in bound_list for edge in bound.edges]
+    return strategies.tuples(strategies.just(bounds_lists_pair),
+                             subsequences(top_ys),
+                             strategies.sampled_from(top_ys))
+
+
+non_empty_initialized_bounds_lists_pairs_scanbeams_top_y = (
+    non_empty_initialized_bounds_lists_pairs.flatmap(
+            to_lists_pairs_scanbeams_top_y))
 
 
 def to_bounds_lists_pairs_indices(
