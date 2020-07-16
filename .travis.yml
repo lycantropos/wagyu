@@ -50,4 +50,4 @@ deploy:
   script: twine upload --skip-existing dist/*
   skip_cleanup: true
   on:
-    branch: master
+    tags: true
