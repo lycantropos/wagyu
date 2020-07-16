@@ -823,6 +823,14 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              return py::make_tuple(
                  active_bounds, current_bound - active_bounds.begin(), shifted);
            })
+      .def(
+          "process_hot_pixel_edges_at_top_of_scanbeam",
+          [](RingManager& self, coordinate_t top_y, ScanbeamList& scanbeams,
+             ActiveBoundList& active_bounds) {
+            mapbox::geometry::wagyu::process_hot_pixel_edges_at_top_of_scanbeam(
+                top_y, scanbeams, active_bounds, self);
+            return py::make_tuple(active_bounds, scanbeams);
+          })
       .def("process_hot_pixel_intersections",
            [](RingManager& self, coordinate_t top_y,
               ActiveBoundList& active_bounds) {
