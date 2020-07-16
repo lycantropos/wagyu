@@ -19,7 +19,8 @@ from .point_node import (PointNode,
                          maybe_point_node_to_points)
 from .ring import Ring
 from .utils import (are_edges_slopes_equal,
-                    insort_unique)
+                    insort_unique,
+                    round_half_up)
 
 
 class RingManager:
@@ -164,8 +165,9 @@ class RingManager:
                 if (bound_next is not None
                         and bound_next.current_edge.top.y != top_y
                         and bound_next.current_edge.bottom.y != top_y):
-                    self.hot_pixels.append(Point(round(bound_next.current_x),
-                                                 top_y))
+                    self.hot_pixels.append(
+                            Point(round_half_up(bound_next.current_x),
+                                  top_y))
                 (active_bounds[current_bound_index],
                  active_bounds[next_bound_index]) = (
                     active_bounds[next_bound_index],
@@ -183,8 +185,9 @@ class RingManager:
                 if (prev_bound is not None
                         and prev_bound.current_edge.top.y != top_y
                         and prev_bound.current_edge.bottom.y != top_y):
-                    self.hot_pixels.append(Point(round(prev_bound.current_x),
-                                                 top_y))
+                    self.hot_pixels.append(
+                            Point(round_half_up(prev_bound.current_x),
+                                  top_y))
                 (active_bounds[current_bound_index],
                  active_bounds[prev_bound_index]) = (
                     active_bounds[prev_bound_index],

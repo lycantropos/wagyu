@@ -1,12 +1,15 @@
 import ctypes
 import struct
 from bisect import bisect_left
+from decimal import (ROUND_HALF_UP,
+                     Decimal)
 from typing import (Callable,
                     MutableSequence,
                     Sequence)
 
 from .edge import Edge
-from .hints import Domain
+from .hints import (Coordinate,
+                    Domain)
 from .point import Point
 
 
@@ -71,3 +74,10 @@ def find_if(predicate: Callable[[Domain], bool],
         if predicate(value):
             return index
     return len(values)
+
+
+def round_half_up(number: Coordinate) -> int:
+    """
+    Equivalent of C++'s ``::llround``.
+    """
+    return int(Decimal(number).quantize(0, ROUND_HALF_UP))
