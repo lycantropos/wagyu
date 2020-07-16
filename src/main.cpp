@@ -30,6 +30,7 @@ namespace py = pybind11;
 #define EDGE_NAME "Edge"
 #define EDGE_SIDE_NAME "EdgeSide"
 #define FILL_KIND_NAME "FillKind"
+#define INTERSECT_NODE_NAME "IntersectNode"
 #define LINEAR_RING_NAME "LinearRing"
 #define MULTIPOLYGON_NAME "Multipolygon"
 #define LOCAL_MINIMUM_NAME "LocalMinimum"
@@ -51,6 +52,7 @@ using BoundPtr = mapbox::geometry::wagyu::bound_ptr<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
 using HotPixelVector = mapbox::geometry::wagyu::hot_pixel_vector<coordinate_t>;
+using IntersectNode = mapbox::geometry::wagyu::intersect_node<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
 using LocalMinimumPtr =
@@ -638,6 +640,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
         mapbox::geometry::wagyu::next_edge_in_bound(self, scanbeams);
         return scanbeams;
       });
+
+  py::class_<IntersectNode>(m, INTERSECT_NODE_NAME);
 
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
       .def(py::init([](const Bound& left_bound, const Bound& right_bound,
