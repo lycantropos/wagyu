@@ -611,14 +611,17 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_property_readonly(
           "current_edge",
           [](const Bound& self) {
-            if (self.current_edge == self.edges.end())
+            if (static_cast<std::size_t>(self.current_edge -
+                                         self.edges.begin()) >=
+                self.edges.size())
               throw std::out_of_range("list index out of range");
             return *self.current_edge;
           })
       .def_property_readonly(
           "next_edge",
           [](const Bound& self) {
-            if (self.next_edge == self.edges.end())
+            if (static_cast<std::size_t>(self.next_edge - self.edges.begin()) >=
+                self.edges.size())
               throw std::out_of_range("list index out of range");
             return *self.next_edge;
           })
