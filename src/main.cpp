@@ -643,7 +643,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
 
   py::class_<IntersectNode>(m, INTERSECT_NODE_NAME)
       .def(py::init<const BoundPtr&, const BoundPtr&, const Point&>(),
-           py::arg("first_bound"), py::arg("second_bound"), py::arg("point"));
+           py::arg("first_bound"), py::arg("second_bound"), py::arg("point"))
+      .def_readonly("first_bound", &IntersectNode::bound1)
+      .def_readonly("second_bound", &IntersectNode::bound2)
+      .def_readonly("point", &IntersectNode::pt);
 
   py::class_<LocalMinimum>(m, LOCAL_MINIMUM_NAME)
       .def(py::init([](const Bound& left_bound, const Bound& right_bound,
