@@ -315,6 +315,14 @@ static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
                 << bound.poly_type << ", " << bound.side << ")";
 }
 
+static std::ostream& operator<<(std::ostream& stream, const IntersectNode& node) {
+  stream << C_STR(MODULE_NAME) "." INTERSECT_NODE_NAME "(";
+  write_pointer(stream, node.bound1);
+  stream << ", ";
+  write_pointer(stream, node.bound2);
+  return stream << ", " << node.pt << ")";
+}
+
 static std::ostream& operator<<(std::ostream& stream, const Edge& edge) {
   return stream << C_STR(MODULE_NAME) "." EDGE_NAME "(" << edge.bot << ", "
                 << edge.top << ")";
@@ -650,6 +658,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(py::init<const BoundPtr&, const BoundPtr&, const Point&>(),
            py::arg("first_bound"), py::arg("second_bound"), py::arg("point"))
       .def(py::self == py::self)
+      .def("__repr__", repr<IntersectNode>)
       .def_readonly("first_bound", &IntersectNode::bound1)
       .def_readonly("second_bound", &IntersectNode::bound2)
       .def_readonly("point", &IntersectNode::pt);
