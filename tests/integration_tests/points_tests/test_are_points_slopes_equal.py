@@ -3,7 +3,7 @@ from hypothesis import given
 
 from tests.utils import (BoundPortedPointsPair,
                          equivalence)
-from wagyu.utils import are_points_slopes_equal as ported
+from wagyu.point import are_points_slopes_equal as ported
 from . import strategies
 
 

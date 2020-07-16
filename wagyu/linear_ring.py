@@ -3,9 +3,9 @@ from typing import List
 
 from reprit.base import generate_repr
 
-from .edge import Edge
-from .point import Point
-from .utils import (are_edges_slopes_equal,
+from .edge import (Edge,
+                   are_edges_slopes_equal)
+from .point import (Point,
                     are_points_slopes_equal,
                     is_point_between_others)
 

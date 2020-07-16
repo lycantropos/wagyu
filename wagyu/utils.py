@@ -1,4 +1,5 @@
 import ctypes
+import math
 import struct
 from bisect import bisect_left
 from decimal import (ROUND_HALF_UP,
@@ -7,30 +8,8 @@ from typing import (Callable,
                     MutableSequence,
                     Sequence)
 
-from .edge import Edge
 from .hints import (Coordinate,
                     Domain)
-from .point import Point
-
-
-def are_points_slopes_equal(first: Point, second: Point, third: Point) -> bool:
-    return ((first.y - second.y) * (second.x - third.x)
-            == (first.x - second.x) * (second.y - third.y))
-
-
-def are_edges_slopes_equal(first: Edge, second: Edge) -> bool:
-    return ((first.top.y - first.bottom.y) * (second.top.x - second.bottom.x)
-            == ((first.top.x - first.bottom.x)
-                * (second.top.y - second.bottom.y)))
-
-
-def is_point_between_others(pt1: Point, pt2: Point, pt3: Point) -> bool:
-    if pt1 == pt2 or pt2 == pt3 or pt1 == pt3:
-        return False
-    elif pt1.x != pt3.x:
-        return (pt2.x > pt1.x) is (pt2.x < pt3.x)
-    else:
-        return (pt2.y > pt1.y) is (pt2.y < pt3.y)
 
 
 def are_floats_greater_than(x: float, y: float) -> bool:
@@ -76,8 +55,14 @@ def find_if(predicate: Callable[[Domain], bool],
     return len(values)
 
 
+def round_towards_max(value: Coordinate) -> Coordinate:
+    return (math.ceil(value)
+            if are_floats_almost_equal(math.floor(value) + 0.5, value)
+            else round_half_up(value))
+
+
 def round_half_up(number: Coordinate) -> int:
     """
-    Equivalent of C++'s ``::llround``.
+    Equivalent of C++'s ``std::llround``.
     """
     return int(Decimal(number).quantize(0, ROUND_HALF_UP))

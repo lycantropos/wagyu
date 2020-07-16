@@ -56,3 +56,9 @@ class Edge:
     def reverse_horizontal(self) -> None:
         self.top, self.bottom = (Point(self.bottom.x, self.top.y),
                                  Point(self.top.x, self.bottom.y))
+
+
+def are_edges_slopes_equal(first: Edge, second: Edge) -> bool:
+    return ((first.top.y - first.bottom.y) * (second.top.x - second.bottom.x)
+            == ((first.top.x - first.bottom.x)
+                * (second.top.y - second.bottom.y)))

@@ -3,7 +3,7 @@ from hypothesis import given
 
 from tests.utils import (BoundPortedEdgesPair,
                          equivalence)
-from wagyu.utils import are_edges_slopes_equal as ported
+from wagyu.edge import are_edges_slopes_equal as ported
 from . import strategies
 
 

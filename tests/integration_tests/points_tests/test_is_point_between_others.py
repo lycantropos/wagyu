@@ -3,7 +3,7 @@ from hypothesis import given
 
 from tests.utils import (BoundPortedPointsPair,
                          equivalence)
-from wagyu.utils import is_point_between_others as ported
+from wagyu.point import is_point_between_others as ported
 from . import strategies
 
 

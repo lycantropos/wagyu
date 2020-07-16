@@ -11,6 +11,7 @@ from reprit.base import generate_repr
 from .bound import (Bound,
                     insert_bound_into_abl)
 from .bubble_sort import bubble_sort
+from .edge import are_edges_slopes_equal
 from .hints import Coordinate
 from .local_minimum import (LocalMinimum,
                             LocalMinimumList)
@@ -18,8 +19,7 @@ from .point import Point
 from .point_node import (PointNode,
                          maybe_point_node_to_points)
 from .ring import Ring
-from .utils import (are_edges_slopes_equal,
-                    insort_unique,
+from .utils import (insort_unique,
                     round_half_up)
 
 
