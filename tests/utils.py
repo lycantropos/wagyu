@@ -14,6 +14,7 @@ from _wagyu import (Bound as BoundBound,
                     Box as BoundBox,
                     Edge as BoundEdge,
                     EdgeSide as BoundEdgeSide,
+                    IntersectNode as BoundIntersectNode,
                     LinearRing as BoundLinearRing,
                     LocalMinimum as BoundLocalMinimum,
                     LocalMinimumList as BoundLocalMinimumList,
@@ -31,6 +32,7 @@ from wagyu.edge import Edge as PortedEdge
 from wagyu.enums import (EdgeSide as PortedEdgeSide,
                          PolygonKind as PortedPolygonKind)
 from wagyu.hints import Coordinate
+from wagyu.intersect_node import IntersectNode as PortedIntersectNode
 from wagyu.linear_ring import LinearRing as PortedLinearRing
 from wagyu.local_minimum import (LocalMinimum as PortedLocalMinimum,
                                  LocalMinimumList as PortedLocalMinimumList)
@@ -49,6 +51,7 @@ RawMultipolygon = List[RawPolygon]
 BoundBound = BoundBound
 BoundBox = BoundBox
 BoundEdge = BoundEdge
+BoundIntersectNode = BoundIntersectNode
 BoundLinearRing = BoundLinearRing
 BoundLinearRingWithPolygonKind = Tuple[BoundLinearRing, BoundPolygonKind]
 BoundLocalMinimum = BoundLocalMinimum
@@ -61,6 +64,7 @@ BoundRingManager = BoundRingManager
 PortedBound = PortedBound
 PortedBox = PortedBox
 PortedEdge = PortedEdge
+PortedIntersectNode = PortedIntersectNode
 PortedLinearRing = PortedLinearRing
 PortedLinearRingWithPolygonKind = Tuple[PortedLinearRing, PortedPolygonKind]
 PortedLocalMinimum = PortedLocalMinimum
@@ -76,6 +80,7 @@ BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedEdgesListsPair = Tuple[List[BoundEdge], List[PortedEdge]]
 BoundPortedEdgesSidesPair = Tuple[BoundEdgeSide, PortedEdgeSide]
+BoundPortedIntersectNodesPair = Tuple[BoundIntersectNode, PortedIntersectNode]
 BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
 BoundPortedLocalMinimumListsPair = Tuple[BoundLocalMinimumList,
                                          PortedLocalMinimumList]
@@ -343,6 +348,19 @@ def to_bound_with_ported_edges_lists(linear_rings: BoundPortedLinearRingsPair
                                      ) -> BoundPortedEdgesListsPair:
     bound_linear_ring, ported_linear_ring = linear_rings
     return bound_linear_ring.edges, ported_linear_ring.edges
+
+
+def to_bound_with_ported_intersect_nodes_pair(
+        first_bounds_pair: BoundPortedBoundsPair,
+        second_bounds_pair: BoundPortedBoundsPair,
+        points_pair: BoundPortedPointsPair) -> BoundPortedIntersectNodesPair:
+    bound_first_bound, ported_first_bound = first_bounds_pair
+    bound_second_bound, ported_second_bound = second_bounds_pair
+    bound_point, ported_point = points_pair
+    return (BoundIntersectNode(bound_first_bound, bound_second_bound,
+                               bound_point),
+            PortedIntersectNode(ported_first_bound, ported_second_bound,
+                                ported_point))
 
 
 def to_bound_with_ported_linear_rings_points(raw_points: RawPointsList
