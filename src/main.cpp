@@ -375,6 +375,11 @@ static bool operator==(const Bound& self, const Bound& other) {
          self.poly_type == other.poly_type && self.side == other.side;
 }
 
+static bool operator==(const IntersectNode& self, const IntersectNode& other) {
+  return pointers_equal(self.bound1, other.bound1) &&
+         pointers_equal(self.bound2, other.bound2) && self.pt == other.pt;
+}
+
 static bool operator==(const LocalMinimum& self, const LocalMinimum& other) {
   return self.left_bound == other.left_bound &&
          self.right_bound == other.right_bound && self.y == other.y &&
@@ -644,6 +649,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   py::class_<IntersectNode>(m, INTERSECT_NODE_NAME)
       .def(py::init<const BoundPtr&, const BoundPtr&, const Point&>(),
            py::arg("first_bound"), py::arg("second_bound"), py::arg("point"))
+      .def(py::self == py::self)
       .def_readonly("first_bound", &IntersectNode::bound1)
       .def_readonly("second_bound", &IntersectNode::bound2)
       .def_readonly("point", &IntersectNode::pt);
