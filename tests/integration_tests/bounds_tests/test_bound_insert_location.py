@@ -14,8 +14,5 @@ def test_basic(first_pair: BoundPortedBoundsPair,
     first_bound, first_ported = first_pair
     second_bound, second_ported = second_pair
 
-    first_bound.current_edge_index = first_ported.current_edge_index = 2
-    second_bound.current_edge_index = second_ported.current_edge_index = 1
-
     assert equivalence(bound(first_bound, second_bound),
                        ported(first_ported, second_ported))
