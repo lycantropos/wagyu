@@ -1,7 +1,10 @@
+import ctypes
+
 from reprit.base import generate_repr
 
 from .bound import Bound
 from .point import Point
+from .utils import are_floats_almost_equal
 
 
 class IntersectNode:
@@ -23,3 +26,16 @@ class IntersectNode:
                 and self.point == other.point
                 if isinstance(other, IntersectNode)
                 else NotImplemented)
+
+    def __lt__(self, other: 'IntersectNode') -> bool:
+        return (to_int32(self.first_bound.opposite_winding_count
+                         + self.second_bound.opposite_winding_count) >
+                to_int32(other.first_bound.opposite_winding_count
+                         + other.second_bound.opposite_winding_count)
+                if are_floats_almost_equal(float(self.point.y),
+                                           float(other.point.y))
+                else self.point.y < other.point.y)
+
+
+def to_int32(value: int) -> int:
+    return ctypes.c_int32(value).value
