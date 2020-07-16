@@ -841,13 +841,6 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("create_ring",
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
       .def(
-          "create_new_point",
-          [](RingManager& self, RingPtr ring, const Point& point) {
-            return mapbox::geometry::wagyu::create_new_point<coordinate_t>(
-                ring, point, self);
-          },
-          py::arg("ring"), py::arg("point"))
-      .def(
           "assign_as_child",
           [](RingManager& manager, RingPtr ring, RingPtr parent) {
             mapbox::geometry::wagyu::assign_as_child<coordinate_t>(ring, parent,
