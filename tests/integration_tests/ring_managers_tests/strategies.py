@@ -72,10 +72,12 @@ def to_local_minimum_lists_pairs_indices_coordinates(
 ) -> Strategy[Tuple[BoundPortedLocalMinimumListsPair, int, Coordinate]]:
     bound_local_minimum_list, _ = local_minimum_lists_pair
     indices = strategies.integers(0, max(len(bound_local_minimum_list) - 1, 0))
+    scanbeams = bound_local_minimum_list.scanbeams
     return strategies.tuples(strategies.just(local_minimum_lists_pair),
                              indices,
-                             strategies.sampled_from(
-                                     bound_local_minimum_list.scanbeams))
+                             strategies.sampled_from(scanbeams)
+                             if scanbeams
+                             else coordinates)
 
 
 local_minimum_lists_pairs_indices_coordinates = (
