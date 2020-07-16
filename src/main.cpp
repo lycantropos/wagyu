@@ -810,6 +810,16 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              return py::make_tuple(active_bounds, scanbeams,
                                    minimums_itr - minimums_ptr.begin());
            })
+      .def("horizontals_at_top_scanbeam",
+           [](RingManager& self, coordinate_t top_y,
+              ActiveBoundList& active_bounds, std::size_t current_bound_index) {
+             auto current_bound = active_bounds.begin() + current_bound_index;
+             bool shifted =
+                 mapbox::geometry::wagyu::horizontals_at_top_scanbeam<
+                     coordinate_t>(top_y, current_bound, active_bounds, self);
+             return py::make_tuple(
+                 active_bounds, current_bound - active_bounds.begin(), shifted);
+           })
       .def("process_hot_pixel_intersections",
            [](RingManager& self, coordinate_t top_y,
               ActiveBoundList& active_bounds) {
