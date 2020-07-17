@@ -230,6 +230,8 @@ def are_bound_ported_plain_bounds_equal(bound: BoundBound,
             and are_bound_ported_points_equal(bound.last_point,
                                               ported.last_point)
             and are_bound_ported_maybe_rings_equal(bound.ring, ported.ring)
+            and bound.current_edge_index == ported.current_edge_index
+            and bound.next_edge_index == ported.next_edge_index
             and bound.current_x == ported.current_x
             and bound.position == ported.position
             and bound.winding_count == ported.winding_count
@@ -315,7 +317,8 @@ def are_bound_ported_ring_managers_equal(bound: BoundRingManager,
 def to_bound_with_ported_bounds_pair(edges: BoundPortedEdgesListsPair,
                                      current_edge_index: int,
                                      last_points_pair: BoundPortedPointsPair,
-                                     rings_pair: BoundPortedMaybeRingsListsPair,
+                                     rings_pair
+                                     : BoundPortedMaybeRingsListsPair,
                                      current_x: float,
                                      position: int,
                                      winding_count: int,
