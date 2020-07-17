@@ -205,8 +205,10 @@ are_bound_ported_local_minimums_lists_equal = to_sequences_equals(
 
 def are_bound_ported_bounds_equal(bound: BoundBound,
                                   ported: PortedBound) -> bool:
-    return are_bound_ported_plain_bounds_lists_equal(
+    return (are_bound_ported_plain_bounds_lists_equal(
             list(traverse_bound(bound)), list(traverse_bound(ported)))
+            and bound.current_edge_index == ported.current_edge_index
+            and bound.next_edge_index == ported.next_edge_index)
 
 
 are_bound_ported_bounds_lists_equal = to_sequences_equals(
@@ -230,8 +232,6 @@ def are_bound_ported_plain_bounds_equal(bound: BoundBound,
             and are_bound_ported_points_equal(bound.last_point,
                                               ported.last_point)
             and are_bound_ported_maybe_rings_equal(bound.ring, ported.ring)
-            and bound.current_edge_index == ported.current_edge_index
-            and bound.next_edge_index == ported.next_edge_index
             and bound.current_x == ported.current_x
             and bound.position == ported.position
             and bound.winding_count == ported.winding_count
