@@ -317,7 +317,8 @@ static std::ostream& operator<<(std::ostream& stream, const Bound& bound) {
   stream << C_STR(MODULE_NAME) "." BOUND_NAME "(";
   write_sequence(stream, bound.edges);
   stream << ", " << get_bound_current_edge_index(bound) << ", "
-         << bound.last_point << ", ";
+         << get_bound_next_edge_index(bound) << ", " << bound.last_point
+         << ", ";
   write_pointer(stream, bound.ring);
   return stream << ", " << bound.current_x << ", " << bound.pos << ", "
                 << bound.winding_count << ", " << bound.winding_count2 << ", "
