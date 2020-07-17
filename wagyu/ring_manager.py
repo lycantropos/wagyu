@@ -237,7 +237,6 @@ class RingManager:
             self.children.append(bound.ring)
         else:
             bound.ring.parent = bound_temp.ring
-            print(bound_temp is bound)
             bound_temp.ring.children.append(bound.ring)
 
 
