@@ -386,6 +386,7 @@ static bool operator==(const Bound& self, const Bound& other) {
   return self.edges == other.edges &&
          get_bound_current_edge_index(self) ==
              get_bound_current_edge_index(other) &&
+         get_bound_next_edge_index(self) == get_bound_next_edge_index(other) &&
          self.last_point == other.last_point &&
          pointers_equal(self.ring, other.ring) &&
          self.current_x == other.current_x && self.pos == other.pos &&
