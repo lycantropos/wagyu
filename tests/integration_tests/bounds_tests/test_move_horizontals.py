@@ -1,7 +1,7 @@
 from hypothesis import given
 
 from tests.utils import (BoundPortedBoundsPair,
-                         are_bound_ported_bounds_equal)
+                         are_bound_ported_plain_bounds_equal)
 from . import strategies
 
 
@@ -14,5 +14,5 @@ def test_basic(first_pair: BoundPortedBoundsPair,
     first_bound.move_horizontals(second_bound)
     first_ported.move_horizontals(second_ported)
 
-    assert are_bound_ported_bounds_equal(first_bound, first_ported)
-    assert are_bound_ported_bounds_equal(second_bound, second_ported)
+    assert are_bound_ported_plain_bounds_equal(first_bound, first_ported)
+    assert are_bound_ported_plain_bounds_equal(second_bound, second_ported)
