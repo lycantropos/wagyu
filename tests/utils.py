@@ -251,6 +251,20 @@ def are_bound_ported_edges_lists_equal(bound: List[BoundEdge],
             and all(map(are_bound_ported_edges_equal, bound, ported)))
 
 
+def are_bound_ported_intersect_nodes_equal(bound: BoundIntersectNode,
+                                           ported: PortedIntersectNode
+                                           ) -> bool:
+    return (are_bound_ported_bounds_equal(bound.first_bound,
+                                          ported.first_bound)
+            and are_bound_ported_bounds_equal(bound.second_bound,
+                                              ported.second_bound)
+            and are_bound_ported_points_equal(bound.point, ported.point))
+
+
+are_bound_ported_intersect_nodes_lists_equal = to_sequences_equals(
+        are_bound_ported_intersect_nodes_equal)
+
+
 def are_bound_ported_points_equal(bound: BoundPoint,
                                   ported: PortedPoint) -> bool:
     return bound.x == ported.x and bound.y == ported.y
