@@ -218,6 +218,28 @@ class RingManager:
                                'that do not intersect')
         self.hot_pixels.append(intersection.round())
 
+    def set_hole_state(self, bound: Bound, active_bounds: List[Bound]) -> None:
+        bound_index = next(index
+                           for index in range(len(active_bounds) - 1, -1, -1)
+                           if active_bounds[index] is bound)
+        bound_index -= 1
+        bound_temp = None
+        while bound_index >= 0:
+            current_bound = active_bounds[bound_index]
+            if current_bound is not None and current_bound.ring is not None:
+                if bound_temp is None:
+                    bound_temp = current_bound
+                elif bound_temp.ring is current_bound.ring:
+                    bound_temp = None
+            bound_index -= 1
+        if bound_temp is None:
+            bound.ring.parent = None
+            self.children.append(bound.ring)
+        else:
+            bound.ring.parent = bound_temp.ring
+            print(bound_temp is bound)
+            bound_temp.ring.children.append(bound.ring)
+
 
 def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
     for position, bound in enumerate(active_bounds):
