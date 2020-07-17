@@ -9,9 +9,9 @@ from typing import (List,
 from reprit.base import generate_repr
 
 from .bound import (Bound,
-                    insert_bound_into_abl)
+                    insert_bound_into_abl,
+                    intersection_compare)
 from .bubble_sort import bubble_sort
-from .edge import are_edges_slopes_equal
 from .hints import Coordinate
 from .local_minimum import (LocalMinimum,
                             LocalMinimumList)
@@ -223,12 +223,6 @@ def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
     for position, bound in enumerate(active_bounds):
         bound.position = position
         bound.current_x = bound.current_edge.get_current_x(top_y)
-
-
-def intersection_compare(left: Bound, right: Bound) -> bool:
-    return not (left.current_x > right.current_x and
-                not are_edges_slopes_equal(left.current_edge,
-                                           right.current_edge))
 
 
 def hot_pixels_compare(left: Point, right: Point) -> bool:

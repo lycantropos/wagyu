@@ -4,7 +4,8 @@ from typing import (List,
 
 from reprit.base import generate_repr
 
-from .edge import Edge
+from .edge import (Edge,
+                   are_edges_slopes_equal)
 from .enums import (EdgeSide,
                     PolygonKind)
 from .hints import Coordinate
@@ -220,3 +221,9 @@ def insert_bound_into_abl(left: Bound,
     active_bounds.insert(index, right)
     active_bounds.insert(index, left)
     return index
+
+
+def intersection_compare(left: Bound, right: Bound) -> bool:
+    return not (left.current_x > right.current_x and
+                not are_edges_slopes_equal(left.current_edge,
+                                           right.current_edge))
