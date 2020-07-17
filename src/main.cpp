@@ -52,6 +52,7 @@ using BoundPtr = mapbox::geometry::wagyu::bound_ptr<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
 using HotPixelVector = mapbox::geometry::wagyu::hot_pixel_vector<coordinate_t>;
+using IntersectList = mapbox::geometry::wagyu::intersect_list<coordinate_t>;
 using IntersectNode = mapbox::geometry::wagyu::intersect_node<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
@@ -959,6 +960,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                                                comparator, on_swap);
           return sequence;
         });
+
+  m.def("build_intersect_list", [](ActiveBoundList& active_bounds) {
+    IntersectList intersections;
+    mapbox::geometry::wagyu::build_intersect_list(active_bounds, intersections);
+    return py::make_tuple(active_bounds, intersections);
+  });
 
   m.def("is_point_between_others",
         mapbox::geometry::wagyu::point_2_is_between_point_1_and_point_3<

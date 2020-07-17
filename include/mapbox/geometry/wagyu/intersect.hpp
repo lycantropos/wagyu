@@ -33,6 +33,9 @@ struct intersect_node {
   intersect_node(bound_ptr<T> const& bound1_, bound_ptr<T> const& bound2_,
                  mapbox::geometry::point<double> const& pt_)
       : bound1(bound1_), bound2(bound2_), pt(pt_) {}
+
+  intersect_node(intersect_node<T> const& n) = default;
+  intersect_node& operator=(intersect_node<T>& n) = default;
 };
 
 template <typename T>
