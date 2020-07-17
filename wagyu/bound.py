@@ -19,15 +19,15 @@ from .utils import (are_floats_almost_equal,
 
 
 class Bound:
-    __slots__ = ('edges', 'current_edge_index', 'next_edge_index',
+    __slots__ = ('edges', '_current_edge_index', '_next_edge_index',
                  'last_point', 'ring', 'current_x', 'position',
                  'winding_count', 'opposite_winding_count', 'winding_delta',
                  'polygon_kind', 'side', 'maximum_bound')
 
     def __init__(self,
                  edges: Optional[List[Edge]] = None,
-                 current_edge_index: int = 0,
-                 next_edge_index: int = 0,
+                 current_edge_index: Optional[int] = None,
+                 next_edge_index: Optional[int] = None,
                  last_point: Optional[Point] = None,
                  ring: Optional[Ring] = None,
                  current_x: float = 0.,
@@ -38,8 +38,13 @@ class Bound:
                  polygon_kind: PolygonKind = PolygonKind.SUBJECT,
                  side: EdgeSide = EdgeSide.LEFT) -> None:
         self.edges = edges or []
-        self.current_edge_index = min(current_edge_index, len(edges))
-        self.next_edge_index = min(next_edge_index, len(edges))
+        self._current_edge_index = (len(self.edges)
+                                    if current_edge_index is None
+                                    else min(current_edge_index,
+                                             len(self.edges)))
+        self._next_edge_index = (len(self.edges)
+                                 if next_edge_index is None
+                                 else min(next_edge_index, len(self.edges)))
         self.last_point = Point(0, 0) if last_point is None else last_point
         self.ring = ring
         self.current_x = current_x
@@ -49,8 +54,6 @@ class Bound:
         self.winding_delta = winding_delta
         self.polygon_kind = polygon_kind
         self.side = side
-        self.current_edge_index = min(current_edge_index, len(edges))
-        self.next_edge_index = min(next_edge_index, len(edges))
         self.maximum_bound = None  # type: Optional[Bound]
 
     __repr__ = generate_repr(__init__)
@@ -58,6 +61,7 @@ class Bound:
     def __eq__(self, other: 'Bound') -> bool:
         return (self.edges == other.edges
                 and self.current_edge_index == other.current_edge_index
+                and self.next_edge_index == other.next_edge_index
                 and self.last_point == other.last_point
                 and self.ring == other.ring
                 and self.current_x == other.current_x
@@ -77,6 +81,22 @@ class Bound:
     @property
     def next_edge(self) -> Edge:
         return self.edges[self.next_edge_index]
+
+    @property
+    def current_edge_index(self) -> int:
+        return min(self._current_edge_index, len(self.edges))
+
+    @property
+    def next_edge_index(self) -> int:
+        return min(self._next_edge_index, len(self.edges))
+
+    @current_edge_index.setter
+    def current_edge_index(self, value: int) -> None:
+        self._current_edge_index = min(value, len(self.edges))
+
+    @next_edge_index.setter
+    def next_edge_index(self, value: int) -> None:
+        self._next_edge_index = min(value, len(self.edges))
 
     def fix_horizontals(self) -> None:
         edge_index = 0
