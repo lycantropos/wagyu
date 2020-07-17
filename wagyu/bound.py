@@ -19,14 +19,15 @@ from .utils import (are_floats_almost_equal,
 
 
 class Bound:
-    __slots__ = ('edges', 'last_point', 'ring', 'current_x', 'position',
+    __slots__ = ('edges', 'current_edge_index', 'next_edge_index',
+                 'last_point', 'ring', 'current_x', 'position',
                  'winding_count', 'opposite_winding_count', 'winding_delta',
-                 'polygon_kind', 'side', 'current_edge_index',
-                 'next_edge_index', 'maximum_bound')
+                 'polygon_kind', 'side', 'maximum_bound')
 
     def __init__(self,
                  edges: Optional[List[Edge]] = None,
                  current_edge_index: int = 0,
+                 next_edge_index: int = 0,
                  last_point: Optional[Point] = None,
                  ring: Optional[Ring] = None,
                  current_x: float = 0.,
@@ -37,6 +38,8 @@ class Bound:
                  polygon_kind: PolygonKind = PolygonKind.SUBJECT,
                  side: EdgeSide = EdgeSide.LEFT) -> None:
         self.edges = edges or []
+        self.current_edge_index = min(current_edge_index, len(edges))
+        self.next_edge_index = min(next_edge_index, len(edges))
         self.last_point = Point(0, 0) if last_point is None else last_point
         self.ring = ring
         self.current_x = current_x
@@ -47,7 +50,7 @@ class Bound:
         self.polygon_kind = polygon_kind
         self.side = side
         self.current_edge_index = min(current_edge_index, len(edges))
-        self.next_edge_index = len(self.edges)  # type: int
+        self.next_edge_index = min(next_edge_index, len(edges))
         self.maximum_bound = None  # type: Optional[Bound]
 
     __repr__ = generate_repr(__init__)
