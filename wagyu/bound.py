@@ -38,13 +38,15 @@ class Bound:
                  polygon_kind: PolygonKind = PolygonKind.SUBJECT,
                  side: EdgeSide = EdgeSide.LEFT) -> None:
         self.edges = edges or []
-        self._current_edge_index = (len(self.edges)
-                                    if current_edge_index is None
-                                    else min(current_edge_index,
-                                             len(self.edges)))
-        self._next_edge_index = (len(self.edges)
-                                 if next_edge_index is None
-                                 else min(next_edge_index, len(self.edges)))
+        self._current_edge_index = (
+            None
+            if (current_edge_index is None
+                or current_edge_index >= len(self.edges))
+            else current_edge_index)
+        self._next_edge_index = (None
+                                 if (next_edge_index is None
+                                     or next_edge_index >= len(self.edges))
+                                 else next_edge_index)
         self.last_point = Point(0, 0) if last_point is None else last_point
         self.ring = ring
         self.current_x = current_x
@@ -84,19 +86,23 @@ class Bound:
 
     @property
     def current_edge_index(self) -> int:
-        return min(self._current_edge_index, len(self.edges))
+        return (len(self.edges)
+                if self._current_edge_index is None
+                else self._current_edge_index)
 
     @property
     def next_edge_index(self) -> int:
-        return min(self._next_edge_index, len(self.edges))
+        return (len(self.edges)
+                if self._next_edge_index is None
+                else self._next_edge_index)
 
     @current_edge_index.setter
     def current_edge_index(self, value: int) -> None:
-        self._current_edge_index = min(value, len(self.edges))
+        self._current_edge_index = value if value < len(self.edges) else None
 
     @next_edge_index.setter
     def next_edge_index(self, value: int) -> None:
-        self._next_edge_index = min(value, len(self.edges))
+        self._next_edge_index = value if value < len(self.edges) else None
 
     def fix_horizontals(self) -> None:
         edge_index = 0
