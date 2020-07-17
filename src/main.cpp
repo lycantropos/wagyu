@@ -871,10 +871,13 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              return active_bounds;
            })
       .def("set_hole_state",
-           [](RingManager& self, Bound& bound,
+           [](RingManager& self, std::size_t bound_index,
               const ActiveBoundList& active_bounds) {
+             if (bound_index >= active_bounds.size())
+               throw std::out_of_range("list index out of range");
              mapbox::geometry::wagyu::set_hole_state<coordinate_t>(
-                 bound, active_bounds, self);
+                 *active_bounds[bound_index], active_bounds, self);
+             return active_bounds;
            })
       .def("create_ring",
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
