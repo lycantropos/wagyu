@@ -126,6 +126,15 @@ static void set_bound_current_edge_index(Bound& bound, std::size_t value) {
       bound.edges.begin() + std::min(value, bound.edges.size());
 }
 
+static std::size_t get_bound_next_edge_index(const Bound& self) {
+  std::size_t index = self.next_edge - self.edges.begin();
+  return std::min(index, self.edges.size());
+}
+
+static void set_bound_next_edge_index(Bound& bound, std::size_t value) {
+  bound.next_edge = bound.edges.begin() + std::min(value, bound.edges.size());
+}
+
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
 
 template <class Object>
@@ -584,8 +593,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
 
   py::class_<Bound, std::unique_ptr<Bound, py::nodelete>>(m, BOUND_NAME)
       .def(py::init([](const EdgeList& edges, std::size_t current_edge_index,
-                       const Point& last_point, RingPtr ring, double current_x,
-                       std::size_t position, std::int32_t winding_count,
+                       std::size_t next_edge_index, const Point& last_point,
+                       RingPtr ring, double current_x, std::size_t position,
+                       std::int32_t winding_count,
                        std::int32_t opposite_winding_count,
                        std::int8_t winding_delta,
                        mapbox::geometry::wagyu::polygon_type polygon_kind,
@@ -594,10 +604,11 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                                  winding_count, opposite_winding_count,
                                  winding_delta, polygon_kind, edge_side);
              set_bound_current_edge_index(result, current_edge_index);
+             set_bound_next_edge_index(result, next_edge_index);
              return result;
            }),
            py::arg("edges") = EdgeList{}, py::arg("current_edge_index") = 0,
-           py::arg("last_point") = Point{0, 0},
+           py::arg("next_edge_index") = 0, py::arg("last_point") = Point{0, 0},
            py::arg("ring").none(true) = nullptr, py::arg("current_x") = 0.,
            py::arg("position") = 0, py::arg("winding_count") = 0,
            py::arg("opposite_winding_count") = 0, py::arg("winding_delta") = 0,
@@ -619,12 +630,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("side", &Bound::side)
       .def_property("current_edge_index", get_bound_current_edge_index,
                     set_bound_current_edge_index)
-      .def_property(
-          "next_edge_index",
-          [](const Bound& self) { return self.next_edge - self.edges.begin(); },
-          [](Bound& self, std::size_t value) {
-            self.next_edge = self.edges.begin() + value;
-          })
+      .def_property("next_edge_index", get_bound_next_edge_index,
+                    set_bound_next_edge_index)
       .def_property_readonly(
           "current_edge",
           [](const Bound& self) {
