@@ -870,6 +870,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  coordinate_t>(top_y, active_bounds, self);
              return active_bounds;
            })
+      .def("set_hole_state",
+           [](RingManager& self, Bound& bound,
+              const ActiveBoundList& active_bounds) {
+             mapbox::geometry::wagyu::set_hole_state<coordinate_t>(
+                 bound, active_bounds, self);
+           })
       .def("create_ring",
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
       .def(
