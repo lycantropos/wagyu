@@ -28,7 +28,7 @@ edges_lists = strategies.lists(edges)
 maybe_rings = to_maybe(rings)
 polygons_kinds = strategies.sampled_from(ported_polygons_kinds)
 edges_sides = strategies.sampled_from(ported_edges_sides)
-bounds = strategies.builds(Bound, edges_lists, non_negative_integers, points,
-                           maybe_rings, floats, non_negative_integers,
-                           integers, integers, trits, polygons_kinds,
-                           edges_sides)
+bounds = strategies.builds(Bound, edges_lists, non_negative_integers,
+                           non_negative_integers, points, maybe_rings, floats,
+                           non_negative_integers, integers, integers, trits,
+                           polygons_kinds, edges_sides)
