@@ -100,6 +100,28 @@ bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
                                  maybe_rings_pairs, floats, sizes, integers_32,
                                  integers_32, trits, polygons_kinds_pairs,
                                  edges_sides_pairs)
+ringed_bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
+                                        edges_lists_pairs, sizes, points_pairs,
+                                        rings_pairs, floats, sizes,
+                                        integers_32, integers_32, trits,
+                                        polygons_kinds_pairs,
+                                        edges_sides_pairs)
+non_empty_ringed_bounds_lists_pairs = (strategies.lists(ringed_bounds_pairs,
+                                                        min_size=1)
+                                       .map(transpose_pairs))
+
+
+def to_bounds_lists_pairs_with_bounds_pairs(
+        lists_pair: BoundPortedBoundsListsPair
+) -> Strategy[Tuple[BoundPortedBoundsListsPair, int]]:
+    bound_list, _ = lists_pair
+    return strategies.tuples(strategies.just(lists_pair),
+                             strategies.integers(0, len(bound_list) - 1))
+
+
+non_empty_ringed_bounds_lists_pairs_with_indices = (
+    non_empty_ringed_bounds_lists_pairs.flatmap(
+            to_bounds_lists_pairs_with_bounds_pairs))
 
 
 def to_initialized_bounds_pairs(bounds_pair: BoundPortedBoundsPair
