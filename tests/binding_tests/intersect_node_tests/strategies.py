@@ -29,7 +29,7 @@ edges_lists = strategies.lists(edges)
 trits = trits
 polygons_kinds = strategies.sampled_from(bound_polygons_kinds)
 edges_sides = strategies.sampled_from(bound_edges_sides)
-bounds = strategies.builds(Bound, edges_lists, sizes, points, maybe_rings,
-                           floats, sizes, integers_32, integers_32, trits,
-                           polygons_kinds, edges_sides)
+bounds = strategies.builds(Bound, edges_lists, sizes, sizes, points,
+                           maybe_rings, floats, sizes, integers_32,
+                           integers_32, trits, polygons_kinds, edges_sides)
 intersect_nodes = strategies.builds(IntersectNode, bounds, bounds, points)

@@ -96,14 +96,14 @@ edges_lists_pairs = linear_rings_pairs.map(to_bound_with_ported_edges_lists)
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
                                                      ported_edges_sides)))
 bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
-                                 edges_lists_pairs, sizes, points_pairs,
+                                 edges_lists_pairs, sizes, sizes, points_pairs,
                                  maybe_rings_pairs, floats, sizes, integers_32,
                                  integers_32, trits, polygons_kinds_pairs,
                                  edges_sides_pairs)
 ringed_bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
-                                        edges_lists_pairs, sizes, points_pairs,
-                                        rings_pairs, floats, sizes,
-                                        integers_32, integers_32, trits,
+                                        edges_lists_pairs, sizes, sizes,
+                                        points_pairs, rings_pairs, floats,
+                                        sizes, integers_32, integers_32, trits,
                                         polygons_kinds_pairs,
                                         edges_sides_pairs)
 non_empty_ringed_bounds_lists_pairs = (strategies.lists(ringed_bounds_pairs,
