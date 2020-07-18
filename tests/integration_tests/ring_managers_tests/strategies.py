@@ -170,4 +170,4 @@ points_lists_pairs = strategies.lists(points_pairs).map(transpose_pairs)
 rings_lists_pairs = strategies.lists(rings_pairs).map(transpose_pairs)
 ring_managers_pairs = strategies.builds(
         to_bound_with_ported_ring_managers_pair, maybe_rings_lists_pairs,
-        points_lists_pairs, rings_lists_pairs, sizes)
+        points_lists_pairs, sizes, rings_lists_pairs, sizes)

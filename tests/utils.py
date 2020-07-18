@@ -414,15 +414,16 @@ def to_bound_with_ported_rings_pair(index: int,
 def to_bound_with_ported_ring_managers_pair(
         children_pair: BoundPortedMaybeRingsListsPair,
         hot_pixels_pair: BoundPortedPointsListsPair,
+        current_hot_pixel_index: int,
         rings_pair: BoundPortedMaybeRingsListsPair,
         index: int) -> BoundPortedRingManagersPair:
     bound_children, ported_children = children_pair
     bound_hot_pixels, ported_hot_pixels = hot_pixels_pair
     bound_rings, ported_rings = rings_pair
-    return (BoundRingManager(bound_children, bound_hot_pixels, bound_rings,
-                             index),
-            PortedRingManager(ported_children, ported_hot_pixels, ported_rings,
-                              index))
+    return (BoundRingManager(bound_children, bound_hot_pixels,
+                             current_hot_pixel_index, bound_rings, index),
+            PortedRingManager(ported_children, ported_hot_pixels,
+                              current_hot_pixel_index, ported_rings, index))
 
 
 def to_bound_with_ported_points_pair(x: float, y: float
