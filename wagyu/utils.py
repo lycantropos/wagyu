@@ -55,6 +55,12 @@ def find_if(predicate: Callable[[Domain], bool],
     return len(values)
 
 
+def round_towards_min(value: Coordinate) -> Coordinate:
+    return (math.floor(value)
+            if are_floats_almost_equal(math.floor(value) + 0.5, value)
+            else round_half_up(value))
+
+
 def round_towards_max(value: Coordinate) -> Coordinate:
     return (math.ceil(value)
             if are_floats_almost_equal(math.floor(value) + 0.5, value)
