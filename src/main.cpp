@@ -609,7 +609,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("recalculate_stats", &Ring::recalculate_stats)
       .def("reset_stats", &Ring::reset_stats)
       .def("set_stats", &Ring::set_stats, py::arg("area"), py::arg("size"),
-           py::arg("box"));
+           py::arg("box"))
+      .def("set_node", [](Ring& self, coordinate_t x, coordinate_t y) {
+        self.points = new PointNode(x, y);
+      });
 
   py::class_<Bound, std::unique_ptr<Bound, py::nodelete>>(m, BOUND_NAME)
       .def(py::init([](const EdgeList& edges, std::size_t current_edge_index,

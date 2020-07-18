@@ -14,6 +14,7 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          BoundPortedBoundsPair,
                          BoundPortedLocalMinimumListsPair,
                          BoundPortedPolygonKindsPair,
+                         BoundPortedRingManagersPair,
                          PortedLinearRingWithPolygonKind,
                          Strategy,
                          bound_edges_sides, bound_polygons_kinds,
@@ -31,6 +32,7 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          to_maybe_pairs,
                          transpose_pairs)
 from wagyu.hints import Coordinate
+from wagyu.point_node import PointNode
 
 coordinates = coordinates
 polygons_kinds_pairs = strategies.sampled_from(
@@ -171,3 +173,56 @@ rings_lists_pairs = strategies.lists(rings_pairs).map(transpose_pairs)
 ring_managers_pairs = strategies.builds(
         to_bound_with_ported_ring_managers_pair, maybe_rings_lists_pairs,
         points_lists_pairs, sizes, rings_lists_pairs, sizes)
+
+
+def to_initialized_ringed_bounds_pairs(bounds_pair: BoundPortedBoundsPair
+                                       ) -> Strategy[BoundPortedBoundsPair]:
+    bound, _ = bounds_pair
+    return strategies.builds(initialize_bounds_and_ring_node,
+                             strategies.just(bounds_pair),
+                             strategies.integers(0, len(bound.edges) - 1),
+                             coordinates, coordinates)
+
+
+def initialize_bounds_and_ring_node(bounds_pair: BoundPortedBoundsPair,
+                                    current_edge_index: int,
+                                    node_x: Coordinate,
+                                    node_y: Coordinate
+                                    ) -> BoundPortedBoundsPair:
+    bound, ported = initialize_bounds(bounds_pair, current_edge_index)
+    bound.ring.set_node(node_x, node_y)
+    ported.ring.node = PointNode(node_x, node_y)
+    return bound, ported
+
+
+initialized_ringed_bounds_pairs = (
+    ringed_bounds_pairs.flatmap(to_initialized_ringed_bounds_pairs))
+non_empty_points_lists_pairs = (strategies.lists(points_pairs,
+                                                 min_size=1)
+                                .map(transpose_pairs))
+non_empty_hot_pixels_ring_managers_pairs = strategies.builds(
+        to_bound_with_ported_ring_managers_pair, maybe_rings_lists_pairs,
+        non_empty_points_lists_pairs, sizes, rings_lists_pairs, sizes)
+
+
+def to_initialized_ring_managers_pairs(pair: BoundPortedRingManagersPair
+                                       ) -> Strategy[
+    BoundPortedRingManagersPair]:
+    bound, _ = pair
+    return strategies.builds(initialize_ring_managers,
+                             strategies.just(pair),
+                             strategies.integers(0, len(bound.hot_pixels) - 1))
+
+
+def initialize_ring_managers(pair: BoundPortedRingManagersPair,
+                             current_hot_pixel_index: int
+                             ) -> BoundPortedRingManagersPair:
+    bound, ported = pair
+    bound.current_hot_pixel_index = current_hot_pixel_index
+    ported.current_hot_pixel_index = current_hot_pixel_index
+    return pair
+
+
+initialized_non_empty_hot_pixels_ring_managers_pairs = (
+    non_empty_hot_pixels_ring_managers_pairs.flatmap(
+            to_initialized_ring_managers_pairs))
