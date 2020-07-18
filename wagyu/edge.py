@@ -5,6 +5,7 @@ from reprit.base import generate_repr
 
 from .hints import Coordinate
 from .point import Point
+from .utils import round_towards_min
 
 
 class Edge:
@@ -52,6 +53,23 @@ class Edge:
                 self.top.x
                 if current_y == self.top.y
                 else self.bottom.x + self.slope * (current_y - self.bottom.y))
+
+    def get_min_x(self, current_y: Coordinate) -> Coordinate:
+        if self.is_horizontal:
+            return min(self.bottom.x, self.top.x)
+        elif self.slope > 0:
+            if current_y == self.top.y:
+                return self.top.x
+            else:
+                lower_range_y = current_y - self.bottom.y - 0.5
+                return round_towards_min(self.bottom.x
+                                         + self.slope * lower_range_y)
+        elif current_y == self.bottom.y:
+            return self.bottom.x
+        else:
+            lower_range_y = current_y - self.bottom.y + 0.5
+            return round_towards_min(self.bottom.x
+                                     + self.slope * lower_range_y)
 
     def reverse_horizontal(self) -> None:
         self.top, self.bottom = (Point(self.bottom.x, self.top.y),
