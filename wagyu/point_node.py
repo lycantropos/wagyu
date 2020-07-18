@@ -11,19 +11,21 @@ from .point import Point
 
 
 class PointNode:
-    __slots__ = 'x', 'y', 'prev', 'next'
+    __slots__ = 'x', 'y', 'prev', 'next', 'ring'
 
     def __init__(self, x: Coordinate, y: Coordinate) -> None:
+        from .ring import Ring
         self.x = x
         self.y = y
         self.prev = self  # type: PointNode
         self.next = self  # type: PointNode
+        self.ring = None  # type: Optional[Ring]
 
     __repr__ = generate_repr(__init__)
 
     def __eq__(self, other: 'PointNode') -> bool:
         return (self.x == other.x and self.y == other.y
-                if isinstance(other, PointNode)
+                if isinstance(other, (Point, PointNode))
                 else NotImplemented)
 
     def __iter__(self) -> Iterator[Point]:
@@ -63,6 +65,10 @@ class PointNode:
                                                 cursor.next)
             if cursor is self:
                 break
+
+    def place_before(self, other: 'PointNode') -> None:
+        self.next, self.prev = other, other.prev
+        self.prev.next = other.prev = self
 
 
 def maybe_point_node_to_points(node: Optional[PointNode]) -> List[Point]:
