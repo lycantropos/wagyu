@@ -557,6 +557,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("get_current_x",
            mapbox::geometry::wagyu::get_current_x<coordinate_t>,
            py::arg("current_y"))
+      .def("get_min_x", mapbox::geometry::wagyu::get_edge_min_x<coordinate_t>,
+           py::arg("current_y"))
       .def("reverse_horizontal",
            mapbox::geometry::wagyu::reverse_horizontal<coordinate_t>);
 
