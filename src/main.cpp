@@ -136,7 +136,7 @@ static void set_bound_next_edge_index(Bound& bound, std::size_t value) {
 }
 
 static std::size_t get_ring_manager_current_hot_pixel_index(
-    RingManager& manager) {
+    const RingManager& manager) {
   std::size_t index = manager.current_hp_itr - manager.hot_pixels.begin();
   return std::min(index, manager.hot_pixels.size());
 }
@@ -388,6 +388,8 @@ static bool operator==(const Ring& left, const Ring& right) {
 
 static bool operator==(const RingManager& left, const RingManager& right) {
   return left.index == right.index &&
+         get_ring_manager_current_hot_pixel_index(left) ==
+             get_ring_manager_current_hot_pixel_index(right) &&
          pointers_sequences_equal(left.children, right.children) &&
          pointers_sequences_equal(left.all_points, right.all_points) &&
          left.points == right.points && left.hot_pixels == right.hot_pixels &&
