@@ -16,4 +16,4 @@ rings = strategies.builds(Ring, sizes, maybe_rings_lists, booleans)
 points_lists = strategies.lists(points)
 rings_lists = strategies.lists(rings)
 ring_managers = strategies.builds(RingManager, maybe_rings_lists, points_lists,
-                                  rings_lists, sizes)
+                                  sizes, rings_lists, sizes)
