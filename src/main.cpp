@@ -135,6 +135,18 @@ static void set_bound_next_edge_index(Bound& bound, std::size_t value) {
   bound.next_edge = bound.edges.begin() + std::min(value, bound.edges.size());
 }
 
+static std::size_t get_ring_manager_current_hot_pixel_index(
+    RingManager& manager) {
+  std::size_t index = manager.current_hp_itr - manager.hot_pixels.begin();
+  return std::min(index, manager.hot_pixels.size());
+}
+
+static void set_ring_manager_current_hot_pixel_index(RingManager& manager,
+                                                     std::size_t value) {
+  manager.current_hp_itr =
+      manager.hot_pixels.begin() + std::min(value, manager.hot_pixels.size());
+}
+
 static std::string bool_repr(bool value) { return py::str(py::bool_(value)); }
 
 template <class Object>
@@ -809,24 +821,26 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   py::class_<RingManager>(m, RING_MANAGER_NAME)
       .def(py::init([](const RingVector& children,
                        const HotPixelVector& hot_pixels,
-                       std::size_t current_hot_pixels_index,
+                       std::size_t current_hot_pixel_index,
                        const std::deque<Ring>& rings, std::size_t index) {
              auto result = std::make_unique<RingManager>(children, hot_pixels,
                                                          rings, index);
-             result->current_hp_itr =
-                 result->hot_pixels.begin() +
-                 std::min(result->hot_pixels.size(), current_hot_pixels_index);
+             set_ring_manager_current_hot_pixel_index(*result,
+                                                      current_hot_pixel_index);
              return result;
            }),
            py::arg("children") = RingVector{},
            py::arg("hot_pixels") = HotPixelVector{},
-           py::arg("current_hot_pixels_index") =
+           py::arg("current_hot_pixel_index") =
                std::numeric_limits<std::size_t>::max(),
            py::arg("rings") = std::deque<Ring>{}, py::arg("index") = 0)
       .def(py::self == py::self)
       .def("__repr__", repr<RingManager>)
       .def_readonly("children", &RingManager::children)
       .def_readonly("hot_pixels", &RingManager::hot_pixels)
+      .def_property("current_hot_pixel_index",
+                    get_ring_manager_current_hot_pixel_index,
+                    set_ring_manager_current_hot_pixel_index)
       .def_property_readonly(
           "all_points",
           [](const RingManager& self) {
