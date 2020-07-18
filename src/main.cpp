@@ -922,6 +922,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  *active_bounds[bound_index], active_bounds, self);
              return active_bounds;
            })
+      .def("insert_hot_pixels_in_path",
+           [](RingManager& self, Bound& bound, const Point& end_point,
+              bool add_end_point) {
+             mapbox::geometry::wagyu::insert_hot_pixels_in_path<coordinate_t>(
+                 bound, end_point, self, add_end_point);
+           })
       .def("create_ring",
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
       .def(
