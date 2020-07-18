@@ -807,10 +807,21 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("reverse_output", &Wagyu::reverse_output);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
-      .def(py::init<const RingVector&, const HotPixelVector&,
-                    const std::deque<Ring>&, std::size_t>(),
+      .def(py::init([](const RingVector& children,
+                       const HotPixelVector& hot_pixels,
+                       std::size_t current_hot_pixels_index,
+                       const std::deque<Ring>& rings, std::size_t index) {
+             auto result = std::make_unique<RingManager>(children, hot_pixels,
+                                                         rings, index);
+             result->current_hp_itr =
+                 result->hot_pixels.begin() +
+                 std::min(result->hot_pixels.size(), current_hot_pixels_index);
+             return result;
+           }),
            py::arg("children") = RingVector{},
            py::arg("hot_pixels") = HotPixelVector{},
+           py::arg("current_hot_pixels_index") =
+               std::numeric_limits<std::size_t>::max(),
            py::arg("rings") = std::deque<Ring>{}, py::arg("index") = 0)
       .def(py::self == py::self)
       .def("__repr__", repr<RingManager>)
