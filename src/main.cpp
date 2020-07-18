@@ -1000,6 +1000,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   m.def("create_bound_towards_minimum",
         mapbox::geometry::wagyu::create_bound_towards_minimum<coordinate_t>);
 
+  m.def("round_towards_min",
+        mapbox::geometry::wagyu::round_towards_min<coordinate_t>);
+
+  m.def("round_towards_max",
+        mapbox::geometry::wagyu::round_towards_max<coordinate_t>);
+
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
 #else
