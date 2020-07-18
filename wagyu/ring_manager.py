@@ -24,16 +24,23 @@ from .utils import (insort_unique,
 
 
 class RingManager:
-    __slots__ = ('children', 'all_nodes', 'hot_pixels', 'nodes', 'rings',
-                 'storage', 'index')
+    __slots__ = ('children', 'all_nodes', 'hot_pixels',
+                 '_current_hot_pixel_index',
+                 'nodes', 'rings', 'storage', 'index')
 
     def __init__(self,
                  children: Optional[List[Optional[Ring]]] = None,
                  hot_pixels: Optional[List[Point]] = None,
+                 current_hot_pixel_index: Optional[int] = None,
                  rings: Optional[List[Ring]] = None,
                  index: int = 0) -> None:
         self.children = [] if children is None else children
         self.hot_pixels = [] if hot_pixels is None else hot_pixels
+        self._current_hot_pixel_index = (
+            None
+            if (current_hot_pixel_index is None
+                or current_hot_pixel_index >= len(self.hot_pixels))
+            else current_hot_pixel_index)
         self.rings = [] if rings is None else rings
         self.index = index
         self.all_nodes = []  # type: List[Optional[PointNode]]
@@ -56,6 +63,19 @@ class RingManager:
     @property
     def all_points(self) -> List[List[Point]]:
         return [maybe_point_node_to_points(node) for node in self.all_nodes]
+
+    @property
+    def current_hot_pixel_index(self) -> int:
+        return (len(self.hot_pixels)
+                if (self._current_hot_pixel_index is None
+                    or self._current_hot_pixel_index >= len(self.hot_pixels))
+                else self._current_hot_pixel_index)
+
+    @current_hot_pixel_index.setter
+    def current_hot_pixel_index(self, value: int) -> None:
+        self._current_hot_pixel_index = (value
+                                         if value < len(self.hot_pixels)
+                                         else None)
 
     @property
     def points(self) -> List[List[Point]]:
