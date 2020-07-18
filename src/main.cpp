@@ -319,7 +319,7 @@ static std::ostream& operator<<(std::ostream& stream,
   write_pointers_sequence(stream, manager.children);
   stream << ", ";
   write_sequence(stream, manager.hot_pixels);
-  stream << ", ";
+  stream << ", " << get_ring_manager_current_hot_pixel_index(manager) << ", ";
   write_sequence(stream, manager.rings);
   stream << ", ";
   return stream << manager.index << ")";
