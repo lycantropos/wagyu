@@ -883,6 +883,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
             return result;
           })
       .def_readonly("index", &RingManager::index)
+      .def("add_first_point",
+           [](RingManager& self, std::size_t bound_index,
+              ActiveBoundList& active_bounds, const Point& point) {
+             if (bound_index >= active_bounds.size())
+               throw std::out_of_range("list index out of range");
+             mapbox::geometry::wagyu::add_first_point<coordinate_t>(
+                 *active_bounds[bound_index], active_bounds, point, self);
+             return active_bounds;
+           })
       .def("build_hot_pixels",
            [](RingManager& self, LocalMinimumList& minimums) {
              mapbox::geometry::wagyu::build_hot_pixels<coordinate_t>(minimums,
