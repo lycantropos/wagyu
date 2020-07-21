@@ -116,6 +116,30 @@ static const typename Sequence::value_type& to_item(const Sequence& sequence,
   return sequence[normalized_index];
 }
 
+static std::vector<const Point*>* point_node_to_points(const PointNode* node) {
+  auto* result = new std::vector<const Point*>{};
+  if (node == nullptr)
+    return result;
+  const auto* cursor = node;
+  std::unordered_set<const PointNode*> visited;
+  while (visited.find(cursor) == visited.end()) {
+    result->push_back(new Point(cursor->x, cursor->y));
+    visited.insert(cursor);
+    cursor = cursor->next;
+  }
+  return result;
+};
+
+static PointNode* points_to_point_node(RingPtr ring, const std::vector<Point>& points) {
+  if (points.empty())
+    return nullptr;
+  auto iterator = points.rbegin();
+  auto result = new PointNode(ring, *(iterator++));
+  for (; iterator != points.rend(); ++iterator)
+    result = new PointNode(ring, *iterator, result);
+  return result;
+};
+
 static std::size_t get_bound_current_edge_index(const Bound& self) {
   std::size_t index = self.current_edge - self.edges.begin();
   return std::min(index, self.edges.size());
@@ -309,6 +333,8 @@ static std::ostream& operator<<(std::ostream& stream,
 static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   stream << C_STR(MODULE_NAME) "." RING_NAME "(" << ring.ring_index << ", ";
   write_pointers_sequence(stream, ring.children);
+  stream << ", ";
+  write_pointers_sequence(stream, *point_node_to_points(ring.points));
   stream << ", " << bool_repr(ring.corrected) << ")";
   return stream;
 }
@@ -428,28 +454,6 @@ static bool operator==(const Wagyu& self, const Wagyu& other) {
 }  // namespace wagyu
 }  // namespace geometry
 }  // namespace mapbox
-
-static std::vector<const Point*>* point_node_to_points(const PointNode& node) {
-  auto* result = new std::vector<const Point*>{};
-  const auto* cursor = &node;
-  std::unordered_set<const PointNode*> visited;
-  while (visited.find(cursor) == visited.end()) {
-    result->push_back(new Point(cursor->x, cursor->y));
-    visited.insert(cursor);
-    cursor = cursor->next;
-  }
-  return result;
-};
-
-static PointNode* points_to_point_node(RingPtr ring, const std::vector<Point>& points) {
-  if (points.empty())
-    return nullptr;
-  auto iterator = points.rbegin();
-  auto result = new PointNode(ring, *(iterator++));
-  for (; iterator != points.rend(); ++iterator)
-    result = new PointNode(ring, *iterator, result);
-  return result;
-};
 
 PYBIND11_MAKE_OPAQUE(LocalMinimumList);
 
@@ -606,15 +610,11 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("children", &Ring::children)
       .def_property_readonly("points",
                              [](const Ring& self) {
-                               if (self.points == nullptr)
-                                 return new std::vector<const Point*>{};
-                               return point_node_to_points(*self.points);
+                               return point_node_to_points(self.points);
                              })
       .def_property_readonly("bottom_points",
                              [](const Ring& self) {
-                               if (self.bottom_point == nullptr)
-                                 return new std::vector<const Point*>{};
-                               return point_node_to_points(*self.bottom_point);
+                               return point_node_to_points(self.bottom_point);
                              })
       .def_readonly("corrected", &Ring::corrected)
       .def_property_readonly("size", &Ring::size)
@@ -867,15 +867,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           [](const RingManager& self) {
             auto* result = new std::vector<std::vector<const Point*>*>{};
             for (const auto* node : self.all_points)
-              result->push_back(point_node_to_points(*node));
+              result->push_back(point_node_to_points(node));
             return result;
           })
       .def_property_readonly(
           "points",
           [](const RingManager& self) {
             auto* result = new std::vector<std::vector<const Point*>*>{};
-            for (const auto node : self.points)
-              result->push_back(point_node_to_points(node));
+            for (const auto& node : self.points)
+              result->push_back(point_node_to_points(&node));
             return result;
           })
       .def_readonly("rings", &RingManager::rings)
@@ -883,8 +883,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           "stored_points",
           [](const RingManager& self) {
             auto* result = new std::vector<std::vector<const Point*>*>{};
-            for (const auto node : self.storage)
-              result->push_back(point_node_to_points(node));
+            for (const auto& node : self.storage)
+              result->push_back(point_node_to_points(&node));
             return result;
           })
       .def_readonly("index", &RingManager::index)
