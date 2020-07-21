@@ -379,6 +379,12 @@ class RingManager:
         self.all_nodes.append(result)
         return result
 
+    def create_ring(self) -> Ring:
+        result = Ring(self.index)
+        self.index += 1
+        self.rings.append(result)
+        return result
+
 
 def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
     for position, bound in enumerate(active_bounds):
