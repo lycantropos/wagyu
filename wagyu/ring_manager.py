@@ -336,7 +336,7 @@ class RingManager:
             if to_front:
                 bound.ring.node = new_node
         else:
-            return hot_pixel_stop
+            return hot_pixel_start - 1
         return hot_pixel_index
 
     def hot_pixel_set_left_to_right(self,
