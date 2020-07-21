@@ -14,4 +14,4 @@ def test_basic(ring: Ring) -> None:
 
     assert result is None
     assert equivalence(math.isnan(ring.area), not ring.points)
-    assert implication(bool(ring.points), not ring.is_hole)
+    assert implication(not ring.points, not ring.is_hole)
