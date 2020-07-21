@@ -146,6 +146,8 @@ def to_initialized_bounds_pairs(bounds_pair: BoundPortedBoundsPair
 
 
 initialized_bounds_pairs = bounds_pairs.flatmap(to_initialized_bounds_pairs)
+initialized_non_empty_bounds_pairs = (non_empty_bounds_pairs
+                                      .flatmap(to_initialized_bounds_pairs))
 initialized_bounds_lists_pairs = (strategies.lists(initialized_bounds_pairs)
                                   .map(transpose_pairs))
 non_empty_initialized_bounds_lists_pairs = (
