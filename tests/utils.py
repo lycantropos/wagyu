@@ -132,6 +132,11 @@ def apply(function: Callable[..., Range],
     return function(*args)
 
 
+def sort_pair(pair: Tuple[Domain, Domain]) -> Tuple[Domain, Domain]:
+    first, second = pair
+    return pair if first < second else (second, first)
+
+
 def pickle_round_trip(object_: Domain) -> Domain:
     return pickle.loads(pickle.dumps(object_))
 
