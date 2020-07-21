@@ -271,7 +271,7 @@ class RingManager:
         start_x, start_y = bound.last_point.x, bound.last_point.y
         end_x, end_y = end_point.x, end_point.y
         index = self.current_hot_pixel_index
-        while self.hot_pixels[index].y <= start_y and index >= 0:
+        while self.hot_pixels[index].y <= start_y and index > 0:
             index -= 1
         if start_x > end_x:
             while index < len(self.hot_pixels):
@@ -279,7 +279,7 @@ class RingManager:
                 if y > start_y:
                     index += 1
                     continue
-                elif y > end_y:
+                elif y < end_y:
                     break
                 first_index = index
                 while (index < len(self.hot_pixels)
