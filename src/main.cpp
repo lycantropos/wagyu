@@ -441,6 +441,16 @@ static std::vector<const Point*>* point_node_to_points(const PointNode& node) {
   return result;
 };
 
+static PointNode* points_to_point_node(RingPtr ring, const std::vector<Point>& points) {
+  if (points.empty())
+    return nullptr;
+  auto iterator = points.rbegin();
+  auto result = new PointNode(ring, *(iterator++));
+  for (; iterator != points.rend(); ++iterator)
+    result = new PointNode(ring, *iterator, result);
+  return result;
+};
+
 PYBIND11_MAKE_OPAQUE(LocalMinimumList);
 
 PYBIND11_MODULE(MODULE_NAME, m) {
@@ -579,8 +589,14 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            mapbox::geometry::wagyu::reverse_horizontal<coordinate_t>);
 
   py::class_<Ring, std::unique_ptr<Ring, py::nodelete>>(m, RING_NAME)
-      .def(py::init<std::size_t, const RingVector&, bool>(),
+      .def(py::init([](std::size_t index, const RingVector& children,
+                       const std::vector<Point>& points, bool corrected) {
+                        auto result = new Ring(index, children, corrected);
+                        result->points = points_to_point_node(result, points);
+                        return result;
+                    }),
            py::arg("index") = 0, py::arg("children") = RingVector{},
+           py::arg("points") = std::vector<Point>{},
            py::arg("corrected") = false)
       .def(py::self == py::self)
       .def("__repr__", repr<Ring>)
