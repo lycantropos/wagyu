@@ -12,8 +12,9 @@ booleans = strategies.booleans()
 floats = floats
 non_negative_integers = non_negative_integers
 points = strategies.builds(Point, coordinates, coordinates)
+points_lists = strategies.lists(points)
 boxes = strategies.builds(Box, points, points)
 maybe_rings = to_maybe(strategies.deferred(lambda: rings))
 maybe_rings_lists = strategies.lists(maybe_rings)
 rings = strategies.builds(Ring, non_negative_integers, maybe_rings_lists,
-                          booleans)
+                          points_lists, booleans)
