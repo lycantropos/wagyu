@@ -892,6 +892,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  *active_bounds[bound_index], active_bounds, point, self);
              return active_bounds;
            })
+      .def("add_point",
+           [](RingManager& self, std::size_t bound_index,
+              ActiveBoundList& active_bounds, const Point& point) {
+             if (bound_index >= active_bounds.size())
+               throw std::out_of_range("list index out of range");
+             mapbox::geometry::wagyu::add_point<coordinate_t>(
+                 *active_bounds[bound_index], active_bounds, point, self);
+             return active_bounds;
+           })
       .def("add_point_to_ring",
            [](RingManager& self, Bound& bound, const Point& point) {
              mapbox::geometry::wagyu::add_point_to_ring<coordinate_t>(
