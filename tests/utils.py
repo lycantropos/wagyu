@@ -403,12 +403,14 @@ def to_bound_with_ported_local_minimum_lists(
 
 
 def to_bound_with_ported_rings_pair(index: int,
-                                    children_pairs
+                                    children_pair
                                     : BoundPortedMaybeRingsListsPair,
+                                    points_pair: BoundPortedPointsListsPair,
                                     corrected: bool) -> BoundPortedRingsPair:
-    bound_children, ported_children = children_pairs
-    return (BoundRing(index, bound_children, corrected),
-            PortedRing(index, ported_children, corrected))
+    bound_children, ported_children = children_pair
+    bound_points, ported_points = points_pair
+    return (BoundRing(index, bound_children, bound_points, corrected),
+            PortedRing(index, ported_children, ported_points, corrected))
 
 
 def to_bound_with_ported_ring_managers_pair(

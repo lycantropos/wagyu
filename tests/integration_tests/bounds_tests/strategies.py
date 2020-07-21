@@ -22,16 +22,18 @@ from tests.utils import (BoundPortedBoundsPair,
                          to_maybe_pairs,
                          transpose_pairs)
 
+booleans = strategies.booleans()
+sizes = sizes
 coordinates_lists = strategies.lists(coordinates)
 points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,
                                  coordinates)
-booleans = strategies.booleans()
-sizes = sizes
+points_lists_pairs = strategies.lists(points_pairs).map(transpose_pairs)
 maybe_rings_pairs = to_maybe_pairs(strategies.deferred(lambda: rings_pairs))
 maybe_rings_lists_pairs = (strategies.lists(maybe_rings_pairs)
                            .map(transpose_pairs))
 rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
-                                sizes, maybe_rings_lists_pairs, booleans)
+                                sizes, maybe_rings_lists_pairs,
+                                points_lists_pairs, booleans)
 linear_rings_points_pairs = (planar.contours(coordinates)
                              .map(to_bound_with_ported_linear_rings_points))
 linear_rings_pairs = (linear_rings_points_pairs

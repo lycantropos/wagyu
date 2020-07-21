@@ -17,8 +17,10 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          BoundPortedRingManagersPair,
                          PortedLinearRingWithPolygonKind,
                          Strategy,
-                         bound_edges_sides, bound_polygons_kinds,
-                         initialize_bounds, ported_edges_sides,
+                         bound_edges_sides,
+                         bound_polygons_kinds,
+                         initialize_bounds,
+                         ported_edges_sides,
                          ported_polygons_kinds,
                          subsequences,
                          to_bound_with_ported_bounds_pair,
@@ -82,18 +84,20 @@ def to_local_minimum_lists_pairs_indices_coordinates(
                              else coordinates)
 
 
+booleans = strategies.booleans()
+sizes = sizes
 local_minimum_lists_pairs_indices_coordinates = (
     local_minimum_lists_pairs.flatmap(
             to_local_minimum_lists_pairs_indices_coordinates))
-booleans = strategies.booleans()
-sizes = sizes
 points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,
                                  coordinates)
+points_lists_pairs = strategies.lists(points_pairs).map(transpose_pairs)
 maybe_rings_pairs = to_maybe_pairs(strategies.deferred(lambda: rings_pairs))
 maybe_rings_lists_pairs = (strategies.lists(maybe_rings_pairs)
                            .map(transpose_pairs))
 rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
-                                sizes, maybe_rings_lists_pairs, booleans)
+                                sizes, maybe_rings_lists_pairs,
+                                points_lists_pairs, booleans)
 edges_lists_pairs = linear_rings_pairs.map(to_bound_with_ported_edges_lists)
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
                                                      ported_edges_sides)))
