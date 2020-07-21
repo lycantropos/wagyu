@@ -118,8 +118,7 @@ static const typename Sequence::value_type& to_item(const Sequence& sequence,
 
 static std::vector<const Point*>* point_node_to_points(const PointNode* node) {
   auto* result = new std::vector<const Point*>{};
-  if (node == nullptr)
-    return result;
+  if (node == nullptr) return result;
   const auto* cursor = node;
   std::unordered_set<const PointNode*> visited;
   while (visited.find(cursor) == visited.end()) {
@@ -130,9 +129,9 @@ static std::vector<const Point*>* point_node_to_points(const PointNode* node) {
   return result;
 };
 
-static PointNode* points_to_point_node(RingPtr ring, const std::vector<Point>& points) {
-  if (points.empty())
-    return nullptr;
+static PointNode* points_to_point_node(RingPtr ring,
+                                       const std::vector<Point>& points) {
+  if (points.empty()) return nullptr;
   auto iterator = points.rbegin();
   auto result = new PointNode(ring, *(iterator++));
   for (; iterator != points.rend(); ++iterator)
@@ -595,10 +594,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   py::class_<Ring, std::unique_ptr<Ring, py::nodelete>>(m, RING_NAME)
       .def(py::init([](std::size_t index, const RingVector& children,
                        const std::vector<Point>& points, bool corrected) {
-                        auto result = new Ring(index, children, corrected);
-                        result->points = points_to_point_node(result, points);
-                        return result;
-                    }),
+             auto result = new Ring(index, children, corrected);
+             result->points = points_to_point_node(result, points);
+             return result;
+           }),
            py::arg("index") = 0, py::arg("children") = RingVector{},
            py::arg("points") = std::vector<Point>{},
            py::arg("corrected") = false)
@@ -608,10 +607,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("box", &Ring::bbox)
       .def_readonly("parent", &Ring::parent)
       .def_readonly("children", &Ring::children)
-      .def_property_readonly("points",
-                             [](const Ring& self) {
-                               return point_node_to_points(self.points);
-                             })
+      .def_property_readonly(
+          "points",
+          [](const Ring& self) { return point_node_to_points(self.points); })
       .def_property_readonly("bottom_points",
                              [](const Ring& self) {
                                return point_node_to_points(self.bottom_point);
@@ -950,6 +948,20 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  y, start_x, end_x, bound, self, hot_pixels_start_iterator,
                  hot_pixels_stop_iterator, add_end_point);
              return hot_pixels_start_iterator - self.hot_pixels.begin();
+           })
+      .def("hot_pixel_set_right_to_left",
+           [](RingManager& self, coordinate_t y, coordinate_t start_x,
+              coordinate_t end_x, Bound& bound, std::size_t hot_pixel_start,
+              std::size_t hot_pixel_stop, bool add_end_point) {
+             auto hot_pixels_start_iterator =
+                 self.hot_pixels.rend() - hot_pixel_stop;
+             auto hot_pixels_stop_iterator =
+                 self.hot_pixels.rend() - hot_pixel_start;
+             mapbox::geometry::wagyu::hot_pixel_set_right_to_left<coordinate_t>(
+                 y, start_x, end_x, bound, self, hot_pixels_start_iterator,
+                 hot_pixels_stop_iterator, add_end_point);
+             return hot_pixels_start_iterator.base() - self.hot_pixels.begin() -
+                    1;
            })
       .def("insert_hot_pixels_in_path",
            [](RingManager& self, Bound& bound, const Point& end_point,
