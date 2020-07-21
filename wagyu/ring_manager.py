@@ -332,7 +332,7 @@ class RingManager:
                 continue
             elif not to_front and hot_pixel == op.prev:
                 continue
-            new_node = self.create_point_node(hot_pixel, op, bound.ring)
+            new_node = self.create_point_node(bound.ring, hot_pixel, op)
             if to_front:
                 bound.ring.node = new_node
         else:
@@ -363,18 +363,20 @@ class RingManager:
                 continue
             elif not to_front and hot_pixel == op.prev:
                 continue
-            new_node = self.create_point_node(hot_pixel, op, bound.ring)
+            new_node = self.create_point_node(bound.ring, hot_pixel, op)
             if to_front:
                 bound.ring.node = new_node
         else:
             return hot_pixel_stop
         return hot_pixel_index
 
-    def create_point_node(self, point: Point, before_this_point: PointNode,
-                          ring: Optional[Ring]) -> PointNode:
+    def create_point_node(self, ring: Optional[Ring], point: Point,
+                          before_this_point: Optional[PointNode] = None
+                          ) -> PointNode:
         result = PointNode(point.x, point.y)
         result.ring = ring
-        result.place_before(before_this_point)
+        if before_this_point is not None:
+            result.place_before(before_this_point)
         self.nodes.append(result)
         self.all_nodes.append(result)
         return result
@@ -384,6 +386,13 @@ class RingManager:
         self.index += 1
         self.rings.append(result)
         return result
+
+    def add_first_point(self, bound: Bound, active_bounds: List[Bound],
+                        point: Point) -> None:
+        ring = bound.ring = self.create_ring()
+        ring.node = self.create_point_node(ring, point)
+        self.set_hole_state(bound, active_bounds)
+        bound.last_point = point
 
 
 def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
