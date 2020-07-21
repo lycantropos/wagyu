@@ -9,7 +9,7 @@ from . import strategies
 
 
 @given(strategies.initialized_non_empty_hot_pixels_ring_managers_pairs,
-       strategies.initialized_ringed_bounds_pairs,
+       strategies.initialized_non_empty_bounds_pairs,
        strategies.points_pairs,
        strategies.booleans)
 def test_basic(pair: BoundPortedRingManagersPair,

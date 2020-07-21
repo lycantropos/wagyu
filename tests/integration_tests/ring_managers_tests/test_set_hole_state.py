@@ -11,7 +11,7 @@ from . import strategies
 
 
 @given(strategies.ring_managers_pairs,
-       strategies.non_empty_ringed_bounds_lists_pairs_with_indices)
+       strategies.non_empty_bounds_lists_pairs_with_indices)
 def test_basic(pair: BoundPortedRingManagersPair,
                active_bounds_pair_index: Tuple[BoundPortedBoundsListsPair, int]
                ) -> None:
