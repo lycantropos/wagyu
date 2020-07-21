@@ -33,7 +33,7 @@ class PointNode:
         while True:
             yield Point(cursor.x, cursor.y)
             cursor = cursor.next
-            if cursor == self:
+            if cursor is self:
                 break
 
     @classmethod
