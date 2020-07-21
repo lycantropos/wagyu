@@ -925,6 +925,19 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  *active_bounds[bound_index], active_bounds, self);
              return active_bounds;
            })
+      .def("hot_pixel_set_left_to_right",
+           [](RingManager& self, coordinate_t y, coordinate_t start_x,
+              coordinate_t end_x, Bound& bound, std::size_t hot_pixel_start,
+              std::size_t hot_pixel_stop, bool add_end_point) {
+             auto hot_pixels_start_iterator =
+                 self.hot_pixels.begin() + hot_pixel_start;
+             auto hot_pixels_stop_iterator =
+                 self.hot_pixels.begin() + hot_pixel_stop;
+             mapbox::geometry::wagyu::hot_pixel_set_left_to_right<coordinate_t>(
+                 y, start_x, end_x, bound, self, hot_pixels_start_iterator,
+                 hot_pixels_stop_iterator, add_end_point);
+             return hot_pixels_start_iterator - self.hot_pixels.begin();
+           })
       .def("insert_hot_pixels_in_path",
            [](RingManager& self, Bound& bound, const Point& end_point,
               bool add_end_point) {
