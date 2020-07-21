@@ -17,11 +17,12 @@ class Ring:
     def __init__(self,
                  index: int = 0,
                  children: Optional[List[Optional['Ring']]] = None,
+                 points: Optional[List[Point]] = None,
                  corrected: bool = False) -> None:
         self.index = index
         self.parent = None  # type: Optional[Ring]
         self.children = children or []
-        self.node = None  # type: Optional[PointNode]
+        self.node = None if not points else PointNode.from_points(points)
         self.bottom_node = None  # type: Optional[PointNode]
         self.corrected = corrected
         self.box = Box(Point(0, 0), Point(0, 0))  # type: Box

@@ -36,6 +36,21 @@ class PointNode:
             if cursor == self:
                 break
 
+    @classmethod
+    def from_point(cls, point: Point) -> 'PointNode':
+        return PointNode(point.x, point.y)
+
+    @classmethod
+    def from_points(cls, points: List[Point]) -> 'PointNode':
+        points = reversed(points)
+        result = cls.from_point(next(points))
+        for point in points:
+            node = cls.from_point(point)
+            node.place_before(result)
+            result = node
+        return result
+
+
     @property
     def stats(self) -> Tuple[float, int, Box]:
         area = size = 0
