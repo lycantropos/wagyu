@@ -394,6 +394,20 @@ class RingManager:
         self.set_hole_state(bound, active_bounds)
         bound.last_point = point
 
+    def add_point_to_ring(self, bound: Bound, point: Point) -> None:
+        assert bound.ring is not None
+        # handle hot pixels
+        self.insert_hot_pixels_in_path(bound, point, False)
+        # ``bound.ring.node`` is the 'leftmost' point,
+        # ``bound.ring.node.prev`` is the 'rightmost'
+        op = bound.ring.node
+        to_front = bound.side is EdgeSide.LEFT
+        if to_front and point == op or (not to_front and (point == op.prev)):
+            return
+        new_node = self.create_point_node(bound.ring, point, op)
+        if to_front:
+            bound.ring.node = new_node
+
 
 def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
     for position, bound in enumerate(active_bounds):
