@@ -394,6 +394,13 @@ class RingManager:
         self.set_hole_state(bound, active_bounds)
         bound.last_point = point
 
+    def add_point(self, bound: Bound, active_bounds: List[Bound],
+                  point: Point) -> None:
+        if bound.ring is None:
+            self.add_first_point(bound, active_bounds, point)
+        else:
+            self.add_point_to_ring(bound, point)
+
     def add_point_to_ring(self, bound: Bound, point: Point) -> None:
         assert bound.ring is not None
         # handle hot pixels
