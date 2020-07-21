@@ -50,7 +50,6 @@ class PointNode:
             result = node
         return result
 
-
     @property
     def stats(self) -> Tuple[float, int, Box]:
         area = size = 0
