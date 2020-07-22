@@ -124,7 +124,7 @@ non_empty_bounds_lists_pairs = (strategies.lists(non_empty_bounds_pairs,
                                 .map(transpose_pairs))
 
 
-def to_bounds_lists_pairs_with_bounds_pairs(
+def to_bounds_lists_pairs_with_indices(
         lists_pair: BoundPortedBoundsListsPair
 ) -> Strategy[Tuple[BoundPortedBoundsListsPair, int]]:
     bound_list, _ = lists_pair
@@ -133,8 +133,28 @@ def to_bounds_lists_pairs_with_bounds_pairs(
 
 
 non_empty_bounds_lists_pairs_with_indices = (
-    non_empty_bounds_lists_pairs.flatmap(
-            to_bounds_lists_pairs_with_bounds_pairs))
+    non_empty_bounds_lists_pairs.flatmap(to_bounds_lists_pairs_with_indices))
+
+
+def to_bounds_lists_pairs_with_indices_pairs(
+        lists_pair: BoundPortedBoundsListsPair
+) -> Strategy[Tuple[BoundPortedBoundsListsPair, Tuple[int]]]:
+    bound_list, _ = lists_pair
+    indices = strategies.integers(0, len(bound_list) - 1)
+    return strategies.tuples(strategies.just(lists_pair),
+                             strategies.lists(indices,
+                                              min_size=2,
+                                              max_size=2,
+                                              unique=True)
+                             .map(sort_pair))
+
+
+two_or_more_non_empty_bounds_lists_pairs = (
+    strategies.lists(non_empty_bounds_pairs,
+                     min_size=2).map(transpose_pairs))
+two_or_more_non_empty_bounds_lists_pairs_with_indices_pairs = (
+    two_or_more_non_empty_bounds_lists_pairs.flatmap(
+            to_bounds_lists_pairs_with_indices_pairs))
 
 
 def to_initialized_bounds_pairs(bounds_pair: BoundPortedBoundsPair
@@ -158,7 +178,7 @@ non_empty_initialized_non_empty_bounds_lists_pairs = (
                      min_size=1).map(transpose_pairs))
 non_empty_initialized_non_empty_bounds_lists_pairs_with_indices = (
     non_empty_initialized_non_empty_bounds_lists_pairs.flatmap(
-            to_bounds_lists_pairs_with_bounds_pairs))
+            to_bounds_lists_pairs_with_indices))
 
 
 def to_lists_pairs_scanbeams_top_y(
