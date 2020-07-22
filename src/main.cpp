@@ -692,6 +692,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               throw std::out_of_range("list index out of range");
             return *self.next_edge;
           })
+      .def("is_even_odd_fill_kind",
+           mapbox::geometry::wagyu::is_even_odd_fill_type<coordinate_t>)
       .def("is_maxima",
            [](const Bound& self, coordinate_t y) {
              return mapbox::geometry::wagyu::is_maxima<coordinate_t>(self, y);
