@@ -153,6 +153,12 @@ initialized_bounds_lists_pairs = (strategies.lists(initialized_bounds_pairs)
 non_empty_initialized_bounds_lists_pairs = (
     strategies.lists(initialized_bounds_pairs,
                      min_size=1).map(transpose_pairs))
+non_empty_initialized_non_empty_bounds_lists_pairs = (
+    strategies.lists(initialized_non_empty_bounds_pairs,
+                     min_size=1).map(transpose_pairs))
+non_empty_initialized_non_empty_bounds_lists_pairs_with_indices = (
+    non_empty_initialized_non_empty_bounds_lists_pairs.flatmap(
+            to_bounds_lists_pairs_with_bounds_pairs))
 
 
 def to_lists_pairs_scanbeams_top_y(
@@ -186,8 +192,6 @@ rings_lists_pairs = strategies.lists(rings_pairs).map(transpose_pairs)
 ring_managers_pairs = strategies.builds(
         to_bound_with_ported_ring_managers_pair, maybe_rings_lists_pairs,
         points_lists_pairs, sizes, rings_lists_pairs, sizes)
-initialized_non_empty_bounds_pairs = (non_empty_bounds_pairs
-                                      .flatmap(to_initialized_bounds_pairs))
 non_empty_maybe_rings_pairs = to_maybe_pairs(non_empty_rings_pairs)
 non_empty_maybe_rings_lists_pairs = (
     strategies.lists(non_empty_maybe_rings_pairs).map(transpose_pairs))
