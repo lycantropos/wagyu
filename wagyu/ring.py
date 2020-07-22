@@ -81,13 +81,17 @@ class Ring:
             self._area, self._size, self.box = self.node.stats
             self._is_hole = self._area <= 0.0
 
-    def set_stats(self, area: float, size: int, box: Box) -> None:
-        self._area, self._size, self.box, self._is_hole = (area, size, box,
-                                                           area <= 0.0)
-
     def reset_stats(self) -> None:
         self._area = math.nan
         self._size = 0
         self.box.minimum.x = self.box.minimum.y = 0
         self.box.maximum.x = self.box.maximum.y = 0
         self._is_hole = False
+
+    def set_stats(self, area: float, size: int, box: Box) -> None:
+        self._area, self._size, self.box, self._is_hole = (area, size, box,
+                                                           area <= 0.0)
+
+    def update_points(self) -> None:
+        for node in self.node:
+            node.ring = self
