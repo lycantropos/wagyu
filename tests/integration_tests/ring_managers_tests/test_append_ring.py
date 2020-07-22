@@ -21,10 +21,10 @@ def test_basic(pair: BoundPortedRingManagersPair,
     ported_first_bound = ported_active_bounds[first_index]
     ported_second_bound = ported_active_bounds[second_index]
 
-    ported.append_ring(ported_first_bound, ported_second_bound,
-                       ported_active_bounds)
     bound_active_bounds = bound.append_ring(first_index, second_index,
                                             bound_active_bounds)
+    ported.append_ring(ported_first_bound, ported_second_bound,
+                       ported_active_bounds)
 
     assert are_bound_ported_bounds_equal(bound_active_bounds[first_index],
                                          ported_first_bound)
