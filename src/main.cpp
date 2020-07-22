@@ -51,6 +51,7 @@ using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using BoundPtr = mapbox::geometry::wagyu::bound_ptr<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
+using FillKind = mapbox::geometry::wagyu::fill_type;
 using HotPixelVector = mapbox::geometry::wagyu::hot_pixel_vector<coordinate_t>;
 using IntersectList = mapbox::geometry::wagyu::intersect_list<coordinate_t>;
 using IntersectNode = mapbox::geometry::wagyu::intersect_node<coordinate_t>;
@@ -472,11 +473,11 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .value("LEFT", mapbox::geometry::wagyu::edge_left)
       .value("RIGHT", mapbox::geometry::wagyu::edge_right);
 
-  py::enum_<mapbox::geometry::wagyu::fill_type>(m, FILL_KIND_NAME)
-      .value("EVEN_ODD", mapbox::geometry::wagyu::fill_type_even_odd)
-      .value("NON_ZERO", mapbox::geometry::wagyu::fill_type_non_zero)
-      .value("POSITIVE", mapbox::geometry::wagyu::fill_type_positive)
-      .value("NEGATIVE", mapbox::geometry::wagyu::fill_type_negative);
+  py::enum_<FillKind>(m, FILL_KIND_NAME)
+      .value("EVEN_ODD", FillKind::fill_type_even_odd)
+      .value("NON_ZERO", FillKind::fill_type_non_zero)
+      .value("POSITIVE", FillKind::fill_type_positive)
+      .value("NEGATIVE", FillKind::fill_type_negative);
 
   py::enum_<mapbox::geometry::wagyu::polygon_type>(m, POLYGON_KIND_NAME)
       .value("SUBJECT", mapbox::geometry::wagyu::polygon_type_subject)
@@ -774,67 +775,51 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def(
           "intersect",
           [](Wagyu& self,
-             mapbox::geometry::wagyu::fill_type subject_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd,
-             mapbox::geometry::wagyu::fill_type clip_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd) {
+             FillKind subject_fill_kind = FillKind::fill_type_even_odd,
+             FillKind clip_fill_kind = FillKind::fill_type_even_odd) {
             Multipolygon solution;
-            self.execute(OperationKind::clip_type_intersection,
-                         solution, subject_fill_kind, clip_fill_kind);
+            self.execute(OperationKind::clip_type_intersection, solution,
+                         subject_fill_kind, clip_fill_kind);
             return solution;
           },
-          py::arg("subject_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd,
-          py::arg("clip_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd)
+          py::arg("subject_fill_kind") = FillKind::fill_type_even_odd,
+          py::arg("clip_fill_kind") = FillKind::fill_type_even_odd)
       .def(
           "subtract",
           [](Wagyu& self,
-             mapbox::geometry::wagyu::fill_type subject_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd,
-             mapbox::geometry::wagyu::fill_type clip_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd) {
+             FillKind subject_fill_kind = FillKind::fill_type_even_odd,
+             FillKind clip_fill_kind = FillKind::fill_type_even_odd) {
             Multipolygon solution;
-            self.execute(OperationKind::clip_type_difference,
-                         solution, subject_fill_kind, clip_fill_kind);
+            self.execute(OperationKind::clip_type_difference, solution,
+                         subject_fill_kind, clip_fill_kind);
             return solution;
           },
-          py::arg("subject_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd,
-          py::arg("clip_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd)
+          py::arg("subject_fill_kind") = FillKind::fill_type_even_odd,
+          py::arg("clip_fill_kind") = FillKind::fill_type_even_odd)
       .def(
           "unite",
           [](Wagyu& self,
-             mapbox::geometry::wagyu::fill_type subject_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd,
-             mapbox::geometry::wagyu::fill_type clip_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd) {
+             FillKind subject_fill_kind = FillKind::fill_type_even_odd,
+             FillKind clip_fill_kind = FillKind::fill_type_even_odd) {
             Multipolygon solution;
             self.execute(OperationKind::clip_type_union, solution,
                          subject_fill_kind, clip_fill_kind);
             return solution;
           },
-          py::arg("subject_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd,
-          py::arg("clip_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd)
+          py::arg("subject_fill_kind") = FillKind::fill_type_even_odd,
+          py::arg("clip_fill_kind") = FillKind::fill_type_even_odd)
       .def(
           "symmetric_subtract",
           [](Wagyu& self,
-             mapbox::geometry::wagyu::fill_type subject_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd,
-             mapbox::geometry::wagyu::fill_type clip_fill_kind =
-                 mapbox::geometry::wagyu::fill_type_even_odd) {
+             FillKind subject_fill_kind = FillKind::fill_type_even_odd,
+             FillKind clip_fill_kind = FillKind::fill_type_even_odd) {
             Multipolygon solution;
             self.execute(OperationKind::clip_type_x_or, solution,
                          subject_fill_kind, clip_fill_kind);
             return solution;
           },
-          py::arg("subject_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd,
-          py::arg("clip_fill_kind") =
-              mapbox::geometry::wagyu::fill_type_even_odd)
+          py::arg("subject_fill_kind") = FillKind::fill_type_even_odd,
+          py::arg("clip_fill_kind") = FillKind::fill_type_even_odd)
       .def_property_readonly("bounds", &Wagyu::get_bounds)
       .def_readonly("minimums", &Wagyu::minima_list)
       .def_readonly("reverse_output", &Wagyu::reverse_output);
