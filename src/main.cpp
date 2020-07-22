@@ -620,6 +620,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_property_readonly("is_hole", &Ring::is_hole)
       .def_property_readonly("depth",
                              &mapbox::geometry::wagyu::ring_depth<coordinate_t>)
+      .def("is_descendant_of",
+           &mapbox::geometry::wagyu::ring1_child_below_ring2<coordinate_t>)
       .def("recalculate_stats", &Ring::recalculate_stats)
       .def("reset_stats", &Ring::reset_stats)
       .def("set_stats", &Ring::set_stats, py::arg("area"), py::arg("size"),
