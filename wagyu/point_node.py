@@ -28,10 +28,10 @@ class PointNode:
                 if isinstance(other, (Point, PointNode))
                 else NotImplemented)
 
-    def __iter__(self) -> Iterator[Point]:
+    def __iter__(self) -> Iterator['PointNode']:
         cursor = self
         while True:
-            yield Point(cursor.x, cursor.y)
+            yield cursor
             cursor = cursor.next
             if cursor is self:
                 break
@@ -73,12 +73,8 @@ class PointNode:
         return area / 2, size, Box(Point(min_x, min_y), Point(max_x, max_y))
 
     def reverse(self) -> None:
-        cursor = self
-        while True:
-            cursor, cursor.next, cursor.prev = (cursor.next, cursor.prev,
-                                                cursor.next)
-            if cursor is self:
-                break
+        for node in self:
+            node.next, node.prev = node.prev, node.next
 
     def place_before(self, other: 'PointNode') -> None:
         self.next, self.prev = other, other.prev
@@ -86,4 +82,5 @@ class PointNode:
 
 
 def maybe_point_node_to_points(node: Optional[PointNode]) -> List[Point]:
-    return [] if node is None else list(node)
+    return [] if node is None else [Point(sub_node.x, sub_node.y)
+                                    for sub_node in node]
