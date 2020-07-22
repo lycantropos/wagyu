@@ -9,9 +9,11 @@ from tests.strategies import (coordinates,
 from tests.utils import (BoundPortedBoundsPair,
                          Strategy,
                          bound_edges_sides,
+                         bound_fill_kinds,
                          bound_polygons_kinds,
                          initialize_bounds,
                          ported_edges_sides,
+                         ported_fill_kinds,
                          ported_polygons_kinds,
                          to_bound_with_ported_bounds_pair,
                          to_bound_with_ported_edges_lists,
@@ -39,6 +41,8 @@ linear_rings_points_pairs = (planar.contours(coordinates)
 linear_rings_pairs = (linear_rings_points_pairs
                       .map(to_bound_with_ported_linear_rings))
 edges_lists_pairs = linear_rings_pairs.map(to_bound_with_ported_edges_lists)
+fill_kinds_pairs = strategies.sampled_from(list(zip(bound_fill_kinds,
+                                                    ported_fill_kinds)))
 polygons_kinds_pairs = strategies.sampled_from(
         list(zip(bound_polygons_kinds, ported_polygons_kinds)))
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,

@@ -14,6 +14,7 @@ from _wagyu import (Bound as BoundBound,
                     Box as BoundBox,
                     Edge as BoundEdge,
                     EdgeSide as BoundEdgeSide,
+                    FillKind as BoundFillKind,
                     IntersectNode as BoundIntersectNode,
                     LinearRing as BoundLinearRing,
                     LocalMinimum as BoundLocalMinimum,
@@ -30,6 +31,7 @@ from wagyu.bound import Bound as PortedBound
 from wagyu.box import Box as PortedBox
 from wagyu.edge import Edge as PortedEdge
 from wagyu.enums import (EdgeSide as PortedEdgeSide,
+                         FillKind as PortedFillKind,
                          PolygonKind as PortedPolygonKind)
 from wagyu.hints import Coordinate
 from wagyu.intersect_node import IntersectNode as PortedIntersectNode
@@ -51,6 +53,7 @@ RawMultipolygon = List[RawPolygon]
 BoundBound = BoundBound
 BoundBox = BoundBox
 BoundEdge = BoundEdge
+BoundFillKind = BoundFillKind
 BoundIntersectNode = BoundIntersectNode
 BoundLinearRing = BoundLinearRing
 BoundLinearRingWithPolygonKind = Tuple[BoundLinearRing, BoundPolygonKind]
@@ -64,6 +67,7 @@ BoundRingManager = BoundRingManager
 PortedBound = PortedBound
 PortedBox = PortedBox
 PortedEdge = PortedEdge
+PortedFillKind = PortedFillKind
 PortedIntersectNode = PortedIntersectNode
 PortedLinearRing = PortedLinearRing
 PortedLinearRingWithPolygonKind = Tuple[PortedLinearRing, PortedPolygonKind]
@@ -80,6 +84,7 @@ BoundPortedBoxesPair = Tuple[BoundBox, PortedBox]
 BoundPortedEdgesPair = Tuple[BoundEdge, PortedEdge]
 BoundPortedEdgesListsPair = Tuple[List[BoundEdge], List[PortedEdge]]
 BoundPortedEdgesSidesPair = Tuple[BoundEdgeSide, PortedEdgeSide]
+BoundPortedFillKindsPair = Tuple[BoundFillKind, PortedFillKind]
 BoundPortedIntersectNodesPair = Tuple[BoundIntersectNode, PortedIntersectNode]
 BoundPortedLinearRingsPair = Tuple[BoundLinearRing, PortedLinearRing]
 BoundPortedLocalMinimumListsPair = Tuple[BoundLocalMinimumList,
@@ -104,8 +109,10 @@ def enum_to_values(cls: Type[Enum]) -> List[Enum]:
 
 
 bound_edges_sides = enum_to_values(BoundEdgeSide)
+bound_fill_kinds = enum_to_values(BoundFillKind)
 bound_polygons_kinds = enum_to_values(BoundPolygonKind)
 ported_edges_sides = enum_to_values(PortedEdgeSide)
+ported_fill_kinds = enum_to_values(PortedFillKind)
 ported_polygons_kinds = enum_to_values(PortedPolygonKind)
 
 
