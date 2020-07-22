@@ -26,6 +26,7 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          subsequences,
                          to_bound_with_ported_bounds_pair,
                          to_bound_with_ported_edges_lists,
+                         to_bound_with_ported_edges_pair,
                          to_bound_with_ported_linear_rings,
                          to_bound_with_ported_linear_rings_points,
                          to_bound_with_ported_local_minimum_lists,
@@ -107,7 +108,9 @@ non_empty_rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
                                           sizes, maybe_rings_lists_pairs,
                                           non_empty_points_lists_pairs,
                                           booleans)
-edges_lists_pairs = linear_rings_pairs.map(to_bound_with_ported_edges_lists)
+edges_pairs = strategies.builds(to_bound_with_ported_edges_pair, points_pairs,
+                                points_pairs)
+edges_lists_pairs = strategies.lists(edges_pairs).map(transpose_pairs)
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
                                                      ported_edges_sides)))
 bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
