@@ -67,6 +67,7 @@ using OperationKind = mapbox::geometry::wagyu::clip_type;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
 using Polygon = mapbox::geometry::polygon<coordinate_t>;
+using PolygonKind = mapbox::geometry::wagyu::polygon_type;
 using Ring = mapbox::geometry::wagyu::ring<coordinate_t>;
 using RingPtr = mapbox::geometry::wagyu::ring_ptr<coordinate_t>;
 using RingVector = mapbox::geometry::wagyu::ring_vector<coordinate_t>;
@@ -480,9 +481,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .value("POSITIVE", FillKind::fill_type_positive)
       .value("NEGATIVE", FillKind::fill_type_negative);
 
-  py::enum_<mapbox::geometry::wagyu::polygon_type>(m, POLYGON_KIND_NAME)
-      .value("SUBJECT", mapbox::geometry::wagyu::polygon_type_subject)
-      .value("CLIP", mapbox::geometry::wagyu::polygon_type_clip);
+  py::enum_<PolygonKind>(m, POLYGON_KIND_NAME)
+      .value("SUBJECT", PolygonKind::polygon_type_subject)
+      .value("CLIP", PolygonKind::polygon_type_clip);
 
   py::class_<Point>(m, POINT_NAME)
       .def(py::init<coordinate_t, coordinate_t>(), py::arg("x"), py::arg("y"))
@@ -638,8 +639,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                        RingPtr ring, double current_x, std::size_t position,
                        std::int32_t winding_count,
                        std::int32_t opposite_winding_count,
-                       std::int8_t winding_delta,
-                       mapbox::geometry::wagyu::polygon_type polygon_kind,
+                       std::int8_t winding_delta, PolygonKind polygon_kind,
                        EdgeSide edge_side) {
              auto result = Bound(edges, last_point, ring, current_x, position,
                                  winding_count, opposite_winding_count,
@@ -656,8 +656,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            py::arg("ring").none(true) = nullptr, py::arg("current_x") = 0.,
            py::arg("position") = 0, py::arg("winding_count") = 0,
            py::arg("opposite_winding_count") = 0, py::arg("winding_delta") = 0,
-           py::arg("polygon_kind") =
-               mapbox::geometry::wagyu::polygon_type_subject,
+           py::arg("polygon_kind") = PolygonKind::polygon_type_subject,
            py::arg("side") = mapbox::geometry::wagyu::edge_left)
       .def(py::self == py::self)
       .def("__repr__", repr<Bound>)
@@ -756,7 +755,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__iter__", to_iterator<LocalMinimumList>, py::keep_alive<0, 1>())
       .def("add_linear_ring",
            [](LocalMinimumList& self, const LinearRing& ring,
-              mapbox::geometry::wagyu::polygon_type polygon_kind) {
+              PolygonKind polygon_kind) {
              return mapbox::geometry::wagyu::add_linear_ring(ring, self,
                                                              polygon_kind);
            })
