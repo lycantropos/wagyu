@@ -623,7 +623,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("recalculate_stats", &Ring::recalculate_stats)
       .def("reset_stats", &Ring::reset_stats)
       .def("set_stats", &Ring::set_stats, py::arg("area"), py::arg("size"),
-           py::arg("box"));
+           py::arg("box"))
+      .def("update_points",
+           &mapbox::geometry::wagyu::update_points_ring<coordinate_t>);
 
   py::class_<Bound, std::unique_ptr<Bound, py::nodelete>>(m, BOUND_NAME)
       .def(py::init([](const EdgeList& edges, std::size_t current_edge_index,
