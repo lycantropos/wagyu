@@ -908,6 +908,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::add_point_to_ring<coordinate_t>(
                  bound, point, self);
            })
+      .def("append_ring",
+           [](RingManager& self, Bound& first_bound, Bound& second_bound,
+              ActiveBoundList& active_bounds) {
+             mapbox::geometry::wagyu::append_ring<coordinate_t>(
+                 first_bound, second_bound, active_bounds, self);
+           })
       .def("build_hot_pixels",
            [](RingManager& self, LocalMinimumList& minimums) {
              mapbox::geometry::wagyu::build_hot_pixels<coordinate_t>(minimums,
