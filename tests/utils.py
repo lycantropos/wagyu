@@ -19,6 +19,7 @@ from _wagyu import (Bound as BoundBound,
                     LinearRing as BoundLinearRing,
                     LocalMinimum as BoundLocalMinimum,
                     LocalMinimumList as BoundLocalMinimumList,
+                    OperationKind as BoundOperationKind,
                     Point as BoundPoint,
                     Polygon as BoundPolygon,
                     PolygonKind as BoundPolygonKind,
@@ -32,6 +33,7 @@ from wagyu.box import Box as PortedBox
 from wagyu.edge import Edge as PortedEdge
 from wagyu.enums import (EdgeSide as PortedEdgeSide,
                          FillKind as PortedFillKind,
+                         OperationKind as PortedOperationKind,
                          PolygonKind as PortedPolygonKind)
 from wagyu.hints import Coordinate
 from wagyu.intersect_node import IntersectNode as PortedIntersectNode
@@ -59,6 +61,7 @@ BoundLinearRing = BoundLinearRing
 BoundLinearRingWithPolygonKind = Tuple[BoundLinearRing, BoundPolygonKind]
 BoundLocalMinimum = BoundLocalMinimum
 BoundLocalMinimumList = BoundLocalMinimumList
+BoundOperationKind = BoundOperationKind
 BoundPoint = BoundPoint
 BoundPolygonKind = BoundPolygonKind
 BoundRing = BoundRing
@@ -73,6 +76,7 @@ PortedLinearRing = PortedLinearRing
 PortedLinearRingWithPolygonKind = Tuple[PortedLinearRing, PortedPolygonKind]
 PortedLocalMinimum = PortedLocalMinimum
 PortedLocalMinimumList = PortedLocalMinimumList
+PortedOperationKind = PortedOperationKind
 PortedPoint = PortedPoint
 PortedPolygonKind = PortedPolygonKind
 PortedRing = PortedRing
@@ -96,6 +100,7 @@ BoundPortedLinearRingsWithPolygonsKindsListsPair = Tuple[
 BoundPortedMaybeRingsPair = Tuple[Optional[BoundRing], Optional[PortedRing]]
 BoundPortedMaybeRingsListsPair = Tuple[List[Optional[BoundRing]],
                                        List[Optional[PortedRing]]]
+BoundPortedOperationKindsPair = Tuple[BoundOperationKind, PortedOperationKind]
 BoundPortedPointsPair = Tuple[BoundPoint, PortedPoint]
 BoundPortedPointsListsPair = Tuple[List[BoundPoint], List[PortedPoint]]
 BoundPortedPolygonKindsPair = Tuple[BoundPolygonKind, PortedPolygonKind]
@@ -110,10 +115,12 @@ def enum_to_values(cls: Type[Enum]) -> List[Enum]:
 
 bound_edges_sides = enum_to_values(BoundEdgeSide)
 bound_fill_kinds = enum_to_values(BoundFillKind)
-bound_polygons_kinds = enum_to_values(BoundPolygonKind)
+bound_operation_kinds = enum_to_values(BoundOperationKind)
+bound_polygon_kinds = enum_to_values(BoundPolygonKind)
 ported_edges_sides = enum_to_values(PortedEdgeSide)
 ported_fill_kinds = enum_to_values(PortedFillKind)
-ported_polygons_kinds = enum_to_values(PortedPolygonKind)
+ported_operation_kinds = enum_to_values(BoundOperationKind)
+ported_polygon_kinds = enum_to_values(PortedPolygonKind)
 
 
 def equivalence(left_statement: bool, right_statement: bool) -> bool:
@@ -337,14 +344,14 @@ def to_bound_with_ported_bounds_pair(edges: BoundPortedEdgesListsPair,
                                      winding_count: int,
                                      opposite_winding_count: int,
                                      winding_delta: int,
-                                     polygons_kinds_pair
+                                     polygon_kinds_pair
                                      : BoundPortedPolygonKindsPair,
                                      sides_pair: BoundPortedEdgesSidesPair
                                      ) -> BoundPortedBoundsPair:
     bound_edges, ported_edges = edges
     bound_last_point, ported_last_point = last_points_pair
     bound_ring, ported_ring = rings_pair
-    bound_polygon_kind, ported_polygon_kind = polygons_kinds_pair
+    bound_polygon_kind, ported_polygon_kind = polygon_kinds_pair
     bound_edge_side, ported_edge_side = sides_pair
     return (BoundBound(bound_edges, current_edge_index, next_edge_index,
                        bound_last_point, bound_ring, current_x, position,
@@ -459,11 +466,11 @@ def to_bound_polygon_linear_rings(raw_polygon: RawPolygon
                for raw_hole in raw_holes])
 
 
-def to_bound_local_minimum_list(linear_rings_with_polygons_kinds
+def to_bound_local_minimum_list(linear_rings_with_polygon_kinds
                                 : List[BoundLinearRingWithPolygonKind]
                                 ) -> BoundLocalMinimumList:
     result = BoundLocalMinimumList()
-    for linear_ring, polygon_kind in linear_rings_with_polygons_kinds:
+    for linear_ring, polygon_kind in linear_rings_with_polygon_kinds:
         result.add_linear_ring(linear_ring, polygon_kind)
     return result
 
@@ -480,11 +487,11 @@ def to_ported_linear_rings_points(raw_points: RawPointsList
     return points + [points[0]]
 
 
-def to_ported_local_minimum_list(linear_rings_with_polygons_kinds
+def to_ported_local_minimum_list(linear_rings_with_polygon_kinds
                                  : List[PortedLinearRingWithPolygonKind]
                                  ) -> PortedLocalMinimumList:
     result = PortedLocalMinimumList()
-    for linear_ring, polygon_kind in linear_rings_with_polygons_kinds:
+    for linear_ring, polygon_kind in linear_rings_with_polygon_kinds:
         result.add_linear_ring(linear_ring, polygon_kind)
     return result
 

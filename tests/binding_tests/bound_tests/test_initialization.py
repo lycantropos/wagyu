@@ -15,7 +15,7 @@ from . import strategies
 @given(strategies.edges_lists, strategies.sizes, strategies.sizes, 
        strategies.points, strategies.maybe_rings, strategies.floats, 
        strategies.sizes, strategies.integers_32, strategies.integers_32, 
-       strategies.trits, strategies.polygons_kinds, strategies.edges_sides)
+       strategies.trits, strategies.polygon_kinds, strategies.edges_sides)
 def test_basic(edges: List[Edge],
                current_edge_index: int,
                next_edge_index: int,

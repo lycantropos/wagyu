@@ -5,7 +5,7 @@ from tests.strategies import (coordinates,
                               non_negative_integers,
                               trits)
 from tests.utils import (ported_edges_sides,
-                         ported_polygons_kinds,
+                         ported_polygon_kinds,
                          to_maybe)
 from wagyu.bound import Bound
 from wagyu.box import Box
@@ -27,9 +27,9 @@ edges = strategies.builds(Edge, points, points)
 integers = strategies.integers()
 edges_lists = strategies.lists(edges)
 maybe_rings = to_maybe(rings)
-polygons_kinds = strategies.sampled_from(ported_polygons_kinds)
+polygon_kinds = strategies.sampled_from(ported_polygon_kinds)
 edges_sides = strategies.sampled_from(ported_edges_sides)
 bounds = strategies.builds(Bound, edges_lists, non_negative_integers,
                            non_negative_integers, points, maybe_rings, floats,
                            non_negative_integers, integers, integers, trits,
-                           polygons_kinds, edges_sides)
+                           polygon_kinds, edges_sides)

@@ -7,9 +7,9 @@ from tests.strategies import (coordinates,
                               sizes,
                               trits)
 from tests.utils import (bound_edges_sides,
-                         bound_polygons_kinds,
+                         bound_polygon_kinds,
                          ported_edges_sides,
-                         ported_polygons_kinds,
+                         ported_polygon_kinds,
                          to_bound_with_ported_bounds_pair,
                          to_bound_with_ported_edges_lists,
                          to_bound_with_ported_intersect_nodes_pair,
@@ -37,14 +37,14 @@ linear_rings_points_pairs = (planar.contours(coordinates)
 linear_rings_pairs = (linear_rings_points_pairs
                       .map(to_bound_with_ported_linear_rings))
 edges_lists_pairs = linear_rings_pairs.map(to_bound_with_ported_edges_lists)
-polygons_kinds_pairs = strategies.sampled_from(
-        list(zip(bound_polygons_kinds, ported_polygons_kinds)))
+polygon_kinds_pairs = strategies.sampled_from(
+        list(zip(bound_polygon_kinds, ported_polygon_kinds)))
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
                                                      ported_edges_sides)))
 bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
                                  edges_lists_pairs, sizes, sizes, points_pairs,
                                  maybe_rings_pairs, floats, sizes, integers_32,
-                                 integers_32, trits, polygons_kinds_pairs,
+                                 integers_32, trits, polygon_kinds_pairs,
                                  edges_sides_pairs)
 intersect_nodes_pairs = strategies.builds(
         to_bound_with_ported_intersect_nodes_pair, bounds_pairs, bounds_pairs,

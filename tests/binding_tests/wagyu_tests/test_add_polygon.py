@@ -7,7 +7,7 @@ from tests.utils import equivalence
 from . import strategies
 
 
-@given(strategies.empty_wagyus, strategies.polygons, strategies.polygons_kinds)
+@given(strategies.empty_wagyus, strategies.polygons, strategies.polygon_kinds)
 def test_basic(wagyu: Wagyu,
                polygon: LinearRing,
                polygon_kind: PolygonKind) -> None:
@@ -16,7 +16,7 @@ def test_basic(wagyu: Wagyu,
     assert isinstance(result, bool)
 
 
-@given(strategies.empty_wagyus, strategies.polygons, strategies.polygons_kinds)
+@given(strategies.empty_wagyus, strategies.polygons, strategies.polygon_kinds)
 def test_properties(wagyu: Wagyu,
                     polygon: LinearRing,
                     polygon_kind: PolygonKind) -> None:

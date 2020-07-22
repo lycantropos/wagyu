@@ -12,18 +12,18 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          PortedLinearRingWithPolygonKind,
                          PortedLocalMinimumList,
                          Strategy,
-                         bound_polygons_kinds,
-                         ported_polygons_kinds,
+                         bound_polygon_kinds,
+                         ported_polygon_kinds,
                          to_bound_with_ported_linear_rings,
                          to_bound_with_ported_linear_rings_points,
                          to_bound_with_ported_local_minimum_lists,
                          transpose_pairs)
 
-polygons_kinds_pairs = strategies.sampled_from(
-        list(zip(bound_polygons_kinds, ported_polygons_kinds)))
+polygon_kinds_pairs = strategies.sampled_from(
+        list(zip(bound_polygon_kinds, ported_polygon_kinds)))
 
 
-def to_linear_rings_with_polygons_kinds(
+def to_linear_rings_with_polygon_kinds(
         linear_rings_pairs: List[BoundPortedLocalMinimumListsPair]
 ) -> Strategy[Tuple[List[BoundLinearRingWithPolygonKind],
                     List[PortedLinearRingWithPolygonKind]]]:
@@ -31,14 +31,14 @@ def to_linear_rings_with_polygons_kinds(
             linear_rings_pairs)
 
     def merge_with_linear_rings(
-            polygons_kinds: List[BoundPortedPolygonKindsPair]
+            polygon_kinds: List[BoundPortedPolygonKindsPair]
     ) -> Tuple[List[BoundLinearRingWithPolygonKind],
                List[PortedLinearRingWithPolygonKind]]:
-        bound_kinds, ported_kinds = transpose_pairs(polygons_kinds)
+        bound_kinds, ported_kinds = transpose_pairs(polygon_kinds)
         return (list(zip(bound_linear_rings, bound_kinds)),
                 list(zip(ported_linear_rings, ported_kinds)))
 
-    return (strategies.lists(polygons_kinds_pairs,
+    return (strategies.lists(polygon_kinds_pairs,
                              min_size=len(bound_linear_rings),
                              max_size=len(bound_linear_rings))
             .map(merge_with_linear_rings))
@@ -49,7 +49,7 @@ linear_rings_points_pairs = planar.contours(coordinates).map(
 linear_rings_pairs = (linear_rings_points_pairs
                       .map(to_bound_with_ported_linear_rings))
 local_minimum_lists_pairs = (strategies.lists(linear_rings_pairs)
-                             .flatmap(to_linear_rings_with_polygons_kinds)
+                             .flatmap(to_linear_rings_with_polygon_kinds)
                              .map(to_bound_with_ported_local_minimum_lists))
 empty_local_minimum_lists_pairs = strategies.tuples(
         strategies.builds(BoundLocalMinimumList),

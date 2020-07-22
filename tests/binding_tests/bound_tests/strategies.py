@@ -11,7 +11,7 @@ from tests.strategies import (coordinates,
                               sizes,
                               trits)
 from tests.utils import (bound_edges_sides,
-                         bound_polygons_kinds,
+                         bound_polygon_kinds,
                          to_maybe)
 
 booleans = strategies.booleans()
@@ -28,8 +28,8 @@ edges = strategies.builds(Edge, points, points)
 integers_32 = integers_32
 edges_lists = strategies.lists(edges)
 trits = trits
-polygons_kinds = strategies.sampled_from(bound_polygons_kinds)
+polygon_kinds = strategies.sampled_from(bound_polygon_kinds)
 edges_sides = strategies.sampled_from(bound_edges_sides)
 bounds = strategies.builds(Bound, edges_lists, sizes, sizes, points,
                            maybe_rings, floats, sizes, integers_32,
-                           integers_32, trits, polygons_kinds, edges_sides)
+                           integers_32, trits, polygon_kinds, edges_sides)

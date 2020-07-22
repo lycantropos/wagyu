@@ -8,7 +8,7 @@ from . import strategies
 
 
 @given(strategies.local_minimum_lists, strategies.linear_rings,
-       strategies.polygons_kinds)
+       strategies.polygon_kinds)
 def test_basic(local_minimum_list: LocalMinimumList,
                linear_ring: LinearRing,
                polygon_kind: PolygonKind) -> None:
@@ -18,7 +18,7 @@ def test_basic(local_minimum_list: LocalMinimumList,
 
 
 @given(strategies.local_minimum_lists, strategies.linear_rings,
-       strategies.polygons_kinds)
+       strategies.polygon_kinds)
 def test_properties(local_minimum_list: LocalMinimumList,
                     linear_ring: LinearRing,
                     polygon_kind: PolygonKind) -> None:

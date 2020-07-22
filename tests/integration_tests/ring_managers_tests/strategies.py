@@ -21,10 +21,10 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          PortedLinearRingWithPolygonKind,
                          Strategy,
                          bound_edges_sides,
-                         bound_polygons_kinds,
+                         bound_polygon_kinds,
                          initialize_bounds,
                          ported_edges_sides,
-                         ported_polygons_kinds,
+                         ported_polygon_kinds,
                          sort_pair,
                          subsequences,
                          to_bound_with_ported_bounds_pair,
@@ -42,11 +42,11 @@ from wagyu.hints import Coordinate
 
 coordinates = coordinates
 sorted_coordinates_pairs = to_pairs(coordinates).map(sort_pair)
-polygons_kinds_pairs = strategies.sampled_from(
-        list(zip(bound_polygons_kinds, ported_polygons_kinds)))
+polygon_kinds_pairs = strategies.sampled_from(list(zip(bound_polygon_kinds,
+                                                       ported_polygon_kinds)))
 
 
-def to_linear_rings_with_polygons_kinds(
+def to_linear_rings_with_polygon_kinds(
         linear_rings_pairs: List[BoundPortedLocalMinimumListsPair]
 ) -> Strategy[Tuple[List[BoundLinearRingWithPolygonKind],
                     List[PortedLinearRingWithPolygonKind]]]:
@@ -54,14 +54,14 @@ def to_linear_rings_with_polygons_kinds(
             linear_rings_pairs)
 
     def merge_with_linear_rings(
-            polygons_kinds: List[BoundPortedPolygonKindsPair]
+            polygon_kinds: List[BoundPortedPolygonKindsPair]
     ) -> Tuple[List[BoundLinearRingWithPolygonKind],
                List[PortedLinearRingWithPolygonKind]]:
-        bound_kinds, ported_kinds = transpose_pairs(polygons_kinds)
+        bound_kinds, ported_kinds = transpose_pairs(polygon_kinds)
         return (list(zip(bound_linear_rings, bound_kinds)),
                 list(zip(ported_linear_rings, ported_kinds)))
 
-    return (strategies.lists(polygons_kinds_pairs,
+    return (strategies.lists(polygon_kinds_pairs,
                              min_size=len(bound_linear_rings),
                              max_size=len(bound_linear_rings))
             .map(merge_with_linear_rings))
@@ -72,7 +72,7 @@ linear_rings_points_pairs = planar.contours(coordinates).map(
 linear_rings_pairs = (linear_rings_points_pairs
                       .map(to_bound_with_ported_linear_rings))
 local_minimum_lists_pairs = (strategies.lists(linear_rings_pairs)
-                             .flatmap(to_linear_rings_with_polygons_kinds)
+                             .flatmap(to_linear_rings_with_polygon_kinds)
                              .map(to_bound_with_ported_local_minimum_lists))
 
 
@@ -127,11 +127,11 @@ bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
                                  non_empty_edges_lists_pairs, sizes, sizes,
                                  points_pairs, maybe_rings_pairs, floats,
                                  sizes, integers_32, integers_32, trits,
-                                 polygons_kinds_pairs, edges_sides_pairs)
+                                 polygon_kinds_pairs, edges_sides_pairs)
 non_empty_bounds_pairs = strategies.builds(
         to_bound_with_ported_bounds_pair, non_empty_edges_lists_pairs, sizes,
         sizes, points_pairs, non_empty_rings_pairs, floats, sizes, integers_32,
-        integers_32, trits, polygons_kinds_pairs, edges_sides_pairs)
+        integers_32, trits, polygon_kinds_pairs, edges_sides_pairs)
 non_empty_bounds_lists_pairs = (strategies.lists(non_empty_bounds_pairs,
                                                  min_size=1)
                                 .map(transpose_pairs))

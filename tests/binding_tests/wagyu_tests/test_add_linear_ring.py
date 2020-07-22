@@ -8,7 +8,7 @@ from . import strategies
 
 
 @given(strategies.empty_wagyus, strategies.linear_rings,
-       strategies.polygons_kinds)
+       strategies.polygon_kinds)
 def test_basic(wagyu: Wagyu,
                linear_ring: LinearRing,
                polygon_kind: PolygonKind) -> None:
@@ -18,7 +18,7 @@ def test_basic(wagyu: Wagyu,
 
 
 @given(strategies.empty_wagyus, strategies.linear_rings,
-       strategies.polygons_kinds)
+       strategies.polygon_kinds)
 def test_properties(wagyu: Wagyu,
                     linear_ring: LinearRing,
                     polygon_kind: PolygonKind) -> None:
