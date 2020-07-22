@@ -25,7 +25,6 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          sort_pair,
                          subsequences,
                          to_bound_with_ported_bounds_pair,
-                         to_bound_with_ported_edges_lists,
                          to_bound_with_ported_edges_pair,
                          to_bound_with_ported_linear_rings,
                          to_bound_with_ported_linear_rings_points,
@@ -110,16 +109,17 @@ non_empty_rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
                                           booleans)
 edges_pairs = strategies.builds(to_bound_with_ported_edges_pair, points_pairs,
                                 points_pairs)
-edges_lists_pairs = strategies.lists(edges_pairs).map(transpose_pairs)
+non_empty_edges_lists_pairs = strategies.lists(edges_pairs,
+                                               min_size=1).map(transpose_pairs)
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
                                                      ported_edges_sides)))
 bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
-                                 edges_lists_pairs, sizes, sizes, points_pairs,
+                                 non_empty_edges_lists_pairs, sizes, sizes, points_pairs,
                                  maybe_rings_pairs, floats, sizes, integers_32,
                                  integers_32, trits, polygons_kinds_pairs,
                                  edges_sides_pairs)
 non_empty_bounds_pairs = strategies.builds(
-        to_bound_with_ported_bounds_pair, edges_lists_pairs, sizes, sizes,
+        to_bound_with_ported_bounds_pair, non_empty_edges_lists_pairs, sizes, sizes,
         points_pairs, non_empty_rings_pairs, floats, sizes, integers_32,
         integers_32, trits, polygons_kinds_pairs, edges_sides_pairs)
 non_empty_bounds_lists_pairs = (strategies.lists(non_empty_bounds_pairs,
@@ -182,6 +182,12 @@ non_empty_initialized_non_empty_bounds_lists_pairs = (
 non_empty_initialized_non_empty_bounds_lists_pairs_with_indices = (
     non_empty_initialized_non_empty_bounds_lists_pairs.flatmap(
             to_bounds_lists_pairs_with_indices))
+two_or_more_initialized_non_empty_bounds_lists_pairs = (
+    strategies.lists(initialized_non_empty_bounds_pairs,
+                     min_size=2).map(transpose_pairs))
+two_or_more_initialized_non_empty_bounds_lists_pairs_with_indices_pairs = (
+    two_or_more_initialized_non_empty_bounds_lists_pairs.flatmap(
+            to_bounds_lists_pairs_with_indices_pairs))
 
 
 def to_lists_pairs_scanbeams_top_y(
