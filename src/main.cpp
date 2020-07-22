@@ -918,6 +918,16 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  *active_bounds[second_bound_index], active_bounds, self);
              return active_bounds;
            })
+      .def("add_local_maximum_point",
+           [](RingManager& self, const Point& point,
+              std::size_t first_bound_index, std::size_t second_bound_index,
+              ActiveBoundList& active_bounds) {
+             mapbox::geometry::wagyu::add_local_maximum_point<coordinate_t>(
+                 *active_bounds[first_bound_index],
+                 *active_bounds[second_bound_index], point, self,
+                 active_bounds);
+             return active_bounds;
+           })
       .def("build_hot_pixels",
            [](RingManager& self, LocalMinimumList& minimums) {
              mapbox::geometry::wagyu::build_hot_pixels<coordinate_t>(minimums,
