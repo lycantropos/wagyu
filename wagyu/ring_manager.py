@@ -19,7 +19,9 @@ from .local_minimum import (LocalMinimum,
 from .point import Point
 from .point_node import (PointNode,
                          maybe_point_node_to_points)
-from .ring import Ring
+from .ring import (Ring,
+                   remove_from_children,
+                   set_to_children)
 from .utils import (insort_unique,
                     round_half_up)
 
@@ -414,6 +416,27 @@ class RingManager:
         new_node = self.create_point_node(bound.ring, point, op)
         if to_front:
             bound.ring.node = new_node
+
+    def replace_ring(self,
+                     original: Optional[Ring],
+                     replacement: Ring) -> None:
+        assert original is not replacement
+        original_children = (self.children
+                             if original is None
+                             else original.children)
+        for index, child in enumerate(replacement.children):
+            if child is None:
+                continue
+            child.parent = original
+            set_to_children(child, original_children)
+            replacement.children[index] = None
+        # remove the old child relationship
+        old_children = (self.children
+                        if replacement.parent is None
+                        else replacement.parent.children)
+        remove_from_children(replacement, old_children)
+        replacement.node = None
+        replacement.reset_stats()
 
 
 def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:

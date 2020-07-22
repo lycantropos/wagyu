@@ -95,3 +95,18 @@ class Ring:
     def update_points(self) -> None:
         for node in self.node:
             node.ring = self
+
+
+def remove_from_children(ring: Ring, children: List[Optional[Ring]]) -> None:
+    for index, candidate in enumerate(children):
+        if candidate is ring:
+            children[index] = None
+            return
+
+
+def set_to_children(r: Ring, children: List[Optional[Ring]]) -> None:
+    for index, c in enumerate(children):
+        if c is None:
+            children[index] = r
+            return
+    children.append(r)
