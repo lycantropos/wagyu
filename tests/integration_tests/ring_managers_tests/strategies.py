@@ -13,8 +13,11 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          BoundPortedBoundsListsPair,
                          BoundPortedBoundsPair,
                          BoundPortedLocalMinimumListsPair,
+                         BoundPortedMaybeRingsPair,
+                         BoundPortedPointsListsPair,
                          BoundPortedPolygonKindsPair,
                          BoundPortedRingManagersPair,
+                         BoundPortedRingsPair,
                          PortedLinearRingWithPolygonKind,
                          Strategy,
                          bound_edges_sides,
@@ -97,16 +100,23 @@ points_lists_pairs = strategies.lists(points_pairs).map(transpose_pairs)
 non_empty_points_lists_pairs = (strategies.lists(points_pairs,
                                                  min_size=1)
                                 .map(transpose_pairs))
-maybe_rings_pairs = to_maybe_pairs(strategies.deferred(lambda: rings_pairs))
+
+
+def to_rings(pairs: Strategy[BoundPortedMaybeRingsPair],
+             hot_pixels_pairs: Strategy[BoundPortedPointsListsPair]
+             = points_lists_pairs) -> Strategy[BoundPortedRingsPair]:
+    return strategies.builds(to_bound_with_ported_rings_pair, sizes,
+                             strategies.lists(pairs).map(transpose_pairs),
+                             hot_pixels_pairs, booleans)
+
+
+nones_pairs = to_pairs(strategies.none())
+maybe_rings_pairs = strategies.recursive(nones_pairs, to_rings)
 maybe_rings_lists_pairs = (strategies.lists(maybe_rings_pairs)
                            .map(transpose_pairs))
-rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
-                                sizes, maybe_rings_lists_pairs,
-                                points_lists_pairs, booleans)
-non_empty_rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
-                                          sizes, maybe_rings_lists_pairs,
-                                          non_empty_points_lists_pairs,
-                                          booleans)
+rings_pairs = to_rings(maybe_rings_pairs)
+non_empty_rings_pairs = to_rings(maybe_rings_pairs,
+                                 non_empty_points_lists_pairs)
 edges_pairs = strategies.builds(to_bound_with_ported_edges_pair, points_pairs,
                                 points_pairs)
 non_empty_edges_lists_pairs = strategies.lists(edges_pairs,
