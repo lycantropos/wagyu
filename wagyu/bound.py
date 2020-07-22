@@ -7,6 +7,7 @@ from reprit.base import generate_repr
 from .edge import (Edge,
                    are_edges_slopes_equal)
 from .enums import (EdgeSide,
+                    FillKind,
                     PolygonKind)
 from .hints import Coordinate
 from .point import Point
@@ -103,6 +104,14 @@ class Bound:
     @next_edge_index.setter
     def next_edge_index(self, value: int) -> None:
         self._next_edge_index = value if value < len(self.edges) else None
+
+    def is_even_odd_fill_kind(self,
+                              subject_fill_kind: FillKind,
+                              clip_fill_kind: FillKind) -> bool:
+        if self.polygon_kind is PolygonKind.SUBJECT:
+            return subject_fill_kind is FillKind.EVEN_ODD
+        else:
+            return clip_fill_kind is FillKind.EVEN_ODD
 
     def fix_horizontals(self) -> None:
         edge_index = 0
