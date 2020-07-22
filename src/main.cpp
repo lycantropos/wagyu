@@ -916,6 +916,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  active_bounds);
              return active_bounds;
            })
+      .def("add_local_minimum_point",
+           [](RingManager& self, const Point& point,
+              std::size_t first_bound_index, std::size_t second_bound_index,
+              ActiveBoundList& active_bounds) {
+             mapbox::geometry::wagyu::add_local_minimum_point<coordinate_t>(
+                 *active_bounds[first_bound_index],
+                 *active_bounds[second_bound_index], active_bounds, point, self);
+             return active_bounds;
+           })
       .def("intersect_bounds",
            [](RingManager& self, std::size_t first_bound_index,
               std::size_t second_bound_index, ActiveBoundList& active_bounds,
