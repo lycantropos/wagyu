@@ -61,6 +61,7 @@ using LocalMinimumPtr =
 using LocalMinimumList =
     mapbox::geometry::wagyu::local_minimum_list<coordinate_t>;
 using Multipolygon = mapbox::geometry::multi_polygon<coordinate_t>;
+using OperationKind = mapbox::geometry::wagyu::clip_type;
 using Point = mapbox::geometry::point<coordinate_t>;
 using PointNode = mapbox::geometry::wagyu::point<coordinate_t>;
 using Polygon = mapbox::geometry::polygon<coordinate_t>;
@@ -461,11 +462,11 @@ PYBIND11_MODULE(MODULE_NAME, m) {
         Python binding of mapbox/wagyu library.
     )pbdoc";
 
-  py::enum_<mapbox::geometry::wagyu::clip_type>(m, OPERATION_KIND_NAME)
-      .value("INTERSECTION", mapbox::geometry::wagyu::clip_type_intersection)
-      .value("UNION", mapbox::geometry::wagyu::clip_type_union)
-      .value("DIFFERENCE", mapbox::geometry::wagyu::clip_type_difference)
-      .value("XOR", mapbox::geometry::wagyu::clip_type_x_or);
+  py::enum_<OperationKind>(m, OPERATION_KIND_NAME)
+      .value("INTERSECTION", OperationKind::clip_type_intersection)
+      .value("UNION", OperationKind::clip_type_union)
+      .value("DIFFERENCE", OperationKind::clip_type_difference)
+      .value("XOR", OperationKind::clip_type_x_or);
 
   py::enum_<mapbox::geometry::wagyu::edge_side>(m, EDGE_SIDE_NAME)
       .value("LEFT", mapbox::geometry::wagyu::edge_left)
@@ -778,7 +779,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::fill_type clip_fill_kind =
                  mapbox::geometry::wagyu::fill_type_even_odd) {
             Multipolygon solution;
-            self.execute(mapbox::geometry::wagyu::clip_type_intersection,
+            self.execute(OperationKind::clip_type_intersection,
                          solution, subject_fill_kind, clip_fill_kind);
             return solution;
           },
@@ -794,7 +795,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::fill_type clip_fill_kind =
                  mapbox::geometry::wagyu::fill_type_even_odd) {
             Multipolygon solution;
-            self.execute(mapbox::geometry::wagyu::clip_type_difference,
+            self.execute(OperationKind::clip_type_difference,
                          solution, subject_fill_kind, clip_fill_kind);
             return solution;
           },
@@ -810,7 +811,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::fill_type clip_fill_kind =
                  mapbox::geometry::wagyu::fill_type_even_odd) {
             Multipolygon solution;
-            self.execute(mapbox::geometry::wagyu::clip_type_union, solution,
+            self.execute(OperationKind::clip_type_union, solution,
                          subject_fill_kind, clip_fill_kind);
             return solution;
           },
@@ -826,7 +827,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::fill_type clip_fill_kind =
                  mapbox::geometry::wagyu::fill_type_even_odd) {
             Multipolygon solution;
-            self.execute(mapbox::geometry::wagyu::clip_type_x_or, solution,
+            self.execute(OperationKind::clip_type_x_or, solution,
                          subject_fill_kind, clip_fill_kind);
             return solution;
           },
