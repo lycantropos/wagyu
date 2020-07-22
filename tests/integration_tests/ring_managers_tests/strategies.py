@@ -21,9 +21,11 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          PortedLinearRingWithPolygonKind,
                          Strategy,
                          bound_edges_sides,
+                         bound_fill_kinds, bound_operation_kinds,
                          bound_polygon_kinds,
                          initialize_bounds,
                          ported_edges_sides,
+                         ported_fill_kinds, ported_operation_kinds,
                          ported_polygon_kinds,
                          sort_pair,
                          subsequences,
@@ -42,8 +44,12 @@ from wagyu.hints import Coordinate
 
 coordinates = coordinates
 sorted_coordinates_pairs = to_pairs(coordinates).map(sort_pair)
+fill_kinds_pairs = strategies.sampled_from(list(zip(bound_fill_kinds,
+                                                    ported_fill_kinds)))
 polygon_kinds_pairs = strategies.sampled_from(list(zip(bound_polygon_kinds,
                                                        ported_polygon_kinds)))
+operation_kinds_pairs = strategies.sampled_from(
+        list(zip(bound_operation_kinds, ported_operation_kinds)))
 
 
 def to_linear_rings_with_polygon_kinds(
