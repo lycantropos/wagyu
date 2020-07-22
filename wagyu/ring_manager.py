@@ -91,6 +91,22 @@ class RingManager:
     def stored_points(self) -> List[List[Point]]:
         return [list(node) for node in self.storage]
 
+    def add_local_maximum_point(self,
+                                point: Point,
+                                first_bound: Bound,
+                                second_bound: Bound,
+                                active_bounds: List[Bound]) -> None:
+        self.insert_hot_pixels_in_path(second_bound, point, False)
+        self.add_point(first_bound, active_bounds, point)
+        if first_bound.ring == second_bound.ring:
+            first_bound.ring = None
+            second_bound.ring = None
+            # I am not certain that order is important here?
+        elif first_bound.ring.index < second_bound.ring.index:
+            self.append_ring(first_bound, second_bound, active_bounds)
+        else:
+            self.append_ring(second_bound, first_bound, active_bounds)
+
     def append_ring(self, first_bound: Bound, second_bound: Bound,
                     active_bounds: List[Bound]) -> None:
         # get the start and ends of both output polygons ...
