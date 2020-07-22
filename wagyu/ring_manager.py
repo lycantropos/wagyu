@@ -23,6 +23,7 @@ from .ring import (Ring,
                    remove_from_children,
                    set_to_children)
 from .utils import (insort_unique,
+                    is_even,
                     round_half_up)
 
 
@@ -89,6 +90,79 @@ class RingManager:
     @property
     def stored_points(self) -> List[List[Point]]:
         return [list(node) for node in self.storage]
+
+    def append_ring(self, first_bound: Bound, second_bound: Bound,
+                    active_bounds: List[Bound]) -> None:
+        # get the start and ends of both output polygons ...
+        first_out_rec = first_bound.ring
+        second_out_rec = second_bound.ring
+        if first_out_rec.is_descendant_of(second_out_rec):
+            keep_ring, remove_ring = second_out_rec, first_out_rec
+            keep_bound, remove_bound = second_bound, first_bound
+        elif second_out_rec.is_descendant_of(first_out_rec):
+            keep_ring, remove_ring = first_out_rec, second_out_rec
+            keep_bound, remove_bound = first_bound, second_bound
+        elif first_out_rec is first_out_rec.get_lowermost_ring(second_out_rec):
+            keep_ring, remove_ring = first_out_rec, second_out_rec
+            keep_bound, remove_bound = first_bound, second_bound
+        else:
+            keep_ring, remove_ring = second_out_rec, first_out_rec
+            keep_bound, remove_bound = second_bound, first_bound
+        # get the start and ends of both output polygons and
+        # join b2 poly onto b1 poly and delete pointers to b2 ...
+        p1_lft = keep_ring.node
+        p1_rt = p1_lft.prev
+        p2_lft = remove_ring.node
+        p2_rt = p2_lft.prev
+        # join b2 poly onto b1 poly and delete pointers to b2 ...
+        if keep_bound.side is EdgeSide.LEFT:
+            if remove_bound.side is EdgeSide.LEFT:
+                # z y x a b c
+                p2_lft.reverse()
+                p2_lft.next = p1_lft
+                p1_lft.prev = p2_lft
+                p1_rt.next = p2_rt
+                p2_rt.prev = p1_rt
+                keep_ring.node = p2_rt
+            else:
+                # x y z a b c
+                p2_rt.next = p1_lft
+                p1_lft.prev = p2_rt
+                p2_lft.prev = p1_rt
+                p1_rt.next = p2_lft
+                keep_ring.node = p2_lft
+        else:
+            if remove_bound.side is EdgeSide.RIGHT:
+                # a b c z y x
+                p2_lft.reverse()
+                p1_rt.next = p2_rt
+                p2_rt.prev = p1_rt
+                p2_lft.next = p1_lft
+                p1_lft.prev = p2_lft
+            else:
+                # a b c x y z
+                p1_rt.next = p2_lft
+                p2_lft.prev = p1_rt
+                p1_lft.prev = p2_rt
+                p2_rt.next = p1_lft
+        keep_ring.bottom_node = None
+        keep_is_hole = is_even(keep_ring.depth)
+        remove_is_hole = is_even(remove_ring.depth)
+        if keep_is_hole is not remove_is_hole:
+            self.replace_ring(keep_ring.parent, remove_ring)
+        else:
+            self.replace_ring(keep_ring, remove_ring)
+        keep_ring.update_points()
+        remove_bound.ring = keep_bound.ring = None
+        for bound in active_bounds:
+            if bound is None:
+                continue
+            if bound.ring is remove_ring:
+                bound.ring = keep_ring
+                bound.side = keep_bound.side
+                # not sure why there is a break here but was transferred logic
+                # from angus
+                break
 
     def build_hot_pixels(self, minimums: LocalMinimumList) -> None:
         sorted_minimums = sorted(minimums,

@@ -76,6 +76,39 @@ class Ring:
             self.recalculate_stats()
         return self._size
 
+    def get_lowermost_ring(self, other: 'Ring') -> 'Ring':
+        # work out which polygon fragment has the correct hole state ...
+        if self.bottom_node is None:
+            self.bottom_node = self.node.bottom_node
+        if other.bottom_node is None:
+            other.bottom_node = other.node.bottom_node
+        bottom_node = self.bottom_node
+        other_bottom_node = other.bottom_node
+        if bottom_node.y > other_bottom_node.y:
+            return self
+        elif bottom_node.y < other_bottom_node.y:
+            return other
+        elif bottom_node.x < other_bottom_node.x:
+            return self
+        elif bottom_node.x > other_bottom_node.x:
+            return other
+        elif bottom_node.next is bottom_node:
+            return other
+        elif other_bottom_node.next is other_bottom_node:
+            return self
+        elif bottom_node.is_bottom_to(other_bottom_node):
+            return self
+        else:
+            return other
+
+    def is_descendant_of(self, other: 'Ring') -> bool:
+        cursor = self.parent
+        while cursor is not None:
+            if cursor is other:
+                return True
+            cursor = cursor.parent
+        return False
+
     def recalculate_stats(self) -> None:
         if self.node is not None:
             self._area, self._size, self.box = self.node.stats

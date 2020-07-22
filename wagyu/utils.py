@@ -12,6 +12,10 @@ from .hints import (Coordinate,
                     Domain)
 
 
+def are_floats_greater_than_or_equal(x: float, y: float) -> bool:
+    return x > y or are_floats_almost_equal(x, y)
+
+
 def are_floats_greater_than(x: float, y: float) -> bool:
     return not are_floats_almost_equal(x, y) and x > y
 
@@ -72,3 +76,7 @@ def round_half_up(number: Coordinate) -> int:
     Equivalent of C++'s ``std::llround``.
     """
     return int(Decimal(number).quantize(0, ROUND_HALF_UP))
+
+
+def is_even(number: int) -> bool:
+    return not (number % 2)
