@@ -911,10 +911,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  bound, point, self);
            })
       .def("append_ring",
-           [](RingManager& self, Bound& first_bound, Bound& second_bound,
-              ActiveBoundList& active_bounds) {
+           [](RingManager& self, std::size_t first_bound_index,
+              std::size_t second_bound_index, ActiveBoundList& active_bounds) {
              mapbox::geometry::wagyu::append_ring<coordinate_t>(
-                 first_bound, second_bound, active_bounds, self);
+                 *active_bounds[first_bound_index],
+                 *active_bounds[second_bound_index], active_bounds, self);
+             return active_bounds;
            })
       .def("build_hot_pixels",
            [](RingManager& self, LocalMinimumList& minimums) {
