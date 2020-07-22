@@ -12,7 +12,10 @@ from .bound import (Bound,
                     insert_bound_into_abl,
                     intersection_compare)
 from .bubble_sort import bubble_sort
-from .enums import EdgeSide
+from .enums import (EdgeSide,
+                    FillKind,
+                    OperationKind,
+                    PolygonKind)
 from .hints import Coordinate
 from .local_minimum import (LocalMinimum,
                             LocalMinimumList)
@@ -254,6 +257,164 @@ class RingManager:
                 insort_unique(scanbeams, rb_abl_current_edge.top.y)
             minimums_index += 1
         return minimums_index
+
+    def intersect_bounds(self,
+                         point: Point,
+                         operation_kind: OperationKind,
+                         subject_fill_kind: FillKind,
+                         clip_fill_kind: FillKind,
+                         first_bound: Bound,
+                         second_bound: Bound,
+                         active_bounds: List[Bound]) -> None:
+        first_bound_contributing = first_bound.ring is not None
+        second_bound_contributing = second_bound.ring is not None
+        # update winding counts...
+        # assumes that b1 will be to the Right of b2 ABOVE the intersection
+        if first_bound.polygon_kind is second_bound.polygon_kind:
+            if first_bound.is_even_odd_fill_kind(subject_fill_kind,
+                                                 clip_fill_kind):
+                first_bound.winding_count, second_bound.winding_count = (
+                    second_bound.winding_count, first_bound.winding_count)
+            else:
+                if first_bound.winding_count + second_bound.winding_delta == 0:
+                    first_bound.winding_count = -first_bound.winding_count
+                else:
+                    first_bound.winding_count += second_bound.winding_delta
+                if second_bound.winding_count - first_bound.winding_delta == 0:
+                    second_bound.winding_count = -second_bound.winding_count
+                else:
+                    second_bound.winding_count -= first_bound.winding_delta
+        else:
+            if not second_bound.is_even_odd_fill_kind(subject_fill_kind,
+                                                      clip_fill_kind):
+                first_bound.opposite_winding_count += (
+                    second_bound.winding_delta)
+            else:
+                first_bound.opposite_winding_count = int(
+                        first_bound.opposite_winding_count == 0)
+            if not first_bound.is_even_odd_fill_kind(subject_fill_kind,
+                                                     clip_fill_kind):
+                second_bound.opposite_winding_count -= (
+                    first_bound.winding_delta)
+            else:
+                second_bound.opposite_winding_count = int(
+                        second_bound.opposite_winding_count == 0)
+        if first_bound.polygon_kind is PolygonKind.SUBJECT:
+            first_bound_fill_kind, first_bound_complement_fill_kind = (
+                subject_fill_kind, clip_fill_kind)
+        else:
+            first_bound_fill_kind, first_bound_complement_fill_kind = (
+                clip_fill_kind, subject_fill_kind)
+        if second_bound.polygon_kind is PolygonKind.SUBJECT:
+            second_bound_fill_kind, second_bound_composite_fill_kind = (
+                subject_fill_kind, clip_fill_kind)
+        else:
+            second_bound_fill_kind, second_bound_composite_fill_kind = (
+                clip_fill_kind, subject_fill_kind)
+        if first_bound_fill_kind is FillKind.POSITIVE:
+            first_bound_winding_count = first_bound.winding_count
+        elif first_bound_fill_kind is FillKind.NEGATIVE:
+            first_bound_winding_count = -first_bound.winding_count
+        else:
+            first_bound_winding_count = abs(first_bound.winding_count)
+        if second_bound_fill_kind is FillKind.POSITIVE:
+            second_bound_winding_count = second_bound.winding_count
+        elif second_bound_fill_kind is FillKind.NEGATIVE:
+            second_bound_winding_count = -second_bound.winding_count
+        else:
+            second_bound_winding_count = abs(second_bound.winding_count)
+        if first_bound_contributing and second_bound_contributing:
+            if (first_bound_winding_count != 0
+                    and first_bound_winding_count != 0
+                    or second_bound_winding_count != 0
+                    and second_bound_winding_count != 1
+                    or (first_bound.polygon_kind
+                        is not second_bound.polygon_kind)
+                    and operation_kind is not OperationKind.XOR):
+                self.add_local_maximum_point(point, first_bound, second_bound,
+                                             active_bounds)
+            else:
+                self.add_point(first_bound, active_bounds, point)
+                self.add_point(second_bound, active_bounds, point)
+                first_bound.side, second_bound.side = (second_bound.side,
+                                                       first_bound.side)
+                first_bound.ring, second_bound.ring = (second_bound.ring,
+                                                       first_bound.ring)
+        elif first_bound_contributing:
+            if (second_bound_winding_count == 0
+                    or second_bound_winding_count == 1):
+                self.add_point(first_bound, active_bounds, point)
+                second_bound.last_point = point
+                first_bound.side, second_bound.side = (second_bound.side,
+                                                       first_bound.side)
+                first_bound.ring, second_bound.ring = (second_bound.ring,
+                                                       first_bound.ring)
+        elif second_bound_contributing:
+            if (first_bound_winding_count == 0
+                    or first_bound_winding_count == 1):
+                first_bound.last_point = point
+                self.add_point(second_bound, active_bounds, point)
+                first_bound.side, second_bound.side = (second_bound.side,
+                                                       first_bound.side)
+                first_bound.ring, second_bound.ring = (second_bound.ring,
+                                                       first_bound.ring)
+        elif ((first_bound_winding_count == 0
+               or first_bound_winding_count == 1)
+              and (second_bound_winding_count == 0
+                   or second_bound_winding_count == 1)):
+            # neither bound is currently contributing ...
+            if first_bound_complement_fill_kind is FillKind.POSITIVE:
+                first_bound_opposite_winding_count = (
+                    first_bound.opposite_winding_count)
+            elif first_bound_complement_fill_kind is FillKind.NEGATIVE:
+                first_bound_opposite_winding_count = (
+                    -first_bound.opposite_winding_count)
+            else:
+                first_bound_opposite_winding_count = abs(
+                        first_bound.opposite_winding_count)
+            if second_bound_composite_fill_kind is FillKind.POSITIVE:
+                second_bound_opposite_winding_count = (
+                    second_bound.opposite_winding_count)
+            elif second_bound_composite_fill_kind is FillKind.NEGATIVE:
+                second_bound_opposite_winding_count = (
+                    -second_bound.opposite_winding_count)
+            else:
+                second_bound_opposite_winding_count = abs(
+                        second_bound.opposite_winding_count)
+            if first_bound.polygon_kind is not second_bound.polygon_kind:
+                self.add_local_minimum_point(point, first_bound, second_bound,
+                                             active_bounds)
+            elif (first_bound_winding_count == 1
+                  and second_bound_winding_count == 1):
+                if operation_kind is OperationKind.INTERSECTION:
+                    if (first_bound_opposite_winding_count > 0
+                            and second_bound_opposite_winding_count > 0):
+                        self.add_local_minimum_point(point, first_bound,
+                                                     second_bound,
+                                                     active_bounds)
+                elif operation_kind is OperationKind.UNION:
+                    if (first_bound_opposite_winding_count <= 0
+                            and second_bound_opposite_winding_count <= 0):
+                        self.add_local_minimum_point(point, first_bound,
+                                                     second_bound,
+                                                     active_bounds)
+                elif operation_kind is OperationKind.DIFFERENCE:
+                    if (first_bound.polygon_kind is PolygonKind.CLIP
+                            and first_bound_opposite_winding_count > 0
+                            and second_bound_opposite_winding_count > 0
+                            or first_bound.polygon_kind is PolygonKind.SUBJECT
+                            and first_bound_opposite_winding_count <= 0
+                            and second_bound_opposite_winding_count <= 0):
+                        self.add_local_minimum_point(point, first_bound,
+                                                     second_bound,
+                                                     active_bounds)
+                else:
+                    self.add_local_minimum_point(point, first_bound,
+                                                 second_bound,
+                                                 active_bounds)
+            else:
+                first_bound.side, second_bound.side = (second_bound.side,
+                                                       first_bound.side)
 
     def process_hot_pixel_edges_at_top_of_scanbeam(self,
                                                    top_y: Coordinate,
