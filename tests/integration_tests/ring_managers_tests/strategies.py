@@ -114,13 +114,13 @@ non_empty_edges_lists_pairs = strategies.lists(edges_pairs,
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
                                                      ported_edges_sides)))
 bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
-                                 non_empty_edges_lists_pairs, sizes, sizes, points_pairs,
-                                 maybe_rings_pairs, floats, sizes, integers_32,
-                                 integers_32, trits, polygons_kinds_pairs,
-                                 edges_sides_pairs)
+                                 non_empty_edges_lists_pairs, sizes, sizes,
+                                 points_pairs, maybe_rings_pairs, floats,
+                                 sizes, integers_32, integers_32, trits,
+                                 polygons_kinds_pairs, edges_sides_pairs)
 non_empty_bounds_pairs = strategies.builds(
-        to_bound_with_ported_bounds_pair, non_empty_edges_lists_pairs, sizes, sizes,
-        points_pairs, non_empty_rings_pairs, floats, sizes, integers_32,
+        to_bound_with_ported_bounds_pair, non_empty_edges_lists_pairs, sizes,
+        sizes, points_pairs, non_empty_rings_pairs, floats, sizes, integers_32,
         integers_32, trits, polygons_kinds_pairs, edges_sides_pairs)
 non_empty_bounds_lists_pairs = (strategies.lists(non_empty_bounds_pairs,
                                                  min_size=1)
