@@ -51,6 +51,7 @@ using Bound = mapbox::geometry::wagyu::bound<coordinate_t>;
 using BoundPtr = mapbox::geometry::wagyu::bound_ptr<coordinate_t>;
 using Edge = mapbox::geometry::wagyu::edge<coordinate_t>;
 using EdgeList = mapbox::geometry::wagyu::edge_list<coordinate_t>;
+using EdgeSide = mapbox::geometry::wagyu::edge_side;
 using FillKind = mapbox::geometry::wagyu::fill_type;
 using HotPixelVector = mapbox::geometry::wagyu::hot_pixel_vector<coordinate_t>;
 using IntersectList = mapbox::geometry::wagyu::intersect_list<coordinate_t>;
@@ -469,9 +470,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .value("DIFFERENCE", OperationKind::clip_type_difference)
       .value("XOR", OperationKind::clip_type_x_or);
 
-  py::enum_<mapbox::geometry::wagyu::edge_side>(m, EDGE_SIDE_NAME)
-      .value("LEFT", mapbox::geometry::wagyu::edge_left)
-      .value("RIGHT", mapbox::geometry::wagyu::edge_right);
+  py::enum_<EdgeSide>(m, EDGE_SIDE_NAME)
+      .value("LEFT", EdgeSide::edge_left)
+      .value("RIGHT", EdgeSide::edge_right);
 
   py::enum_<FillKind>(m, FILL_KIND_NAME)
       .value("EVEN_ODD", FillKind::fill_type_even_odd)
@@ -639,7 +640,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                        std::int32_t opposite_winding_count,
                        std::int8_t winding_delta,
                        mapbox::geometry::wagyu::polygon_type polygon_kind,
-                       mapbox::geometry::wagyu::edge_side edge_side) {
+                       EdgeSide edge_side) {
              auto result = Bound(edges, last_point, ring, current_x, position,
                                  winding_count, opposite_winding_count,
                                  winding_delta, polygon_kind, edge_side);
