@@ -107,6 +107,26 @@ class RingManager:
         else:
             self.append_ring(second_bound, first_bound, active_bounds)
 
+    def add_local_minimum_point(self,
+                                point: Point,
+                                first_bound: Bound,
+                                second_bound: Bound,
+                                active_bounds: List[Bound]) -> None:
+        if (second_bound.current_edge.is_horizontal
+                or (first_bound.current_edge.slope
+                    > second_bound.current_edge.slope)):
+            self.add_point(first_bound, active_bounds, point)
+            second_bound.last_point = point
+            second_bound.ring = first_bound.ring
+            first_bound.side = EdgeSide.LEFT
+            second_bound.side = EdgeSide.RIGHT
+        else:
+            self.add_point(second_bound, active_bounds, point)
+            first_bound.last_point = point
+            first_bound.ring = second_bound.ring
+            first_bound.side = EdgeSide.RIGHT
+            second_bound.side = EdgeSide.LEFT
+
     def append_ring(self, first_bound: Bound, second_bound: Bound,
                     active_bounds: List[Bound]) -> None:
         # get the start and ends of both output polygons ...
