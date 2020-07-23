@@ -208,7 +208,7 @@ non_empty_initialized_non_empty_bounds_lists_pairs_with_indices = (
 two_or_more_initialized_non_empty_bounds_lists_pairs = (
     strategies.lists(initialized_non_empty_bounds_pairs,
                      min_size=2).map(transpose_pairs))
-two_or_more_initialized_non_empty_bounds_lists_pairs_with_indices_pairs = (
+two_or_more_initialized_non_empty_bounds_lists_pairs_indices_pairs = (
     two_or_more_initialized_non_empty_bounds_lists_pairs.flatmap(
             to_bounds_lists_pairs_with_indices_pairs))
 

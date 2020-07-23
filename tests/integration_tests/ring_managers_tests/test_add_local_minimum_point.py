@@ -14,8 +14,7 @@ from . import strategies
 @given(strategies.initialized_non_empty_hot_pixels_ring_managers_pairs,
        strategies.points_pairs,
        strategies
-       .two_or_more_initialized_non_empty_bounds_lists_pairs_with_indices_pairs
-       )
+       .two_or_more_initialized_non_empty_bounds_lists_pairs_indices_pairs)
 def test_basic(pair: BoundPortedRingManagersPair,
                points_pair: BoundPortedPointsPair,
                active_bounds_pair_indices_pair

@@ -17,8 +17,7 @@ from . import strategies
        strategies.points_pairs, strategies.operation_kinds_pairs,
        strategies.fill_kinds_pairs, strategies.fill_kinds_pairs,
        strategies
-       .two_or_more_initialized_non_empty_bounds_lists_pairs_with_indices_pairs
-       )
+       .two_or_more_initialized_non_empty_bounds_lists_pairs_indices_pairs)
 def test_basic(pair: BoundPortedRingManagersPair,
                points_pair: BoundPortedPointsPair,
                operation_kinds_pair: BoundPortedOperationKindsPair,
