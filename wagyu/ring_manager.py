@@ -765,6 +765,10 @@ class RingManager:
                   hot_pixels_compare)
         self.hot_pixels = [key for key, _ in groupby(self.hot_pixels)]
 
+    def update_current_hot_pixel_index(self, scanline_y: Coordinate) -> None:
+        while self.hot_pixels[self.current_hot_pixel_index].y > scanline_y:
+            self.current_hot_pixel_index += 1
+
 
 def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
     for position, bound in enumerate(active_bounds):
