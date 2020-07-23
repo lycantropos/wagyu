@@ -978,6 +978,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  coordinate_t>(top_y, active_bounds, self);
              return active_bounds;
            })
+      .def("process_intersections",
+           [](RingManager& self, coordinate_t top_y, OperationKind operation_kind,
+              FillKind subject_fill_kind, FillKind clip_fill_kind,
+              ActiveBoundList& active_bounds) {
+             mapbox::geometry::wagyu::process_intersections<coordinate_t>(
+                 top_y, active_bounds, operation_kind, subject_fill_kind,
+                 clip_fill_kind, self);
+             return active_bounds;
+           })
       .def("set_hole_state",
            [](RingManager& self, std::size_t bound_index,
               const ActiveBoundList& active_bounds) {
