@@ -48,6 +48,16 @@ def insort_unique(sequence: MutableSequence[Domain], value: Domain) -> None:
         sequence.insert(index, value)
 
 
+def find(value: Domain, sequence: Sequence[Domain]) -> int:
+    """
+    Equivalent of C++'s ``std::find``.
+    """
+    return next((index
+                 for index, element in enumerate(sequence)
+                 if element is value),
+                len(sequence))
+
+
 def find_if(predicate: Callable[[Domain], bool],
             values: Sequence[Domain]) -> int:
     """

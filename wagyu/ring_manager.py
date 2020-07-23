@@ -28,7 +28,8 @@ from .point_node import (PointNode,
 from .ring import (Ring,
                    remove_from_children,
                    set_to_children)
-from .utils import (find_if,
+from .utils import (find,
+                    find_if,
                     insort_unique,
                     is_even,
                     quicksort,
@@ -273,6 +274,43 @@ class RingManager:
         self.index += 1
         self.rings.append(result)
         return result
+
+    def do_maxima(self,
+                  operation_kind: OperationKind,
+                  subject_fill_kind: FillKind,
+                  clip_fill_kind: FillKind,
+                  bound_index: int,
+                  bound_maximum_index: int,
+                  active_bounds: List[Bound]) -> int:
+        next_bound_index = bound_index + 1
+        result = bound_index
+        skipped = False
+        while (next_bound_index < len(active_bounds)
+               and next_bound_index != bound_maximum_index):
+            if active_bounds[next_bound_index] is None:
+                next_bound_index += 1
+                continue
+            skipped = True
+            bound = active_bounds[bound_index]
+            self.intersect_bounds(bound.current_edge.top, operation_kind,
+                                  subject_fill_kind, clip_fill_kind, bound,
+                                  active_bounds[next_bound_index],
+                                  active_bounds)
+            active_bounds[bound_index], active_bounds[next_bound_index] = (
+                active_bounds[bound_index], active_bounds[next_bound_index])
+            bound_index = next_bound_index
+            next_bound_index += 1
+        if (active_bounds[bound_index].ring is not None
+                and active_bounds[bound_maximum_index].ring is not None):
+            bound = active_bounds[bound_index]
+            self.add_local_maximum_point(bound.current_edge.top, bound,
+                                         active_bounds[bound_maximum_index],
+                                         active_bounds)
+        elif (active_bounds[bound_index].ring is not None
+              or active_bounds[bound_maximum_index].ring is not None):
+            raise RuntimeError("DoMaxima error")
+        active_bounds[bound_index] = active_bounds[bound_maximum_index] = None
+        return result + (not skipped)
 
     def horizontals_at_top_scanbeam(self,
                                     top_y: Coordinate,
