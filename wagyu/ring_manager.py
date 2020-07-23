@@ -21,7 +21,8 @@ from .local_minimum import (LocalMinimum,
                             LocalMinimumList)
 from .point import Point
 from .point_node import (PointNode,
-                         maybe_point_node_to_points)
+                         maybe_point_node_to_points,
+                         point_node_to_point)
 from .ring import (Ring,
                    remove_from_children,
                    set_to_children)
@@ -88,11 +89,11 @@ class RingManager:
 
     @property
     def points(self) -> List[List[Point]]:
-        return [list(node) for node in self.nodes]
+        return [list(map(point_node_to_point, node)) for node in self.nodes]
 
     @property
     def stored_points(self) -> List[List[Point]]:
-        return [list(node) for node in self.storage]
+        return [list(map(point_node_to_point, node)) for node in self.storage]
 
     def add_local_maximum_point(self,
                                 point: Point,
