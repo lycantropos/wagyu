@@ -230,8 +230,12 @@ def are_bound_ported_bounds_equal(bound: BoundBound,
             and bound.next_edge_index == ported.next_edge_index)
 
 
+are_bound_ported_maybe_bounds_equal = to_maybe_equals(
+        are_bound_ported_bounds_equal)
 are_bound_ported_bounds_lists_equal = to_sequences_equals(
         are_bound_ported_bounds_equal)
+are_bound_ported_maybe_bounds_lists_equal = to_sequences_equals(
+        are_bound_ported_maybe_bounds_equal)
 
 AnyBound = TypeVar('AnyBound', BoundBound, PortedBound)
 
