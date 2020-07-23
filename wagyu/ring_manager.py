@@ -95,6 +95,13 @@ class RingManager:
     def stored_points(self) -> List[List[Point]]:
         return [list(map(point_node_to_point, node)) for node in self.storage]
 
+    def add_first_point(self, bound: Bound, active_bounds: List[Bound],
+                        point: Point) -> None:
+        ring = bound.ring = self.create_ring()
+        ring.node = self.create_point_node(ring, point)
+        self.set_hole_state(bound, active_bounds)
+        bound.last_point = point
+
     def add_local_maximum_point(self,
                                 point: Point,
                                 first_bound: Bound,
@@ -130,6 +137,27 @@ class RingManager:
             first_bound.ring = second_bound.ring
             first_bound.side = EdgeSide.RIGHT
             second_bound.side = EdgeSide.LEFT
+
+    def add_point(self, bound: Bound, active_bounds: List[Bound],
+                  point: Point) -> None:
+        if bound.ring is None:
+            self.add_first_point(bound, active_bounds, point)
+        else:
+            self.add_point_to_ring(bound, point)
+
+    def add_point_to_ring(self, bound: Bound, point: Point) -> None:
+        assert bound.ring is not None
+        # handle hot pixels
+        self.insert_hot_pixels_in_path(bound, point, False)
+        # ``bound.ring.node`` is the 'leftmost' point,
+        # ``bound.ring.node.prev`` is the 'rightmost'
+        op = bound.ring.node
+        to_front = bound.side is EdgeSide.LEFT
+        if to_front and point == op or (not to_front and (point == op.prev)):
+            return
+        new_node = self.create_point_node(bound.ring, point, op)
+        if to_front:
+            bound.ring.node = new_node
 
     def append_ring(self, first_bound: Bound, second_bound: Bound,
                     active_bounds: List[Bound]) -> None:
@@ -224,6 +252,189 @@ class RingManager:
             active_bounds = self.process_hot_pixel_edges_at_top_of_scanbeam(
                     scanline_y, scanbeams, active_bounds)
         self.sort_hot_pixels()
+
+    def create_point_node(self, ring: Optional[Ring], point: Point,
+                          before_this_point: Optional[PointNode] = None
+                          ) -> PointNode:
+        result = PointNode(point.x, point.y)
+        result.ring = ring
+        if before_this_point is not None:
+            result.place_before(before_this_point)
+        self.nodes.append(result)
+        self.all_nodes.append(result)
+        return result
+
+    def create_ring(self) -> Ring:
+        result = Ring(self.index)
+        self.index += 1
+        self.rings.append(result)
+        return result
+
+    def horizontals_at_top_scanbeam(self,
+                                    top_y: Coordinate,
+                                    active_bounds: List[Bound],
+                                    current_bound_index: int
+                                    ) -> Tuple[int, bool]:
+        shifted = False
+        current_edge = active_bounds[current_bound_index].current_edge
+        active_bounds[current_bound_index].current_x = current_edge.top.x
+        if current_edge.bottom.x < current_edge.top.x:
+            next_bound_index = current_bound_index + 1
+            while (next_bound_index < len(active_bounds)
+                   and (active_bounds[next_bound_index] is None
+                        or active_bounds[next_bound_index].current_x
+                        < active_bounds[current_bound_index].current_x)):
+                bound_next = active_bounds[next_bound_index]
+                if (bound_next is not None
+                        and bound_next.current_edge.top.y != top_y
+                        and bound_next.current_edge.bottom.y != top_y):
+                    self.hot_pixels.append(
+                            Point(round_half_up(bound_next.current_x),
+                                  top_y))
+                (active_bounds[current_bound_index],
+                 active_bounds[next_bound_index]) = (
+                    active_bounds[next_bound_index],
+                    active_bounds[current_bound_index])
+                current_bound_index += 1
+                next_bound_index += 1
+                shifted = True
+        elif current_bound_index > 0:
+            prev_bound_index = current_bound_index - 1
+            while (current_bound_index > 0
+                   and (active_bounds[prev_bound_index] is None
+                        or active_bounds[prev_bound_index].current_x
+                        > active_bounds[current_bound_index].current_x)):
+                prev_bound = active_bounds[prev_bound_index]
+                if (prev_bound is not None
+                        and prev_bound.current_edge.top.y != top_y
+                        and prev_bound.current_edge.bottom.y != top_y):
+                    self.hot_pixels.append(
+                            Point(round_half_up(prev_bound.current_x),
+                                  top_y))
+                (active_bounds[current_bound_index],
+                 active_bounds[prev_bound_index]) = (
+                    active_bounds[prev_bound_index],
+                    active_bounds[current_bound_index])
+                current_bound_index -= 1
+                prev_bound_index -= 1
+        return current_bound_index, shifted
+
+    def hot_pixels_on_swap(self,
+                           first_bound: Bound,
+                           second_bound: Bound) -> None:
+        intersection = first_bound.current_edge & second_bound.current_edge
+        if intersection is None:
+            raise RuntimeError('Trying to find intersection of lines '
+                               'that do not intersect')
+        self.hot_pixels.append(intersection.round())
+
+    def hot_pixel_set_left_to_right(self,
+                                    y: Coordinate,
+                                    start_x: Coordinate,
+                                    end_x: Coordinate,
+                                    bound: Bound,
+                                    hot_pixel_start: int,
+                                    hot_pixel_stop: int,
+                                    add_end_point: bool) -> int:
+        x_min = max(bound.current_edge.get_min_x(y), start_x)
+        x_max = min(bound.current_edge.get_max_x(y), end_x)
+        for hot_pixel_index in range(hot_pixel_start, hot_pixel_stop):
+            hot_pixel = self.hot_pixels[hot_pixel_index]
+            if hot_pixel.x < x_min:
+                continue
+            elif hot_pixel.x > x_max:
+                break
+            if not add_end_point and hot_pixel.x == end_x:
+                continue
+            op = bound.ring.node
+            to_front = bound.side is EdgeSide.LEFT
+            if to_front and hot_pixel == op:
+                continue
+            elif not to_front and hot_pixel == op.prev:
+                continue
+            new_node = self.create_point_node(bound.ring, hot_pixel, op)
+            if to_front:
+                bound.ring.node = new_node
+        else:
+            return hot_pixel_stop
+        return hot_pixel_index
+
+    def hot_pixel_set_right_to_left(self,
+                                    y: Coordinate,
+                                    start_x: Coordinate,
+                                    end_x: Coordinate,
+                                    bound: Bound,
+                                    hot_pixel_start: int,
+                                    hot_pixel_stop: int,
+                                    add_end_point: bool) -> int:
+        x_min = max(bound.current_edge.get_min_x(y), end_x)
+        x_max = min(bound.current_edge.get_max_x(y), start_x)
+        for hot_pixel_index in reversed(range(hot_pixel_start,
+                                              hot_pixel_stop)):
+            hot_pixel = self.hot_pixels[hot_pixel_index]
+            if hot_pixel.x > x_max:
+                continue
+            elif hot_pixel.x < x_min:
+                break
+            if not add_end_point and hot_pixel.x == end_x:
+                continue
+            op = bound.ring.node
+            to_front = bound.side is EdgeSide.LEFT
+            if to_front and hot_pixel == op:
+                continue
+            elif not to_front and hot_pixel == op.prev:
+                continue
+            new_node = self.create_point_node(bound.ring, hot_pixel, op)
+            if to_front:
+                bound.ring.node = new_node
+        else:
+            return hot_pixel_start - 1
+        return hot_pixel_index
+
+    def insert_hot_pixels_in_path(self,
+                                  bound: Bound,
+                                  end_point: Point,
+                                  add_end_point: bool) -> None:
+        if end_point == bound.last_point:
+            return
+        start_x, start_y = bound.last_point.x, bound.last_point.y
+        end_x, end_y = end_point.x, end_point.y
+        index = self.current_hot_pixel_index
+        while self.hot_pixels[index].y <= start_y and index > 0:
+            index -= 1
+        if start_x > end_x:
+            while index < len(self.hot_pixels):
+                y = self.hot_pixels[index].y
+                if y > start_y:
+                    index += 1
+                    continue
+                elif y < end_y:
+                    break
+                first_index = index
+                while (index < len(self.hot_pixels)
+                       and self.hot_pixels[index].y == y):
+                    index += 1
+                last_index = index
+                self.hot_pixel_set_right_to_left(
+                        y, start_x, end_x, bound, first_index, last_index,
+                        y != end_point.y or add_end_point)
+        else:
+            while index < len(self.hot_pixels):
+                y = self.hot_pixels[index].y
+                if y > start_y:
+                    index += 1
+                    continue
+                elif y < end_y:
+                    break
+                first_index = index
+                while (index < len(self.hot_pixels)
+                       and self.hot_pixels[index].y == y):
+                    index += 1
+                last_index = index
+                self.hot_pixel_set_left_to_right(
+                        y, start_x, end_x, bound, first_index, last_index,
+                        y != end_point.y or add_end_point)
+        bound.last_point = end_point
 
     def insert_local_minima_into_abl_hot_pixel(self,
                                                top_y: Coordinate,
@@ -444,60 +655,6 @@ class RingManager:
                 index += 1
         return list(filter(partial(is_not, None), active_bounds))
 
-    def horizontals_at_top_scanbeam(self,
-                                    top_y: Coordinate,
-                                    active_bounds: List[Bound],
-                                    current_bound_index: int
-                                    ) -> Tuple[int, bool]:
-        shifted = False
-        current_edge = active_bounds[current_bound_index].current_edge
-        active_bounds[current_bound_index].current_x = current_edge.top.x
-        if current_edge.bottom.x < current_edge.top.x:
-            next_bound_index = current_bound_index + 1
-            while (next_bound_index < len(active_bounds)
-                   and (active_bounds[next_bound_index] is None
-                        or active_bounds[next_bound_index].current_x
-                        < active_bounds[current_bound_index].current_x)):
-                bound_next = active_bounds[next_bound_index]
-                if (bound_next is not None
-                        and bound_next.current_edge.top.y != top_y
-                        and bound_next.current_edge.bottom.y != top_y):
-                    self.hot_pixels.append(
-                            Point(round_half_up(bound_next.current_x),
-                                  top_y))
-                (active_bounds[current_bound_index],
-                 active_bounds[next_bound_index]) = (
-                    active_bounds[next_bound_index],
-                    active_bounds[current_bound_index])
-                current_bound_index += 1
-                next_bound_index += 1
-                shifted = True
-        elif current_bound_index > 0:
-            prev_bound_index = current_bound_index - 1
-            while (current_bound_index > 0
-                   and (active_bounds[prev_bound_index] is None
-                        or active_bounds[prev_bound_index].current_x
-                        > active_bounds[current_bound_index].current_x)):
-                prev_bound = active_bounds[prev_bound_index]
-                if (prev_bound is not None
-                        and prev_bound.current_edge.top.y != top_y
-                        and prev_bound.current_edge.bottom.y != top_y):
-                    self.hot_pixels.append(
-                            Point(round_half_up(prev_bound.current_x),
-                                  top_y))
-                (active_bounds[current_bound_index],
-                 active_bounds[prev_bound_index]) = (
-                    active_bounds[prev_bound_index],
-                    active_bounds[current_bound_index])
-                current_bound_index -= 1
-                prev_bound_index -= 1
-        return current_bound_index, shifted
-
-    def sort_hot_pixels(self) -> None:
-        quicksort(self.hot_pixels,
-                  hot_pixels_compare)
-        self.hot_pixels = [key for key, _ in groupby(self.hot_pixels)]
-
     def process_hot_pixel_intersections(self,
                                         top_y: Coordinate,
                                         active_bounds: List[Bound]
@@ -506,14 +663,26 @@ class RingManager:
         return bubble_sort(active_bounds, intersection_compare,
                            self.hot_pixels_on_swap)
 
-    def hot_pixels_on_swap(self,
-                           first_bound: Bound,
-                           second_bound: Bound) -> None:
-        intersection = first_bound.current_edge & second_bound.current_edge
-        if intersection is None:
-            raise RuntimeError('Trying to find intersection of lines '
-                               'that do not intersect')
-        self.hot_pixels.append(intersection.round())
+    def replace_ring(self,
+                     original: Optional[Ring],
+                     replacement: Ring) -> None:
+        assert original is not replacement
+        original_children = (self.children
+                             if original is None
+                             else original.children)
+        for index, child in enumerate(replacement.children):
+            if child is None:
+                continue
+            child.parent = original
+            set_to_children(child, original_children)
+            replacement.children[index] = None
+        # remove the old child relationship
+        old_children = (self.children
+                        if replacement.parent is None
+                        else replacement.parent.children)
+        remove_from_children(replacement, old_children)
+        replacement.node = None
+        replacement.reset_stats()
 
     def set_hole_state(self, bound: Bound, active_bounds: List[Bound]) -> None:
         bound_index = next(index
@@ -536,179 +705,10 @@ class RingManager:
             bound.ring.parent = bound_temp.ring
             bound_temp.ring.children.append(bound.ring)
 
-    def insert_hot_pixels_in_path(self,
-                                  bound: Bound,
-                                  end_point: Point,
-                                  add_end_point: bool) -> None:
-        if end_point == bound.last_point:
-            return
-        start_x, start_y = bound.last_point.x, bound.last_point.y
-        end_x, end_y = end_point.x, end_point.y
-        index = self.current_hot_pixel_index
-        while self.hot_pixels[index].y <= start_y and index > 0:
-            index -= 1
-        if start_x > end_x:
-            while index < len(self.hot_pixels):
-                y = self.hot_pixels[index].y
-                if y > start_y:
-                    index += 1
-                    continue
-                elif y < end_y:
-                    break
-                first_index = index
-                while (index < len(self.hot_pixels)
-                       and self.hot_pixels[index].y == y):
-                    index += 1
-                last_index = index
-                self.hot_pixel_set_right_to_left(
-                        y, start_x, end_x, bound, first_index, last_index,
-                        y != end_point.y or add_end_point)
-        else:
-            while index < len(self.hot_pixels):
-                y = self.hot_pixels[index].y
-                if y > start_y:
-                    index += 1
-                    continue
-                elif y < end_y:
-                    break
-                first_index = index
-                while (index < len(self.hot_pixels)
-                       and self.hot_pixels[index].y == y):
-                    index += 1
-                last_index = index
-                self.hot_pixel_set_left_to_right(
-                        y, start_x, end_x, bound, first_index, last_index,
-                        y != end_point.y or add_end_point)
-        bound.last_point = end_point
-
-    def hot_pixel_set_right_to_left(self,
-                                    y: Coordinate,
-                                    start_x: Coordinate,
-                                    end_x: Coordinate,
-                                    bound: Bound,
-                                    hot_pixel_start: int,
-                                    hot_pixel_stop: int,
-                                    add_end_point: bool) -> int:
-        x_min = max(bound.current_edge.get_min_x(y), end_x)
-        x_max = min(bound.current_edge.get_max_x(y), start_x)
-        for hot_pixel_index in reversed(range(hot_pixel_start,
-                                              hot_pixel_stop)):
-            hot_pixel = self.hot_pixels[hot_pixel_index]
-            if hot_pixel.x > x_max:
-                continue
-            elif hot_pixel.x < x_min:
-                break
-            if not add_end_point and hot_pixel.x == end_x:
-                continue
-            op = bound.ring.node
-            to_front = bound.side is EdgeSide.LEFT
-            if to_front and hot_pixel == op:
-                continue
-            elif not to_front and hot_pixel == op.prev:
-                continue
-            new_node = self.create_point_node(bound.ring, hot_pixel, op)
-            if to_front:
-                bound.ring.node = new_node
-        else:
-            return hot_pixel_start - 1
-        return hot_pixel_index
-
-    def hot_pixel_set_left_to_right(self,
-                                    y: Coordinate,
-                                    start_x: Coordinate,
-                                    end_x: Coordinate,
-                                    bound: Bound,
-                                    hot_pixel_start: int,
-                                    hot_pixel_stop: int,
-                                    add_end_point: bool) -> int:
-        x_min = max(bound.current_edge.get_min_x(y), start_x)
-        x_max = min(bound.current_edge.get_max_x(y), end_x)
-        for hot_pixel_index in range(hot_pixel_start, hot_pixel_stop):
-            hot_pixel = self.hot_pixels[hot_pixel_index]
-            if hot_pixel.x < x_min:
-                continue
-            elif hot_pixel.x > x_max:
-                break
-            if not add_end_point and hot_pixel.x == end_x:
-                continue
-            op = bound.ring.node
-            to_front = bound.side is EdgeSide.LEFT
-            if to_front and hot_pixel == op:
-                continue
-            elif not to_front and hot_pixel == op.prev:
-                continue
-            new_node = self.create_point_node(bound.ring, hot_pixel, op)
-            if to_front:
-                bound.ring.node = new_node
-        else:
-            return hot_pixel_stop
-        return hot_pixel_index
-
-    def create_point_node(self, ring: Optional[Ring], point: Point,
-                          before_this_point: Optional[PointNode] = None
-                          ) -> PointNode:
-        result = PointNode(point.x, point.y)
-        result.ring = ring
-        if before_this_point is not None:
-            result.place_before(before_this_point)
-        self.nodes.append(result)
-        self.all_nodes.append(result)
-        return result
-
-    def create_ring(self) -> Ring:
-        result = Ring(self.index)
-        self.index += 1
-        self.rings.append(result)
-        return result
-
-    def add_first_point(self, bound: Bound, active_bounds: List[Bound],
-                        point: Point) -> None:
-        ring = bound.ring = self.create_ring()
-        ring.node = self.create_point_node(ring, point)
-        self.set_hole_state(bound, active_bounds)
-        bound.last_point = point
-
-    def add_point(self, bound: Bound, active_bounds: List[Bound],
-                  point: Point) -> None:
-        if bound.ring is None:
-            self.add_first_point(bound, active_bounds, point)
-        else:
-            self.add_point_to_ring(bound, point)
-
-    def add_point_to_ring(self, bound: Bound, point: Point) -> None:
-        assert bound.ring is not None
-        # handle hot pixels
-        self.insert_hot_pixels_in_path(bound, point, False)
-        # ``bound.ring.node`` is the 'leftmost' point,
-        # ``bound.ring.node.prev`` is the 'rightmost'
-        op = bound.ring.node
-        to_front = bound.side is EdgeSide.LEFT
-        if to_front and point == op or (not to_front and (point == op.prev)):
-            return
-        new_node = self.create_point_node(bound.ring, point, op)
-        if to_front:
-            bound.ring.node = new_node
-
-    def replace_ring(self,
-                     original: Optional[Ring],
-                     replacement: Ring) -> None:
-        assert original is not replacement
-        original_children = (self.children
-                             if original is None
-                             else original.children)
-        for index, child in enumerate(replacement.children):
-            if child is None:
-                continue
-            child.parent = original
-            set_to_children(child, original_children)
-            replacement.children[index] = None
-        # remove the old child relationship
-        old_children = (self.children
-                        if replacement.parent is None
-                        else replacement.parent.children)
-        remove_from_children(replacement, old_children)
-        replacement.node = None
-        replacement.reset_stats()
+    def sort_hot_pixels(self) -> None:
+        quicksort(self.hot_pixels,
+                  hot_pixels_compare)
+        self.hot_pixels = [key for key, _ in groupby(self.hot_pixels)]
 
 
 def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
