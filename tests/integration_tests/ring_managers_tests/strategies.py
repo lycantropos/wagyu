@@ -21,11 +21,13 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          PortedLinearRingWithPolygonKind,
                          Strategy,
                          bound_edges_sides,
-                         bound_fill_kinds, bound_operation_kinds,
+                         bound_fill_kinds,
+                         bound_operation_kinds,
                          bound_polygon_kinds,
                          initialize_bounds,
                          ported_edges_sides,
-                         ported_fill_kinds, ported_operation_kinds,
+                         ported_fill_kinds,
+                         ported_operation_kinds,
                          ported_polygon_kinds,
                          sort_pair,
                          subsequences,
@@ -179,9 +181,14 @@ two_or_more_non_empty_bounds_lists_pairs_with_indices_pairs = (
 def to_initialized_bounds_pairs(bounds_pair: BoundPortedBoundsPair
                                 ) -> Strategy[BoundPortedBoundsPair]:
     bound, ported = bounds_pair
+    indices = strategies.integers(0, len(ported.edges))
     return strategies.builds(initialize_bounds,
                              strategies.just(bounds_pair),
-                             strategies.integers(0, len(ported.edges) - 1))
+                             strategies.lists(indices,
+                                              min_size=2,
+                                              max_size=2,
+                                              unique=True)
+                             .map(sort_pair))
 
 
 initialized_bounds_pairs = bounds_pairs.flatmap(to_initialized_bounds_pairs)

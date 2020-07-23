@@ -505,7 +505,8 @@ def to_ported_polygon_linear_rings(raw_polygon: RawPolygon
 
 
 def initialize_bounds(bounds_pair: BoundPortedBoundsPair,
-                      current_edge_index: int) -> BoundPortedBoundsPair:
+                      edges_indices: Tuple[int, int]) -> BoundPortedBoundsPair:
     bound, ported = bounds_pair
-    bound.current_edge_index = ported.current_edge_index = current_edge_index
+    bound.current_edge_index, bound.next_edge_index = edges_indices
+    ported.current_edge_index, ported.next_edge_index = edges_indices
     return bounds_pair
