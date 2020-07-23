@@ -28,6 +28,7 @@ from .ring import (Ring,
                    set_to_children)
 from .utils import (insort_unique,
                     is_even,
+                    quicksort,
                     round_half_up)
 
 
@@ -722,33 +723,3 @@ def hot_pixels_compare(left: Point, right: Point) -> bool:
     return not (left.x < right.x
                 if left.y == right.y
                 else left.y > right.y)
-
-
-def quicksort(array, compare_func):
-    _quicksort(array, 0, len(array) - 1, compare_func)
-
-
-def _quicksort(array, start, end, compare_func):
-    if start >= end:
-        return
-
-    p = partition(array, start, end, compare_func)
-    _quicksort(array, start, p - 1, compare_func)
-    _quicksort(array, p + 1, end, compare_func)
-
-
-def partition(array, start, end, compare_func):
-    pivot = array[start]
-    low = start + 1
-    high = end
-    while True:
-        while low <= high and compare_func(array[high], pivot):
-            high = high - 1
-        while low <= high and not compare_func(array[low], pivot):
-            low = low + 1
-        if low <= high:
-            array[low], array[high] = array[high], array[low]
-        else:
-            break
-    array[start], array[high] = array[high], array[start]
-    return high

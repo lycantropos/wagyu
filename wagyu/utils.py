@@ -80,3 +80,39 @@ def round_half_up(number: Coordinate) -> int:
 
 def is_even(number: int) -> bool:
     return not (number % 2)
+
+
+def quicksort(sequence: MutableSequence[Domain],
+              comparator: Callable[[Domain, Domain], bool]) -> None:
+    _quicksort(sequence, 0, len(sequence) - 1, comparator)
+
+
+def _quicksort(sequence: MutableSequence[Domain],
+               start: int,
+               end: int,
+               comparator: Callable[[Domain, Domain], bool]) -> None:
+    if start >= end:
+        return
+    pivot = partition(sequence, start, end, comparator)
+    _quicksort(sequence, start, pivot - 1, comparator)
+    _quicksort(sequence, pivot + 1, end, comparator)
+
+
+def partition(sequence: MutableSequence[Domain],
+              start: int,
+              end: int,
+              comparator: Callable[[Domain, Domain], bool]) -> int:
+    pivot = sequence[start]
+    low = start + 1
+    high = end
+    while True:
+        while low <= high and comparator(sequence[high], pivot):
+            high = high - 1
+        while low <= high and not comparator(sequence[low], pivot):
+            low = low + 1
+        if low <= high:
+            sequence[low], sequence[high] = sequence[high], sequence[low]
+        else:
+            break
+    sequence[start], sequence[high] = sequence[high], sequence[start]
+    return high
