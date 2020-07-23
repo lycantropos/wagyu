@@ -633,6 +633,7 @@ class RingManager:
                                                    scanbeams: List[Coordinate],
                                                    active_bounds: List[Bound]
                                                    ) -> List[Bound]:
+        active_bounds = list(active_bounds)
         index = 0
         while index < len(active_bounds):
             bound = active_bounds[index]
