@@ -40,6 +40,9 @@ class IntersectNode:
                                            float(other.point.y))
                 else self.point.y < other.point.y)
 
+    def has_bound(self, bound: Bound) -> bool:
+        return self.first_bound is bound or self.second_bound is bound
+
 
 def to_int32(value: int) -> int:
     return ctypes.c_int32(value).value

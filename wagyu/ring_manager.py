@@ -17,6 +17,8 @@ from .enums import (EdgeSide,
                     OperationKind,
                     PolygonKind)
 from .hints import Coordinate
+from .intersect_node import (IntersectNode,
+                             build_intersect_list)
 from .local_minimum import (LocalMinimum,
                             LocalMinimumList)
 from .point import Point
@@ -26,7 +28,8 @@ from .point_node import (PointNode,
 from .ring import (Ring,
                    remove_from_children,
                    set_to_children)
-from .utils import (insort_unique,
+from .utils import (find_if,
+                    insort_unique,
                     is_even,
                     quicksort,
                     round_half_up)
@@ -664,6 +667,56 @@ class RingManager:
         update_current_x(active_bounds, top_y)
         return bubble_sort(active_bounds, intersection_compare,
                            self.hot_pixels_on_swap)
+
+    def process_intersections(self,
+                              top_y: Coordinate,
+                              operation_kind: OperationKind,
+                              subject_fill_kind: FillKind,
+                              clip_fill_kind: FillKind,
+                              active_bounds: List[Bound]) -> None:
+        if not active_bounds:
+            return
+        update_current_x(active_bounds, top_y)
+        _, intersections = build_intersect_list(active_bounds)
+        if not intersections:
+            return
+        self.process_intersect_list(sorted(intersections), operation_kind,
+                                    subject_fill_kind, clip_fill_kind,
+                                    active_bounds)
+
+    def process_intersect_list(self, intersections: List[IntersectNode],
+                               operation_kind: OperationKind,
+                               subject_fill_kind: FillKind,
+                               clip_fill_kind: FillKind,
+                               active_bounds: List[Bound]) -> None:
+        for index in range(len(intersections)):
+            first_index = find_if(intersections[index].has_bound,
+                                  active_bounds)
+            second_index = first_index + 1
+            if not intersections[index].has_bound(active_bounds[second_index]):
+                for next_index in range(index + 1, len(intersections)):
+                    next_node = intersections[next_index]
+                    candidate_first_index = find_if(next_node.has_bound,
+                                                    active_bounds)
+                    candidate_second_index = candidate_first_index + 1
+                    if next_node.has_bound(
+                            active_bounds[candidate_second_index]):
+                        first_index = candidate_first_index
+                        second_index = candidate_second_index
+                        break
+                else:
+                    raise RuntimeError('Could not properly correct '
+                                       'intersection order.')
+                intersections[index], intersections[next_index] = (
+                    intersections[next_index], intersections[index])
+            self.intersect_bounds(intersections[index].point.round(),
+                                  operation_kind, subject_fill_kind,
+                                  clip_fill_kind,
+                                  intersections[index].first_bound,
+                                  intersections[index].second_bound,
+                                  active_bounds)
+            active_bounds[first_index], active_bounds[second_index] = (
+                active_bounds[second_index], active_bounds[first_index])
 
     def replace_ring(self,
                      original: Optional[Ring],
