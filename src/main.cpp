@@ -963,6 +963,19 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              return py::make_tuple(
                  active_bounds, current_bound - active_bounds.begin(), shifted);
            })
+      .def("do_maxima",
+           [](RingManager& self, OperationKind operation_kind,
+              FillKind subject_fill_kind, FillKind clip_fill_kind,
+              std::size_t bound_index, std::size_t bound_maximum_index,
+              ActiveBoundList& active_bounds) {
+             auto bound_iterator = active_bounds.begin() + bound_index;
+             auto bound_maximum_iterator =
+                 active_bounds.begin() + bound_maximum_index;
+             auto itr = mapbox::geometry::wagyu::do_maxima(
+                 bound_iterator, bound_maximum_iterator, operation_kind,
+                 subject_fill_kind, clip_fill_kind, self, active_bounds);
+             return py::make_tuple(active_bounds, itr - active_bounds.begin());
+           })
       .def("process_edges_at_top_of_scanbeam",
            [](RingManager& self, coordinate_t top_y, ScanbeamList& scanbeams,
               OperationKind operation_kind, FillKind subject_fill_kind,
