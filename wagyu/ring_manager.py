@@ -102,7 +102,7 @@ class RingManager:
                                 active_bounds: List[Bound]) -> None:
         self.insert_hot_pixels_in_path(second_bound, point, False)
         self.add_point(first_bound, active_bounds, point)
-        if first_bound.ring == second_bound.ring:
+        if first_bound.ring is second_bound.ring:
             first_bound.ring = None
             second_bound.ring = None
             # I am not certain that order is important here?
