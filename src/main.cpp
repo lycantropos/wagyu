@@ -18,7 +18,6 @@
 #include <mapbox/geometry/wagyu/wagyu.hpp>
 #include <sstream>
 #include <stdexcept>
-#include <unordered_set>
 
 namespace py = pybind11;
 
@@ -124,12 +123,10 @@ static std::vector<const Point*>* point_node_to_points(const PointNode* node) {
   auto* result = new std::vector<const Point*>{};
   if (node == nullptr) return result;
   const auto* cursor = node;
-  std::unordered_set<const PointNode*> visited;
-  while (visited.find(cursor) == visited.end()) {
+  do {
     result->push_back(new Point(cursor->x, cursor->y));
-    visited.insert(cursor);
     cursor = cursor->next;
-  }
+  } while (cursor != node);
   return result;
 };
 
