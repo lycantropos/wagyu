@@ -113,6 +113,10 @@ class Bound:
         else:
             return clip_fill_kind is FillKind.EVEN_ODD
 
+    def is_maxima(self, y: Coordinate) -> bool:
+        return (self.next_edge_index == len(self.edges)
+                and self.current_edge.top.y == y)
+
     def fix_horizontals(self) -> None:
         edge_index = 0
         next_index = 1
