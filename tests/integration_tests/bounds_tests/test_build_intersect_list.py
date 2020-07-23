@@ -13,8 +13,6 @@ from . import strategies
 def test_basic(lists_pair: BoundPortedBoundsListsPair) -> None:
     bound_list, ported_list = lists_pair
 
-    assert are_bound_ported_bounds_lists_equal(bound_list, ported_list)
-
     try:
         bound_list, bound_result = bound(bound_list)
     except RuntimeError:
