@@ -963,6 +963,22 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              return py::make_tuple(
                  active_bounds, current_bound - active_bounds.begin(), shifted);
            })
+      .def("process_edges_at_top_of_scanbeam",
+           [](RingManager& self, coordinate_t top_y, ScanbeamList& scanbeams,
+              OperationKind operation_kind, FillKind subject_fill_kind,
+              FillKind clip_fill_kind, ActiveBoundList& active_bounds,
+              LocalMinimumList& minimums, std::size_t minimums_index) {
+             mapbox::geometry::wagyu::local_minimum_ptr_list<coordinate_t>
+                 minimums_ptr;
+             for (auto& minimum : minimums) minimums_ptr.push_back(&minimum);
+             auto minimums_itr = minimums_ptr.begin() + minimums_index;
+             mapbox::geometry::wagyu::process_edges_at_top_of_scanbeam<
+                 coordinate_t>(top_y, active_bounds, scanbeams, minimums_ptr,
+                               minimums_itr, self, operation_kind,
+                               subject_fill_kind, clip_fill_kind);
+             return py::make_tuple(active_bounds, scanbeams,
+                                   minimums_itr - minimums_ptr.begin());
+           })
       .def(
           "process_hot_pixel_edges_at_top_of_scanbeam",
           [](RingManager& self, coordinate_t top_y, ScanbeamList& scanbeams,
