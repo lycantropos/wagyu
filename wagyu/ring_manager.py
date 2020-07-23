@@ -297,7 +297,7 @@ class RingManager:
                                   active_bounds[next_bound_index],
                                   active_bounds)
             active_bounds[bound_index], active_bounds[next_bound_index] = (
-                active_bounds[bound_index], active_bounds[next_bound_index])
+                active_bounds[next_bound_index], active_bounds[bound_index])
             bound_index = next_bound_index
             next_bound_index += 1
         if (active_bounds[bound_index].ring is not None
