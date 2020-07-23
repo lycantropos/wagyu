@@ -113,6 +113,14 @@ class Bound:
         else:
             return clip_fill_kind is FillKind.EVEN_ODD
 
+    def is_even_odd_alt_fill_kind(self,
+                                  subject_fill_kind: FillKind,
+                                  clip_fill_kind: FillKind) -> bool:
+        if self.polygon_kind is PolygonKind.SUBJECT:
+            return clip_fill_kind is FillKind.EVEN_ODD
+        else:
+            return subject_fill_kind is FillKind.EVEN_ODD
+
     def is_intermediate(self, y: Coordinate) -> bool:
         return (self.next_edge_index != len(self.edges)
                 and self.current_edge.top.y == y)
