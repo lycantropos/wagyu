@@ -1176,6 +1176,15 @@ PYBIND11_MODULE(MODULE_NAME, m) {
   m.def("round_towards_max",
         mapbox::geometry::wagyu::round_towards_max<coordinate_t>);
 
+  m.def("set_winding_count",
+        [](std::size_t bound_index, ActiveBoundList& active_bounds,
+           FillKind subject_fill_kind, FillKind clip_fill_kind) {
+          mapbox::geometry::wagyu::set_winding_count<coordinate_t>(
+              active_bounds.begin() + bound_index, active_bounds,
+              subject_fill_kind, clip_fill_kind);
+          return active_bounds;
+        });
+
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
 #else
