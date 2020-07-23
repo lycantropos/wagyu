@@ -691,6 +691,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           })
       .def("is_even_odd_fill_kind",
            mapbox::geometry::wagyu::is_even_odd_fill_type<coordinate_t>)
+      .def("is_even_odd_alt_fill_kind",
+           mapbox::geometry::wagyu::is_even_odd_alt_fill_type<coordinate_t>)
       .def("is_intermediate",
            [](const Bound& self, coordinate_t y) {
              return mapbox::geometry::wagyu::is_intermediate<coordinate_t>(self,
