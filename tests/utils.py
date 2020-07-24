@@ -119,7 +119,7 @@ bound_operation_kinds = enum_to_values(BoundOperationKind)
 bound_polygon_kinds = enum_to_values(BoundPolygonKind)
 ported_edges_sides = enum_to_values(PortedEdgeSide)
 ported_fill_kinds = enum_to_values(PortedFillKind)
-ported_operation_kinds = enum_to_values(BoundOperationKind)
+ported_operation_kinds = enum_to_values(PortedOperationKind)
 ported_polygon_kinds = enum_to_values(PortedPolygonKind)
 
 
