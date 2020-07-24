@@ -12,10 +12,12 @@ from tests.utils import (BoundPortedBoundsListsPair,
                          Strategy,
                          bound_edges_sides,
                          bound_fill_kinds,
+                         bound_operation_kinds,
                          bound_polygon_kinds,
                          initialize_bounds,
                          ported_edges_sides,
                          ported_fill_kinds,
+                         ported_operation_kinds,
                          ported_polygon_kinds,
                          sort_pair,
                          to_bound_with_ported_bounds_pair,
@@ -39,6 +41,8 @@ rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
                                 points_lists_pairs, booleans)
 fill_kinds_pairs = strategies.sampled_from(list(zip(bound_fill_kinds,
                                                     ported_fill_kinds)))
+operation_kinds_pairs = strategies.sampled_from(
+        list(zip(bound_operation_kinds, ported_operation_kinds)))
 polygon_kinds_pairs = strategies.sampled_from(
         list(zip(bound_polygon_kinds, ported_polygon_kinds)))
 edges_sides_pairs = strategies.sampled_from(list(zip(bound_edges_sides,
