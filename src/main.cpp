@@ -689,6 +689,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               throw std::out_of_range("list index out of range");
             return *self.next_edge;
           })
+      .def("is_contributing",
+           mapbox::geometry::wagyu::is_contributing<coordinate_t>)
       .def("is_even_odd_fill_kind",
            mapbox::geometry::wagyu::is_even_odd_fill_type<coordinate_t>)
       .def("is_even_odd_alt_fill_kind",
