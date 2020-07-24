@@ -281,3 +281,72 @@ def intersection_compare(left: Bound, right: Bound) -> bool:
     return not (left.current_x > right.current_x and
                 not are_edges_slopes_equal(left.current_edge,
                                            right.current_edge))
+
+
+def set_winding_count(bound_index: int, active_bounds: List[Bound],
+                      subject_fill_kind: FillKind, clip_fill_kind: FillKind
+                      ) -> None:
+    bound = active_bounds[bound_index]
+    if not bound_index:
+        bound.winding_count = bound.winding_delta
+        bound.opposite_winding_count = 0
+        return
+    # find the edge of the same polygon kind that immediately precedes 'edge'
+    # in AEL
+    reversed_bound_index = bound_index - 1
+    while (reversed_bound_index >= 0
+           and (active_bounds[reversed_bound_index].polygon_kind
+                is not bound.polygon_kind)):
+        reversed_bound_index -= 1
+    if reversed_bound_index == -1:
+        bound.winding_count = bound.winding_delta
+        bound.opposite_winding_count = 0
+    elif bound.is_even_odd_fill_kind(subject_fill_kind, clip_fill_kind):
+        # even-odd filling
+        bound.winding_count = bound.winding_delta
+        bound.opposite_winding_count = (active_bounds[reversed_bound_index]
+                                        .opposite_winding_count)
+    else:
+        # non-zero, positive or negative filling
+        reversed_bound = active_bounds[reversed_bound_index]
+        if reversed_bound.winding_count * reversed_bound.winding_delta < 0:
+            # previous edge is 'decreasing' winding count toward zero
+            # so we're outside the previous polygon
+            if abs(reversed_bound.winding_count) > 1:
+                # outside previous polygon but still inside another,
+                # when reversing direction of previous polygon
+                # use the same winding count
+                if reversed_bound.winding_delta * bound.winding_delta < 0:
+                    bound.winding_count = reversed_bound.winding_count
+                else:
+                    # otherwise continue to 'decrease' winding count
+                    bound.winding_count = (reversed_bound.winding_count
+                                           + bound.winding_delta)
+            else:
+                # now outside all polygons of same polygon kind
+                # so set own winding count
+                bound.winding_count = bound.winding_delta
+        else:
+            # previous edge is 'increasing' winding count away from zero
+            # so we're inside the previous polygon
+            if reversed_bound.winding_delta * bound.winding_delta < 0:
+                # if wind direction is reversing previous
+                # then use same winding count
+                bound.winding_count = reversed_bound.winding_count
+            else:
+                # otherwise add to winding count
+                bound.winding_count = (reversed_bound.winding_count
+                                       + bound.winding_delta)
+        bound.opposite_winding_count = reversed_bound.opposite_winding_count
+    # update opposite winding count
+    forward_bound_index = reversed_bound_index + 1
+    if bound.is_even_odd_alt_fill_kind(subject_fill_kind, clip_fill_kind):
+        # even-odd filling
+        for forward_bound_index in range(forward_bound_index, bound_index):
+            bound.opposite_winding_count = int(
+                    not bound.opposite_winding_count)
+    else:
+        # non-zero, positive or negative filling
+        for forward_bound_index in range(forward_bound_index, bound_index):
+            bound.opposite_winding_count += (active_bounds[forward_bound_index]
+                                             .winding_delta)
