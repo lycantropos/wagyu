@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from hypothesis import strategies
 
 from tests.strategies import (coordinates,
@@ -5,7 +7,8 @@ from tests.strategies import (coordinates,
                               integers_32,
                               sizes,
                               trits)
-from tests.utils import (BoundPortedBoundsPair,
+from tests.utils import (BoundPortedBoundsListsPair,
+                         BoundPortedBoundsPair,
                          Strategy,
                          bound_edges_sides,
                          bound_fill_kinds,
@@ -51,6 +54,21 @@ bounds_pairs = strategies.builds(to_bound_with_ported_bounds_pair,
                                  sizes, integers_32, integers_32, trits,
                                  polygon_kinds_pairs,
                                  edges_sides_pairs)
+non_empty_bounds_lists_pairs = (strategies.lists(bounds_pairs,
+                                                 min_size=1)
+                                .map(transpose_pairs))
+
+
+def to_bounds_lists_pairs_indices(
+        bounds_lists_pair: BoundPortedBoundsListsPair
+) -> Strategy[Tuple[BoundPortedBoundsPair, int]]:
+    _, ported = bounds_lists_pair
+    return strategies.tuples(strategies.just(bounds_lists_pair),
+                             strategies.integers(0, len(ported) - 1))
+
+
+non_empty_bounds_lists_pairs_indices = (
+    non_empty_bounds_lists_pairs.flatmap(to_bounds_lists_pairs_indices))
 
 
 def to_initialized_bounds_pairs(bounds_pair: BoundPortedBoundsPair
