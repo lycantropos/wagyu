@@ -8,6 +8,7 @@ from .edge import (Edge,
                    are_edges_slopes_equal)
 from .enums import (EdgeSide,
                     FillKind,
+                    OperationKind,
                     PolygonKind)
 from .hints import Coordinate
 from .point import Point
@@ -104,6 +105,54 @@ class Bound:
     @next_edge_index.setter
     def next_edge_index(self, value: int) -> None:
         self._next_edge_index = value if value < len(self.edges) else None
+
+    def is_contributing(self,
+                        operation_kind: OperationKind,
+                        subject_fill_kind: FillKind,
+                        clip_fill_kind: FillKind) -> bool:
+        pft, pft2 = ((subject_fill_kind, clip_fill_kind)
+                     if self.polygon_kind is PolygonKind.SUBJECT
+                     else (clip_fill_kind, subject_fill_kind))
+        if pft is FillKind.NON_ZERO:
+            if abs(self.winding_count) != 1:
+                return False
+        elif pft is FillKind.POSITIVE:
+            if self.winding_count != 1:
+                return False
+        elif pft is FillKind.NEGATIVE:
+            if self.winding_count != -1:
+                return False
+        if operation_kind is OperationKind.INTERSECTION:
+            if pft2 is FillKind.EVEN_ODD or pft2 is FillKind.NON_ZERO:
+                return self.opposite_winding_count != 0
+            elif pft2 is FillKind.POSITIVE:
+                return self.opposite_winding_count > 0
+            else:
+                return self.opposite_winding_count < 0
+        elif operation_kind is OperationKind.UNION:
+            if pft2 is FillKind.EVEN_ODD or pft2 is FillKind.NON_ZERO:
+                return self.opposite_winding_count == 0
+            elif pft2 is FillKind.POSITIVE:
+                return self.opposite_winding_count <= 0
+            else:
+                return self.opposite_winding_count >= 0
+        elif operation_kind is OperationKind.DIFFERENCE:
+            if self.polygon_kind is PolygonKind.SUBJECT:
+                if pft2 is FillKind.EVEN_ODD or pft2 is FillKind.NON_ZERO:
+                    return self.opposite_winding_count == 0
+                elif pft2 is FillKind.POSITIVE:
+                    return self.opposite_winding_count <= 0
+                else:
+                    return self.opposite_winding_count >= 0
+            else:
+                if pft2 is FillKind.EVEN_ODD or pft2 is FillKind.NON_ZERO:
+                    return self.opposite_winding_count != 0
+                elif pft2 is FillKind.POSITIVE:
+                    return self.opposite_winding_count > 0
+                else:
+                    return self.opposite_winding_count < 0
+        else:
+            return True
 
     def is_even_odd_fill_kind(self,
                               subject_fill_kind: FillKind,
