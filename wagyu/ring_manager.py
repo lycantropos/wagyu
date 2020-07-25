@@ -434,6 +434,28 @@ class RingManager:
             return hot_pixel_start - 1
         return hot_pixel_index
 
+    def insert_horizontal_local_minima_into_abl(self,
+                                                operation_kind: OperationKind,
+                                                subject_fill_kind: FillKind,
+                                                clip_fill_kind: FillKind,
+                                                top_y: Coordinate,
+                                                scanbeams: List[Coordinate],
+                                                minimums: LocalMinimumList,
+                                                minimums_index: int,
+                                                active_bounds: List[Bound]
+                                                ) -> int:
+        while (minimums_index < len(minimums)
+               and minimums[minimums_index].y == top_y
+               and minimums[minimums_index].minimum_has_horizontal):
+            minimum = minimums[minimums_index]
+            minimum.initialize()
+            self.insert_lm_left_and_right_bound(
+                    operation_kind, subject_fill_kind, clip_fill_kind,
+                    scanbeams, minimum.left_bound, minimum.right_bound,
+                    active_bounds)
+            minimums_index += 1
+        return minimums_index
+
     def insert_hot_pixels_in_path(self,
                                   bound: Bound,
                                   end_point: Point,
