@@ -10,7 +10,8 @@ from reprit.base import generate_repr
 
 from .bound import (Bound,
                     insert_bound_into_abl,
-                    intersection_compare)
+                    intersection_compare,
+                    set_winding_count)
 from .bubble_sort import bubble_sort
 from .enums import (EdgeSide,
                     FillKind,
@@ -477,6 +478,31 @@ class RingManager:
                         y, start_x, end_x, bound, first_index, last_index,
                         y != end_point.y or add_end_point)
         bound.last_point = end_point
+
+    def insert_lm_left_and_right_bound(self,
+                                       operation_kind: OperationKind,
+                                       subject_fill_kind: FillKind,
+                                       clip_fill_kind: FillKind,
+                                       scanbeams: List[Coordinate],
+                                       left_bound: Bound,
+                                       right_bound: Bound,
+                                       active_bounds: List[Bound]) -> None:
+        bound_index = insert_bound_into_abl(left_bound, right_bound,
+                                            active_bounds)
+        set_winding_count(bound_index, active_bounds, subject_fill_kind,
+                          clip_fill_kind)
+        bound = active_bounds[bound_index]
+        next_bound = active_bounds[bound_index + 1]
+        next_bound.winding_count = bound.winding_count
+        next_bound.opposite_winding_count = bound.opposite_winding_count
+        if left_bound.is_contributing(operation_kind, subject_fill_kind,
+                                      clip_fill_kind):
+            self.add_local_minimum_point(bound.current_edge.bottom, bound,
+                                         next_bound, active_bounds)
+        # add edges' top to scanbeams
+        insort_unique(scanbeams, bound.current_edge.top.y)
+        if not next_bound.current_edge.is_horizontal:
+            insort_unique(scanbeams, next_bound.current_edge.top.y)
 
     def insert_local_minima_into_abl_hot_pixel(self,
                                                top_y: Coordinate,
