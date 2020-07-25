@@ -43,6 +43,24 @@ class LocalMinimum:
                 if isinstance(other, LocalMinimum)
                 else NotImplemented)
 
+    def initialize(self) -> None:
+        left_bound = self.left_bound
+        if left_bound.edges:
+            left_bound.current_edge_index = 0
+            left_bound.next_edge_index = 1
+            left_bound.current_x = float(left_bound.current_edge.bottom.x)
+            left_bound.winding_count = left_bound.opposite_winding_count = 0
+            left_bound.side = EdgeSide.LEFT
+            left_bound.ring = None
+        right_bound = self.right_bound
+        if right_bound.edges:
+            right_bound.current_edge_index = 0
+            right_bound.next_edge_index = 1
+            right_bound.current_x = float(right_bound.current_edge.bottom.x)
+            right_bound.winding_count = right_bound.opposite_winding_count = 0
+            right_bound.side = EdgeSide.RIGHT
+            right_bound.ring = None
+
 
 class LocalMinimumList(abc.MutableSequence):
     __slots__ = 'values',
