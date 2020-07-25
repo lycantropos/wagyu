@@ -522,8 +522,9 @@ class RingManager:
                          active_bounds: List[Bound]) -> None:
         first_bound_contributing = first_bound.ring is not None
         second_bound_contributing = second_bound.ring is not None
-        # update winding counts...
-        # assumes that b1 will be to the Right of b2 ABOVE the intersection
+        # update winding counts,
+        # assumes that first bound will be to the right of second bound
+        # above the intersection
         if first_bound.polygon_kind is second_bound.polygon_kind:
             if first_bound.is_even_odd_fill_kind(subject_fill_kind,
                                                  clip_fill_kind):
@@ -579,7 +580,7 @@ class RingManager:
             second_bound_winding_count = abs(second_bound.winding_count)
         if first_bound_contributing and second_bound_contributing:
             if (first_bound_winding_count != 0
-                    and first_bound_winding_count != 0
+                    and first_bound_winding_count != 1
                     or second_bound_winding_count != 0
                     and second_bound_winding_count != 1
                     or (first_bound.polygon_kind
