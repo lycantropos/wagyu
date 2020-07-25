@@ -1067,6 +1067,18 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::insert_hot_pixels_in_path<coordinate_t>(
                  bound, end_point, self, add_end_point);
            })
+      .def("insert_lm_left_and_right_bound",
+           [](RingManager& self, OperationKind operation_kind,
+              FillKind subject_fill_kind, FillKind clip_fill_kind,
+              ScanbeamList& scanbeams, std::size_t left_bound_index,
+              std::size_t right_bound_index, ActiveBoundList& active_bounds) {
+             mapbox::geometry::wagyu::insert_lm_left_and_right_bound<
+                 coordinate_t>(*active_bounds[left_bound_index],
+                               *active_bounds[right_bound_index], active_bounds,
+                               self, scanbeams, operation_kind,
+                               subject_fill_kind, clip_fill_kind);
+             return py::make_tuple(scanbeams, active_bounds);
+           })
       .def("create_ring",
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
       .def(
