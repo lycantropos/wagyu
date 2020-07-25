@@ -57,10 +57,11 @@ using IntersectList = mapbox::geometry::wagyu::intersect_list<coordinate_t>;
 using IntersectNode = mapbox::geometry::wagyu::intersect_node<coordinate_t>;
 using LinearRing = mapbox::geometry::linear_ring<coordinate_t>;
 using LocalMinimum = mapbox::geometry::wagyu::local_minimum<coordinate_t>;
-using LocalMinimumPtr =
-    mapbox::geometry::wagyu::local_minimum_ptr<coordinate_t>;
 using LocalMinimumList =
     mapbox::geometry::wagyu::local_minimum_list<coordinate_t>;
+using LocalMinimumPtr =
+    mapbox::geometry::wagyu::local_minimum_ptr<coordinate_t>;
+using LocalMinimumPtrList = mapbox::geometry::wagyu::local_minimum_ptr_list<coordinate_t>;
 using Multipolygon = mapbox::geometry::multi_polygon<coordinate_t>;
 using OperationKind = mapbox::geometry::wagyu::clip_type;
 using Point = mapbox::geometry::point<coordinate_t>;
@@ -952,8 +953,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            [](RingManager& self, coordinate_t top_y, LocalMinimumList& minimums,
               std::size_t minimums_index, ActiveBoundList& active_bounds,
               ScanbeamList& scanbeams) {
-             mapbox::geometry::wagyu::local_minimum_ptr_list<coordinate_t>
-                 minimums_ptr;
+             LocalMinimumPtrList minimums_ptr;
              for (auto& minimum : minimums) minimums_ptr.push_back(&minimum);
              auto minimums_itr = minimums_ptr.begin() + minimums_index;
              mapbox::geometry::wagyu::insert_local_minima_into_ABL_hot_pixel<
@@ -990,8 +990,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               OperationKind operation_kind, FillKind subject_fill_kind,
               FillKind clip_fill_kind, ActiveBoundList& active_bounds,
               LocalMinimumList& minimums, std::size_t minimums_index) {
-             mapbox::geometry::wagyu::local_minimum_ptr_list<coordinate_t>
-                 minimums_ptr;
+             LocalMinimumPtrList minimums_ptr;
              for (auto& minimum : minimums) minimums_ptr.push_back(&minimum);
              auto minimums_itr = minimums_ptr.begin() + minimums_index;
              mapbox::geometry::wagyu::process_edges_at_top_of_scanbeam<
