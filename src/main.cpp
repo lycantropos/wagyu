@@ -934,6 +934,14 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                  self);
              return active_bounds;
            })
+      .def("execute_vatti",
+           [](RingManager& self, LocalMinimumList& minimums,
+              OperationKind operation_kind, FillKind subject_fill_kind,
+              FillKind clip_fill_kind) {
+             mapbox::geometry::wagyu::execute_vatti<coordinate_t>(
+                 minimums, self, operation_kind, subject_fill_kind,
+                 clip_fill_kind);
+           })
       .def("intersect_bounds",
            [](RingManager& self, const Point& point,
               OperationKind operation_kind, FillKind subject_fill_type,
