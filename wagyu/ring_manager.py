@@ -504,6 +504,26 @@ class RingManager:
         if not next_bound.current_edge.is_horizontal:
             insort_unique(scanbeams, next_bound.current_edge.top.y)
 
+    def insert_local_minima_into_abl(self,
+                                     operation_kind: OperationKind,
+                                     subject_fill_kind: FillKind,
+                                     clip_fill_kind: FillKind,
+                                     bot_y: Coordinate,
+                                     scanbeams: List[Coordinate],
+                                     minimums: LocalMinimumList,
+                                     minimums_index: int,
+                                     active_bounds: List[Bound]) -> int:
+        while (minimums_index < len(minimums)
+               and minimums[minimums_index].y == bot_y):
+            minimum = minimums[minimums_index]
+            minimum.initialize()
+            self.insert_lm_left_and_right_bound(
+                    operation_kind, subject_fill_kind, clip_fill_kind,
+                    scanbeams, minimum.left_bound, minimum.right_bound,
+                    active_bounds)
+            minimums_index += 1
+        return minimums_index
+
     def insert_local_minima_into_abl_hot_pixel(self,
                                                top_y: Coordinate,
                                                minimums: List[LocalMinimum],
