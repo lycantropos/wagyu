@@ -1041,6 +1041,20 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              return py::make_tuple(active_bounds, scanbeams,
                                    minimums_itr - minimums_ptr.begin());
            })
+      .def("process_horizontal_left_to_right",
+           [](RingManager& self, OperationKind operation_kind,
+              FillKind subject_fill_kind, FillKind clip_fill_kind,
+              coordinate_t scanline_y, ScanbeamList& scanbeams,
+              std::size_t bound_index, ActiveBoundList& active_bounds) {
+             auto bounds_itr = active_bounds.begin() + bound_index;
+             auto result =
+                 mapbox::geometry::wagyu::process_horizontal_left_to_right<
+                     coordinate_t>(scanline_y, bounds_itr, active_bounds, self,
+                                   scanbeams, operation_kind, subject_fill_kind,
+                                   clip_fill_kind);
+             return py::make_tuple(active_bounds, scanbeams,
+                                   result - active_bounds.begin());
+           })
       .def(
           "process_hot_pixel_edges_at_top_of_scanbeam",
           [](RingManager& self, coordinate_t top_y, ScanbeamList& scanbeams,
