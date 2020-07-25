@@ -45,6 +45,7 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
 from wagyu.hints import Coordinate
 
 coordinates = coordinates
+coordinates_lists = strategies.lists(coordinates)
 sorted_coordinates_pairs = to_pairs(coordinates).map(sort_pair)
 fill_kinds_pairs = strategies.sampled_from(list(zip(bound_fill_kinds,
                                                     ported_fill_kinds)))
