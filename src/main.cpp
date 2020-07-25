@@ -974,6 +974,22 @@ PYBIND11_MODULE(MODULE_NAME, m) {
             return py::make_tuple(active_bounds, scanbeams,
                                   minimums_itr - minimums_ptr.begin());
           })
+      .def("insert_horizontal_local_minima_into_abl",
+           [](RingManager& self, OperationKind operation_kind,
+              FillKind subject_fill_kind, FillKind clip_fill_kind,
+              coordinate_t bot_y, ScanbeamList& scanbeams,
+              LocalMinimumList& minimums, std::size_t minimums_index,
+              ActiveBoundList& active_bounds) {
+             LocalMinimumPtrList minimums_ptr;
+             for (auto& minimum : minimums) minimums_ptr.push_back(&minimum);
+             auto minimums_itr = minimums_ptr.begin() + minimums_index;
+             mapbox::geometry::wagyu::insert_horizontal_local_minima_into_ABL<
+                 coordinate_t>(bot_y, minimums_ptr, minimums_itr, active_bounds,
+                               self, scanbeams, operation_kind,
+                               subject_fill_kind, clip_fill_kind);
+             return py::make_tuple(active_bounds, scanbeams,
+                                   minimums_itr - minimums_ptr.begin());
+           })
       .def("insert_local_minima_into_abl_hot_pixel",
            [](RingManager& self, coordinate_t top_y, LocalMinimumList& minimums,
               std::size_t minimums_index, ActiveBoundList& active_bounds,
