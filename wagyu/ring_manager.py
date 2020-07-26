@@ -743,6 +743,65 @@ class RingManager:
                 first_bound.side, second_bound.side = (second_bound.side,
                                                        first_bound.side)
 
+    def process_edges_at_top_of_scanbeam(self,
+                                         operation_kind: OperationKind,
+                                         subject_fill_kind: FillKind,
+                                         clip_fill_kind: FillKind,
+                                         top_y: Coordinate,
+                                         scanbeams: List[Coordinate],
+                                         active_bounds: List[Bound],
+                                         minimums_index: int,
+                                         minimums: LocalMinimumList
+                                         ) -> Tuple[List[Bound], int]:
+        bound_index = 0
+        while bound_index < len(active_bounds):
+            bound = active_bounds[bound_index]
+            if bound is None:
+                bound_index += 1
+                continue
+            # 1) process maxima,
+            # treating them as if they are "bent" horizontal edges,
+            # but exclude maxima with horizontal edges
+            is_maxima_edge = bound.is_maxima(top_y)
+            if is_maxima_edge:
+                bound_maximum_index = find(bound.maximum_bound, active_bounds)
+                is_maxima_edge = (bound_maximum_index == len(active_bounds)
+                                  or not (active_bounds[bound_maximum_index]
+                                          .current_edge.is_horizontal)
+                                  and (active_bounds[bound_maximum_index]
+                                       .is_maxima(top_y)))
+                if is_maxima_edge:
+                    bound_index = self.do_maxima(
+                            operation_kind, subject_fill_kind, clip_fill_kind,
+                            bound_index, bound_maximum_index, active_bounds)
+                    continue
+            # 2) promote horizontal edges
+            bound = active_bounds[bound_index]
+            if bound.is_intermediate(top_y) and bound.next_edge.is_horizontal:
+                if bound.ring is not None:
+                    self.insert_hot_pixels_in_path(
+                            bound, bound.current_edge.top, False)
+                bound.to_next_edge(scanbeams)
+                if bound.ring is not None:
+                    self.add_point_to_ring(bound, bound.current_edge.bottom)
+            else:
+                bound.current_x = bound.current_edge.get_current_x(top_y)
+            bound_index += 1
+        active_bounds = list(filter(partial(is_not, None), active_bounds))
+        minimums_index = self.insert_horizontal_local_minima_into_abl(
+                operation_kind, subject_fill_kind, clip_fill_kind, top_y,
+                scanbeams, minimums, minimums_index, active_bounds)
+        active_bounds = self.process_horizontals(
+                operation_kind, subject_fill_kind, clip_fill_kind,
+                top_y, scanbeams, active_bounds)
+        # 4) promote intermediate vertices
+        for bound in active_bounds:
+            if bound.is_intermediate(top_y):
+                if bound.ring is not None:
+                    self.add_point_to_ring(bound, bound.current_edge.top)
+                bound.to_next_edge(scanbeams)
+        return active_bounds, minimums_index
+
     def process_horizontal(self,
                            operation_kind: OperationKind,
                            subject_fill_kind: FillKind,
