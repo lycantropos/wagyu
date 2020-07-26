@@ -245,12 +245,12 @@ rings_lists_pairs = strategies.lists(rings_pairs).map(transpose_pairs)
 ring_managers_pairs = strategies.builds(
         to_bound_with_ported_ring_managers_pair, maybe_rings_lists_pairs,
         points_lists_pairs, sizes, rings_lists_pairs, sizes)
-non_empty_maybe_rings_pairs = to_maybe_pairs(non_empty_rings_pairs)
-non_empty_maybe_rings_lists_pairs = (
-    strategies.lists(non_empty_maybe_rings_pairs).map(transpose_pairs))
+maybe_non_empty_rings_pairs = to_maybe_pairs(non_empty_rings_pairs)
+maybe_non_empty_rings_lists_pairs = (
+    strategies.lists(maybe_non_empty_rings_pairs).map(transpose_pairs))
 non_empty_managers_pairs = strategies.builds(
         to_bound_with_ported_ring_managers_pair,
-        non_empty_maybe_rings_lists_pairs, non_empty_points_lists_pairs,
+        maybe_non_empty_rings_lists_pairs, non_empty_points_lists_pairs,
         sizes, rings_lists_pairs, sizes)
 
 
