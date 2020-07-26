@@ -227,6 +227,9 @@ def to_lists_pairs_scanbeams_ys(
 non_empty_initialized_bounds_lists_pairs_scanbeams_ys = (
     non_empty_initialized_bounds_lists_pairs.flatmap(
             to_lists_pairs_scanbeams_ys))
+non_empty_initialized_non_empty_bounds_lists_pairs_scanbeams_ys = (
+    non_empty_initialized_non_empty_bounds_lists_pairs.flatmap(
+            to_lists_pairs_scanbeams_ys))
 
 
 def to_lists_pairs_scanbeams_ys_indices(
