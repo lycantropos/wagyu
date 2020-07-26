@@ -1046,6 +1046,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               FillKind subject_fill_kind, FillKind clip_fill_kind,
               coordinate_t scanline_y, ScanbeamList& scanbeams,
               std::size_t bound_index, ActiveBoundList& active_bounds) {
+             if (bound_index >= active_bounds.size())
+               throw std::out_of_range("list index out of range");
              auto bounds_itr = active_bounds.begin() + bound_index;
              auto result =
                  mapbox::geometry::wagyu::process_horizontal_left_to_right<
