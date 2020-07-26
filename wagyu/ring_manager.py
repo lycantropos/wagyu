@@ -168,7 +168,7 @@ class RingManager:
 
     def append_ring(self, first_bound: Bound, second_bound: Bound,
                     active_bounds: List[Bound]) -> None:
-        # get the start and ends of both output polygons ...
+        # get the start and ends of both output polygons
         first_out_rec = first_bound.ring
         second_out_rec = second_bound.ring
         if first_out_rec.is_descendant_of(second_out_rec):
@@ -184,12 +184,14 @@ class RingManager:
             keep_ring, remove_ring = second_out_rec, first_out_rec
             keep_bound, remove_bound = second_bound, first_bound
         # get the start and ends of both output polygons and
-        # join b2 poly onto b1 poly and delete pointers to b2 ...
+        # join second bound's polygon onto first bound's polygon
+        # and delete pointers to second bound
         p1_lft = keep_ring.node
         p1_rt = p1_lft.prev
         p2_lft = remove_ring.node
         p2_rt = p2_lft.prev
-        # join b2 poly onto b1 poly and delete pointers to b2 ...
+        # join second bound's polygon onto first bound's polygon
+        # and delete pointers to second bound
         if keep_bound.side is EdgeSide.LEFT:
             if remove_bound.side is EdgeSide.LEFT:
                 # z y x a b c
@@ -686,7 +688,7 @@ class RingManager:
                or first_bound_winding_count == 1)
               and (second_bound_winding_count == 0
                    or second_bound_winding_count == 1)):
-            # neither bound is currently contributing ...
+            # neither bound is currently contributing
             if first_bound_complement_fill_kind is FillKind.POSITIVE:
                 first_bound_opposite_winding_count = (
                     first_bound.opposite_winding_count)
