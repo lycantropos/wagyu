@@ -750,13 +750,32 @@ class RingManager:
                            scanline_y: Coordinate,
                            scanbeams: List[Coordinate],
                            bound_index: int,
-                           active_bounds: List[Bound]) -> int:
+                           active_bounds: List[Optional[Bound]]) -> int:
         bound = active_bounds[bound_index]
         return (self.process_horizontal_left_to_right
                 if bound.current_edge.bottom.x < bound.current_edge.top.x
                 else self.process_horizontal_right_to_left)(
                 operation_kind, subject_fill_kind, clip_fill_kind, scanline_y,
                 scanbeams, bound_index, active_bounds)
+
+    def process_horizontals(self,
+                            operation_kind: OperationKind,
+                            subject_fill_kind: FillKind,
+                            clip_fill_kind: FillKind,
+                            scanline_y: Coordinate,
+                            scanbeams: List[Coordinate],
+                            active_bounds: List[Bound]) -> List[Bound]:
+        active_bounds = list(active_bounds)
+        index = 0
+        while index < len(active_bounds):
+            bound = active_bounds[index]
+            if bound is not None and bound.current_edge.is_horizontal:
+                index = self.process_horizontal(
+                        operation_kind, subject_fill_kind, clip_fill_kind,
+                        scanline_y, scanbeams, index, active_bounds)
+            else:
+                index += 1
+        return list(filter(partial(is_not, None), active_bounds))
 
     def process_horizontal_left_to_right(self,
                                          operation_kind: OperationKind,
@@ -765,7 +784,8 @@ class RingManager:
                                          scanline_y: Coordinate,
                                          scanbeams: List[Coordinate],
                                          bound_index: int,
-                                         active_bounds: List[Bound]) -> int:
+                                         active_bounds: List[Optional[Bound]]
+                                         ) -> int:
         shifted = False
         result = bound_index
         bound = active_bounds[bound_index]
@@ -857,7 +877,8 @@ class RingManager:
                                          scanline_y: Coordinate,
                                          scanbeams: List[Coordinate],
                                          bound_index: int,
-                                         active_bounds: List[Bound]) -> int:
+                                         active_bounds: List[Optional[Bound]]
+                                         ) -> int:
         bound = active_bounds[bound_index]
         result = bound_index + 1
         is_maxima_edge = bound.is_maxima(scanline_y)
