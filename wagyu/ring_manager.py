@@ -29,7 +29,8 @@ from .point_node import (PointNode,
 from .ring import (Ring,
                    remove_from_children,
                    set_to_children)
-from .utils import (find,
+from .utils import (are_floats_greater_than,
+                    find,
                     find_if,
                     insort_unique,
                     is_even,
@@ -738,6 +739,98 @@ class RingManager:
             else:
                 first_bound.side, second_bound.side = (second_bound.side,
                                                        first_bound.side)
+
+    def process_horizontal_left_to_right(self,
+                                         operation_kind: OperationKind,
+                                         subject_fill_kind: FillKind,
+                                         clip_fill_kind: FillKind,
+                                         scanline_y: Coordinate,
+                                         scanbeams: List[Coordinate],
+                                         bound_index: int,
+                                         active_bounds: List[Bound]) -> int:
+        shifted = False
+        result = bound_index
+        bound = active_bounds[bound_index]
+        is_maxima_edge = bound.is_maxima(scanline_y)
+        maximum_bound_index = len(active_bounds)
+        if is_maxima_edge:
+            maximum_bound_index = find(bound.maximum_bound, active_bounds)
+        hot_pixel_index = self.current_hot_pixel_index
+        while (hot_pixel_index < len(self.hot_pixels)
+               and (self.hot_pixels[hot_pixel_index].y > scanline_y
+                    or self.hot_pixels[hot_pixel_index].y == scanline_y
+                    and (self.hot_pixels[hot_pixel_index].x
+                         < bound.current_edge.bottom.x))):
+            hot_pixel_index += 1
+        next_bound_index = bound_index + 1
+        while next_bound_index < len(active_bounds):
+            next_bound = active_bounds[next_bound_index]
+            if next_bound is None:
+                next_bound_index += 1
+                continue
+            # insert extra coordinates into horizontal edges
+            # (in output polygons)
+            # wherever hot pixels touch these horizontal edges,
+            # this helps 'simplifying' polygons
+            # (i.e. if the simplify property is set)
+            while (hot_pixel_index < len(self.hot_pixels)
+                   and self.hot_pixels[hot_pixel_index].y == scanline_y
+                   and (self.hot_pixels[hot_pixel_index].x
+                        < round_half_up(next_bound.current_x))
+                   and (self.hot_pixels[hot_pixel_index].x
+                        < bound.current_edge.top.x)):
+                if bound.ring is not None:
+                    self.add_point_to_ring(bound,
+                                           self.hot_pixels[hot_pixel_index])
+                hot_pixel_index += 1
+            if are_floats_greater_than(next_bound.current_x,
+                                       float(bound.current_edge.top.x)):
+                break
+            # break if we've got to the end of an intermediate horizontal edge,
+            # smaller dx's are to the right of larger dx's above the horizontal
+            if (round_half_up(next_bound.current_x) == bound.current_edge.top.x
+                    and bound.next_edge_index < len(bound.edges)
+                    and bound.current_edge.slope < bound.next_edge.slope):
+                break
+            # may be done multiple times
+            if bound.ring is not None:
+                self.add_point_to_ring(
+                        bound,
+                        Point(round_half_up(next_bound.current_x), scanline_y))
+            # so far we're still in range of the horizontal edge
+            # but make sure we're at the last of consecutive horizontals
+            # when matching with maximum bound
+            if is_maxima_edge and next_bound_index == maximum_bound_index:
+                if bound.ring is not None and next_bound.ring is not None:
+                    self.add_local_maximum_point(bound.current_edge.top, bound,
+                                                 next_bound, active_bounds)
+                active_bounds[maximum_bound_index] = None
+                active_bounds[bound_index] = None
+                return result + (not shifted)
+            self.intersect_bounds(Point(round_half_up(next_bound.current_x),
+                                        scanline_y), operation_kind,
+                                  subject_fill_kind, clip_fill_kind, bound,
+                                  next_bound, active_bounds)
+            active_bounds[bound_index], active_bounds[next_bound_index] = (
+                active_bounds[next_bound_index], active_bounds[bound_index])
+            bound_index = next_bound_index
+            bound = active_bounds[bound_index]
+            next_bound_index += 1
+            shifted = True
+        if bound.ring is not None:
+            while (hot_pixel_index < len(self.hot_pixels)
+                   and self.hot_pixels[hot_pixel_index].y == scanline_y
+                   and (self.hot_pixels[hot_pixel_index].x
+                        < bound.current_edge.top.x)):
+                self.add_point_to_ring(bound, self.hot_pixels[hot_pixel_index])
+                hot_pixel_index += 1
+        if bound.ring is not None:
+            self.add_point_to_ring(bound, bound.current_edge.top)
+        if bound.next_edge_index < len(bound.edges):
+            bound.to_next_edge(scanbeams)
+        else:
+            active_bounds[bound_index] = None
+        return result + (not shifted)
 
     def process_hot_pixel_edges_at_top_of_scanbeam(self,
                                                    top_y: Coordinate,
