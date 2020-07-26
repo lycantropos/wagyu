@@ -743,6 +743,21 @@ class RingManager:
                 first_bound.side, second_bound.side = (second_bound.side,
                                                        first_bound.side)
 
+    def process_horizontal(self,
+                           operation_kind: OperationKind,
+                           subject_fill_kind: FillKind,
+                           clip_fill_kind: FillKind,
+                           scanline_y: Coordinate,
+                           scanbeams: List[Coordinate],
+                           bound_index: int,
+                           active_bounds: List[Bound]) -> int:
+        bound = active_bounds[bound_index]
+        return (self.process_horizontal_left_to_right
+                if bound.current_edge.bottom.x < bound.current_edge.top.x
+                else self.process_horizontal_right_to_left)(
+                operation_kind, subject_fill_kind, clip_fill_kind, scanline_y,
+                scanbeams, bound_index, active_bounds)
+
     def process_horizontal_left_to_right(self,
                                          operation_kind: OperationKind,
                                          subject_fill_kind: FillKind,
