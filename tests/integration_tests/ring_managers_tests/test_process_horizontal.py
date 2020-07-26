@@ -35,11 +35,11 @@ def test_basic(pair: BoundPortedRingManagersPair,
     bound_scanbeams, ported_scanbeams = scanbeams, scanbeams[:]
 
     (bound_active_bounds, bound_scanbeams,
-     bound_result) = bound.process_horizontal_left_to_right(
+     bound_result) = bound.process_horizontal(
             bound_operation_kind, bound_subject_fill_kind,
             bound_clip_fill_kind, scanline_y, bound_scanbeams, index,
             bound_active_bounds)
-    ported_result = ported.process_horizontal_left_to_right(
+    ported_result = ported.process_horizontal(
             ported_operation_kind, ported_subject_fill_kind,
             ported_clip_fill_kind, scanline_y, ported_scanbeams, index,
             ported_active_bounds)
