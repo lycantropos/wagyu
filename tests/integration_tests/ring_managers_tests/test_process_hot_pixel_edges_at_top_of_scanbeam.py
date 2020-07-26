@@ -12,7 +12,7 @@ from . import strategies
 
 
 @given(strategies.ring_managers_pairs,
-       strategies.non_empty_initialized_bounds_lists_pairs_scanbeams_top_y)
+       strategies.non_empty_initialized_bounds_lists_pairs_scanbeams_ys)
 def test_basic(pair: BoundPortedRingManagersPair,
                active_bounds_pair_scanbeams_top_y
                : Tuple[BoundPortedBoundsListsPair, List[Coordinate],
