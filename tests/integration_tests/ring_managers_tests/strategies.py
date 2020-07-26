@@ -229,14 +229,21 @@ non_empty_initialized_bounds_lists_pairs_scanbeams_ys = (
             to_lists_pairs_scanbeams_ys))
 
 
-def to_bounds_lists_pairs_indices(
+def to_lists_pairs_scanbeams_ys_indices(
         bounds_lists_pair: BoundPortedBoundsListsPair
-) -> Strategy[Tuple[BoundPortedBoundsListsPair, int]]:
-    bound, _ = bounds_lists_pair
+) -> Strategy[Tuple[BoundPortedBoundsListsPair, List[Coordinate], Coordinate,
+                    int]]:
+    bound_list, _ = bounds_lists_pair
+    top_ys = [edge.top.y for bound in bound_list for edge in bound.edges]
     return strategies.tuples(strategies.just(bounds_lists_pair),
-                             strategies.integers(0, len(bound) - 1))
+                             subsequences(top_ys),
+                             strategies.sampled_from(top_ys),
+                             strategies.integers(0, len(bound_list) - 1))
 
 
+non_empty_initialized_non_empty_bounds_lists_pairs_scanbeams_ys_indices = (
+    non_empty_initialized_non_empty_bounds_lists_pairs.flatmap(
+            to_lists_pairs_scanbeams_ys_indices))
 non_empty_initialized_bounds_lists_pairs_indices = (
     non_empty_initialized_bounds_lists_pairs.flatmap(
             to_bounds_lists_pairs_indices))
