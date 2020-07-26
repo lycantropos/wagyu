@@ -317,6 +317,45 @@ class RingManager:
         active_bounds[bound_index] = active_bounds[bound_maximum_index] = None
         return result + (not skipped)
 
+    def execute_vatti(self,
+                      minimums: LocalMinimumList,
+                      operation_kind: OperationKind,
+                      subject_fill_kind: FillKind,
+                      clip_fill_kind: FillKind) -> None:
+        sorted_minimums = sorted(minimums,
+                                 reverse=True)
+        scanbeams = minimums.scanbeams
+        active_bounds = []  # type: List[Optional[Bound]]
+        self.current_hot_pixel_index = 0
+        minimums_index = 0
+        scanline_y = math.inf
+        while scanbeams or minimums_index < len(minimums):
+            try:
+                scanline_y = scanbeams.pop()
+            except IndexError:
+                pass
+            self.process_intersections(scanline_y, operation_kind,
+                                       subject_fill_kind, clip_fill_kind,
+                                       active_bounds)
+            while (self.hot_pixels[self.current_hot_pixel_index].y
+                   > scanline_y):
+                self.current_hot_pixel_index += 1
+            # first we process bounds that has already been added
+            # to the active bound list -- if the active bound list is empty
+            # local minima that are at this scanline_y and have
+            # a horizontal edge at the local minima will be processed
+            active_bounds, minimums_index = (
+                self.process_edges_at_top_of_scanbeam(
+                        operation_kind, subject_fill_kind, clip_fill_kind,
+                        scanline_y, scanbeams, active_bounds, minimums_index,
+                        sorted_minimums))
+            # next we will add local minima bounds to the active bounds list
+            # that are on the local minima queue at this current scanline_y
+            minimums_index = self.insert_local_minima_into_abl(
+                    operation_kind, subject_fill_kind, clip_fill_kind,
+                    scanline_y, scanbeams, sorted_minimums, minimums_index,
+                    active_bounds)
+
     def horizontals_at_top_scanbeam(self,
                                     top_y: Coordinate,
                                     active_bounds: List[Bound],
