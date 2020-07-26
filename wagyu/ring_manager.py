@@ -880,7 +880,7 @@ class RingManager:
             if prev_bound is None:
                 prev_bound_index -= 1
                 continue
-            while (hot_pixel_index < len(self.hot_pixels)
+            while (hot_pixel_index >= 0
                    and self.hot_pixels[hot_pixel_index].y == scanline_y
                    and (self.hot_pixels[hot_pixel_index].x
                         > round_half_up(prev_bound.current_x))
@@ -889,7 +889,7 @@ class RingManager:
                 if bound.ring is not None:
                     self.add_point_to_ring(bound,
                                            self.hot_pixels[hot_pixel_index])
-                hot_pixel_index += 1
+                hot_pixel_index -= 1
             if are_floats_less_than(prev_bound.current_x,
                                     float(bound.current_edge.top.x)):
                 break
@@ -923,12 +923,12 @@ class RingManager:
             bound_index = prev_bound_index
             prev_bound_index -= 1
         if bound.ring is not None:
-            while (hot_pixel_index < len(self.hot_pixels)
+            while (hot_pixel_index >= 0
                    and self.hot_pixels[hot_pixel_index].y == scanline_y
                    and (self.hot_pixels[hot_pixel_index].x
                         > bound.current_edge.top.x)):
                 self.add_point_to_ring(bound, self.hot_pixels[hot_pixel_index])
-                hot_pixel_index += 1
+                hot_pixel_index -= 1
         if bound.ring is not None:
             self.add_point_to_ring(bound, bound.current_edge.top)
         if bound.next_edge_index < len(bound.edges):
