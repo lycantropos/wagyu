@@ -529,7 +529,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def("__repr__", repr<Polygon>)
       .def("__len__", to_size<Polygon>)
       .def("__getitem__", to_item<Polygon>, py::arg("index"))
-      .def("__iter__", to_iterator<Polygon>, py::keep_alive<0, 1>());
+      .def("__iter__", to_iterator<Polygon>, py::keep_alive<0, 1>())
+      .def("append",
+           mapbox::geometry::wagyu::push_ring_to_polygon<coordinate_t,
+                                                         coordinate_t>);
 
   py::class_<Multipolygon>(m, MULTIPOLYGON_NAME)
       .def(py::init<>())
