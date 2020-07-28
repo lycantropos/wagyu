@@ -1146,6 +1146,31 @@ class RingManager:
             active_bounds[first_index], active_bounds[second_index] = (
                 active_bounds[second_index], active_bounds[first_index])
 
+    def remove_ring_and_points(self,
+                               ring: Ring,
+                               remove_children: bool = True,
+                               remove_from_parent: bool = True) -> None:
+        for index, child in enumerate(ring.children):
+            if child is None:
+                continue
+            if remove_children:
+                self.remove_ring_and_points(child, True, False)
+            ring.children[index] = None
+        if remove_from_parent:
+            # remove the old child relationship
+            remove_from_children(ring,
+                                 self.children
+                                 if ring.parent is None
+                                 else ring.parent.children)
+        node = ring.node
+        if node is not None:
+            node.prev.next = None
+            while node is not None:
+                node.prev, node.next, node.ring, node = (None, None, None,
+                                                         node.next)
+        ring.node = None
+        ring.reset_stats()
+
     def replace_ring(self,
                      original: Optional[Ring],
                      replacement: Ring) -> None:
