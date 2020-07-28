@@ -267,6 +267,18 @@ class RingManager:
     def build_result(self, reverse_output: bool) -> Multipolygon:
         return Multipolygon.from_rings(self.rings, reverse_output)
 
+    def correct_orientations(self) -> None:
+        for ring in self.rings:
+            if ring.node is None:
+                continue
+            ring.recalculate_stats()
+            if ring.size < 3:
+                self.remove_ring_and_points(ring, False)
+                continue
+            if is_odd(ring.depth) is not ring.is_hole:
+                ring.node.reverse()
+                ring.recalculate_stats()
+
     def create_point_node(self, ring: Optional[Ring], point: Point,
                           before_this_point: Optional[PointNode] = None
                           ) -> PointNode:
