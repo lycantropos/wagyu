@@ -1194,54 +1194,54 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            mapbox::geometry::wagyu::create_new_ring<coordinate_t>)
       .def(
           "assign_as_child",
-          [](RingManager& manager, RingPtr ring, RingPtr parent) {
+          [](RingManager& self, RingPtr ring, RingPtr parent) {
             mapbox::geometry::wagyu::assign_as_child<coordinate_t>(ring, parent,
-                                                                   manager);
+                                                                   self);
           },
           py::arg("ring").none(false), py::arg("parent").none(true))
       .def(
           "reassign_as_child",
-          [](RingManager& manager, RingPtr ring, RingPtr parent) {
+          [](RingManager& self, RingPtr ring, RingPtr parent) {
             mapbox::geometry::wagyu::reassign_as_child<coordinate_t>(
-                ring, parent, manager);
+                ring, parent, self);
           },
           py::arg("ring").none(false), py::arg("parent").none(true))
       .def(
           "assign_as_sibling",
-          [](RingManager& manager, RingPtr ring, RingPtr sibling) {
+          [](RingManager& self, RingPtr ring, RingPtr sibling) {
             mapbox::geometry::wagyu::assign_as_sibling<coordinate_t>(
-                ring, sibling, manager);
+                ring, sibling, self);
           },
           py::arg("ring").none(false), py::arg("sibling").none(false))
       .def(
           "reassign_as_sibling",
-          [](RingManager& manager, RingPtr ring, RingPtr sibling) {
+          [](RingManager& self, RingPtr ring, RingPtr sibling) {
             mapbox::geometry::wagyu::reassign_as_sibling<coordinate_t>(
-                ring, sibling, manager);
+                ring, sibling, self);
           },
           py::arg("ring").none(false), py::arg("sibling").none(false))
       .def(
           "replace_ring",
-          [](RingManager& manager, RingPtr original, RingPtr replacement) {
+          [](RingManager& self, RingPtr original, RingPtr replacement) {
             mapbox::geometry::wagyu::ring1_replaces_ring2<coordinate_t>(
-                replacement, original, manager);
+                replacement, original, self);
           },
           py::arg("original").none(true), py::arg("replacement").none(false))
       .def(
           "remove_ring_and_points",
-          [](RingManager& manager, RingPtr ring, bool remove_children = true,
+          [](RingManager& self, RingPtr ring, bool remove_children = true,
              bool remove_from_parent = true) {
             mapbox::geometry::wagyu::remove_ring_and_points<coordinate_t>(
-                ring, manager, remove_children, remove_from_parent);
+                ring, self, remove_children, remove_from_parent);
           },
           py::arg("ring").none(false), py::arg("remove_children") = true,
           py::arg("remove_from_parent") = true)
       .def(
           "remove_ring",
-          [](RingManager& manager, RingPtr ring, bool remove_children = true,
+          [](RingManager& self, RingPtr ring, bool remove_children = true,
              bool remove_from_parent = true) {
             mapbox::geometry::wagyu::remove_ring<coordinate_t>(
-                ring, manager, remove_children, remove_from_parent);
+                ring, self, remove_children, remove_from_parent);
           },
           py::arg("ring").none(false), py::arg("remove_children") = true,
           py::arg("remove_from_parent") = true)
