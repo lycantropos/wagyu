@@ -135,7 +135,3 @@ class LinearRing(abc.Sequence):
                         del result[-1]
                     modified = True
         return result
-
-
-Polygon = List[LinearRing]
-Multipolygon = List[Polygon]

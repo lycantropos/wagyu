@@ -4,10 +4,10 @@ from reprit.base import generate_repr
 
 from .box import Box
 from .enums import PolygonKind
-from .linear_ring import (LinearRing,
-                          Polygon)
+from .linear_ring import LinearRing
 from .local_minimum import LocalMinimumList
 from .point import Point
+from .polygon import Polygon
 
 
 class Wagyu:
@@ -72,8 +72,8 @@ class Wagyu:
     def add_polygon(self,
                     polygon: Polygon,
                     polygon_kind: PolygonKind) -> bool:
-        return any(self.add_linear_ring(ring, polygon_kind)
-                   for ring in polygon)
+        return any(self.add_linear_ring(linear_ring, polygon_kind)
+                   for linear_ring in polygon)
 
     def clear(self) -> None:
         self.minimums.clear()

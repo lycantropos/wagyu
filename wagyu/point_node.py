@@ -39,6 +39,14 @@ class PointNode:
             if cursor is self:
                 break
 
+    def __reversed__(self) -> Iterator['PointNode']:
+        cursor = self
+        while True:
+            yield cursor
+            cursor = cursor.prev
+            if cursor is self:
+                break
+
     @classmethod
     def from_point(cls, point: Point) -> 'PointNode':
         return PointNode(point.x, point.y)
