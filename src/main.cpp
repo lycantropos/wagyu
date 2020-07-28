@@ -961,6 +961,13 @@ PYBIND11_MODULE(MODULE_NAME, m) {
              mapbox::geometry::wagyu::build_hot_pixels<coordinate_t>(minimums,
                                                                      self);
            })
+      .def("build_result",
+           [](RingManager const& self, bool reverse_output) {
+             auto* result = new Multipolygon{};
+             mapbox::geometry::wagyu::build_result<coordinate_t>(
+                 *result, self, reverse_output);
+             return result;
+           })
       .def(
           "insert_local_minima_into_abl",
           [](RingManager& self, OperationKind operation_kind,
