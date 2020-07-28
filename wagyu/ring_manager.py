@@ -26,6 +26,7 @@ from .point import Point
 from .point_node import (PointNode,
                          maybe_point_node_to_points,
                          point_node_to_point)
+from .polygon import Multipolygon
 from .ring import (Ring,
                    remove_from_children,
                    set_to_children)
@@ -262,6 +263,9 @@ class RingManager:
             active_bounds = self.process_hot_pixel_edges_at_top_of_scanbeam(
                     scanline_y, scanbeams, active_bounds)
         self.sort_hot_pixels()
+
+    def build_result(self, reverse_output: bool) -> Multipolygon:
+        return Multipolygon.from_rings(self.rings, reverse_output)
 
     def create_point_node(self, ring: Optional[Ring], point: Point,
                           before_this_point: Optional[PointNode] = None
