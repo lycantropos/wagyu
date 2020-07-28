@@ -29,7 +29,34 @@ class Polygon(abc.Sequence):
                                                            reverse_output))
 
 
-Multipolygon = List[Polygon]
+class Multipolygon(abc.Sequence):
+    __slots__ = 'polygons',
+
+    def __init__(self, polygons: List[Polygon]) -> None:
+        self.polygons = polygons
+
+    def __getitem__(self, index: int) -> Polygon:
+        return self.polygons[index]
+
+    def __len__(self) -> int:
+        return len(self.polygons)
+
+    def extend(self,
+               rings: List[Optional[Ring]],
+               reverse_output: bool) -> None:
+        for ring in rings:
+            if ring is None:
+                continue
+            self.polygons.append(Polygon.from_ring(ring, reverse_output))
+            for child in ring.children:
+                if child is None:
+                    continue
+                self.polygons.append(Polygon.from_ring(child, reverse_output))
+            for child in ring.children:
+                if child is None:
+                    continue
+                if child.children:
+                    self.extend(child.children, reverse_output)
 
 
 def point_node_to_linear_ring(node: PointNode,
