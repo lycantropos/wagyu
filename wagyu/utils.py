@@ -88,8 +88,8 @@ def round_half_up(number: Coordinate) -> int:
     return int(Decimal(number).quantize(0, ROUND_HALF_UP))
 
 
-def is_even(number: int) -> bool:
-    return not (number % 2)
+def is_odd(number: int) -> bool:
+    return bool(number % 2)
 
 
 def quicksort(sequence: MutableSequence[Domain],

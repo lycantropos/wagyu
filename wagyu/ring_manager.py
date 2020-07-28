@@ -35,7 +35,7 @@ from .utils import (are_floats_greater_than,
                     find,
                     find_if,
                     insort_unique,
-                    is_even,
+                    is_odd,
                     quicksort,
                     round_half_up)
 
@@ -225,8 +225,8 @@ class RingManager:
                 p1_lft.prev = p2_rt
                 p2_rt.next = p1_lft
         keep_ring.bottom_node = None
-        keep_is_hole = is_even(keep_ring.depth)
-        remove_is_hole = is_even(remove_ring.depth)
+        keep_is_hole = is_odd(keep_ring.depth)
+        remove_is_hole = is_odd(remove_ring.depth)
         if keep_is_hole is not remove_is_hole:
             self.replace_ring(keep_ring.parent, remove_ring)
         else:
