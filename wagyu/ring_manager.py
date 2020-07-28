@@ -1185,10 +1185,10 @@ class RingManager:
             set_to_children(child, original_children)
             replacement.children[index] = None
         # remove the old child relationship
-        old_children = (self.children
-                        if replacement.parent is None
-                        else replacement.parent.children)
-        remove_from_children(replacement, old_children)
+        remove_from_children(replacement,
+                             self.children
+                             if replacement.parent is None
+                             else replacement.parent.children)
         replacement.node = None
         replacement.reset_stats()
 
