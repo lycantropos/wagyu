@@ -1,5 +1,6 @@
 from collections import abc
-from typing import (List,
+from typing import (Iterable,
+                    List,
                     Optional)
 
 from .linear_ring import LinearRing
@@ -41,22 +42,32 @@ class Multipolygon(abc.Sequence):
     def __len__(self) -> int:
         return len(self.polygons)
 
+    @classmethod
+    def from_rings(cls,
+                   rings: List[Optional[Ring]],
+                   reverse_output: bool) -> 'Multipolygon':
+        return cls(list(rings_to_polygons(rings, reverse_output)))
+
     def extend(self,
                rings: List[Optional[Ring]],
                reverse_output: bool) -> None:
-        for ring in rings:
-            if ring is None:
+        self.polygons.extend(rings_to_polygons(rings, reverse_output))
+
+
+def rings_to_polygons(rings: Iterable[Optional[Ring]],
+                      reverse_output: bool) -> Iterable[Polygon]:
+    for ring in rings:
+        if ring is None:
+            continue
+        yield Polygon.from_ring(ring, reverse_output)
+        for child in ring.children:
+            if child is None:
                 continue
-            self.polygons.append(Polygon.from_ring(ring, reverse_output))
-            for child in ring.children:
-                if child is None:
-                    continue
-                self.polygons.append(Polygon.from_ring(child, reverse_output))
-            for child in ring.children:
-                if child is None:
-                    continue
-                if child.children:
-                    self.extend(child.children, reverse_output)
+            yield Polygon.from_ring(child, reverse_output)
+        for child in ring.children:
+            if child is None:
+                continue
+            yield from rings_to_polygons(child.children, reverse_output)
 
 
 def point_node_to_linear_ring(node: PointNode,
