@@ -984,6 +984,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
             return py::make_tuple(active_bounds, scanbeams,
                                   minimums_itr - minimums_ptr.begin());
           })
+      .def("correct_topology",
+           mapbox::geometry::wagyu::correct_topology<coordinate_t>)
       .def("insert_horizontal_local_minima_into_abl",
            [](RingManager& self, OperationKind operation_kind,
               FillKind subject_fill_kind, FillKind clip_fill_kind,
