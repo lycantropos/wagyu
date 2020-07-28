@@ -39,6 +39,14 @@ class PointNode:
             if cursor is self:
                 break
 
+    def __lt__(self, other: 'PointNode') -> bool:
+        if self.y != other.y:
+            return self.y < other.y
+        elif other.x != self.x:
+            return self.x > other.x
+        else:
+            return self.ring.depth < other.ring.depth
+
     def __reversed__(self) -> Iterator['PointNode']:
         cursor = self
         while True:
