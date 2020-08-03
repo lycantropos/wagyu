@@ -165,3 +165,7 @@ def point_node_to_point(node: PointNode) -> Point:
 def maybe_point_node_to_points(node: Optional[PointNode]) -> List[Point]:
     return [] if node is None else [Point(sub_node.x, sub_node.y)
                                     for sub_node in node]
+
+
+def node_key(node: PointNode) -> Tuple[Coordinate, Coordinate]:
+    return -node.y, node.x
