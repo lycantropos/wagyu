@@ -904,6 +904,9 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               result->push_back(point_node_to_points(&node));
             return result;
           })
+      .def_property_readonly(
+          "sorted_rings",
+          mapbox::geometry::wagyu::sort_rings_smallest_to_largest<coordinate_t>)
       .def_readonly("index", &RingManager::index)
       .def("add_first_point",
            [](RingManager& self, std::size_t bound_index,
