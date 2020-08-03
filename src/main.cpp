@@ -1008,6 +1008,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           })
       .def("correct_orientations",
            mapbox::geometry::wagyu::correct_orientations<coordinate_t>)
+      .def("correct_self_intersections",
+           mapbox::geometry::wagyu::correct_self_intersections<coordinate_t>)
       .def("correct_topology",
            mapbox::geometry::wagyu::correct_topology<coordinate_t>)
       .def("insert_horizontal_local_minima_into_abl",
