@@ -24,6 +24,10 @@ def are_floats_less_than(x: float, y: float) -> bool:
     return not are_floats_almost_equal(x, y) and x < y
 
 
+def is_float_almost_zero(value: float) -> bool:
+    return are_floats_almost_equal(value, 0.)
+
+
 def are_floats_almost_equal(left: float, right: float,
                             *,
                             max_ulps: int = 4) -> bool:

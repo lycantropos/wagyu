@@ -33,3 +33,10 @@ class OperationKind(Base):
 class PolygonKind(Base):
     SUBJECT = 0
     CLIP = 1
+
+
+@unique
+class PointInPolygonResult(IntEnum):
+    ON = -1
+    INSIDE = 0
+    OUTSIDE = 1

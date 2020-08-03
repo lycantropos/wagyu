@@ -7,10 +7,12 @@ from reprit.base import generate_repr
 
 from .box import Box
 from .edge import Edge
+from .enums import PointInPolygonResult
 from .hints import Coordinate
 from .point import Point
 from .utils import (are_floats_almost_equal,
-                    are_floats_greater_than_or_equal)
+                    are_floats_greater_than_or_equal,
+                    is_float_almost_zero)
 
 
 class PointNode:
@@ -159,3 +161,82 @@ def maybe_point_node_to_points(node: Optional[PointNode]) -> List[Point]:
 
 def node_key(node: PointNode) -> Tuple[Coordinate, Coordinate]:
     return -node.y, node.x
+
+
+def point_in_polygon(pt: Point, op: PointNode) -> PointInPolygonResult:
+    result = PointInPolygonResult.OUTSIDE
+    start_op = op
+    while True:
+        if op.next.y == pt.y and (op.next.x == pt.x or op.y == pt.y
+                                  and ((op.next.x > pt.x) is (op.x < pt.x))):
+            return PointInPolygonResult.ON
+        if (op.y < pt.y) is not (op.next.y < pt.y):
+            if op.x >= pt.x:
+                if op.next.x > pt.x:
+                    # switch between point outside polygon
+                    # and point inside polygon
+                    result = (PointInPolygonResult.INSIDE
+                              if result is PointInPolygonResult.OUTSIDE
+                              else PointInPolygonResult.OUTSIDE)
+                else:
+                    d = ((op.x - pt.x) * (op.next.y - pt.y)
+                         - (op.next.x - pt.x) * (op.y - pt.y))
+                    if is_float_almost_zero(d):
+                        return PointInPolygonResult.ON
+                    if (d > 0) is (op.next.y > op.y):
+                        result = (PointInPolygonResult.INSIDE
+                                  if result is PointInPolygonResult.OUTSIDE
+                                  else PointInPolygonResult.OUTSIDE)
+            else:
+                if op.next.x > pt.x:
+                    d = ((op.x - pt.x) * (op.next.y - pt.y)
+                         - (op.next.x - pt.x) * (op.y - pt.y))
+                    if is_float_almost_zero(d):
+                        return PointInPolygonResult.ON
+                    if (d > 0) is (op.next.y > op.y):
+                        result = (PointInPolygonResult.INSIDE
+                                  if result is PointInPolygonResult.OUTSIDE
+                                  else PointInPolygonResult.OUTSIDE)
+        op = op.next
+        if op is start_op:
+            break
+    return result
+
+
+def inside_or_outside_special(first_polygon: PointNode,
+                              other_polygon: PointNode
+                              ) -> PointInPolygonResult:
+    # we are going to loop through all the points of the original triangle,
+    # the goal is to find a convex edge that with its next and previous
+    # forms a triangle with its centroid that is within the first ring,
+    # then we will check the other polygon to see if it is within this polygon
+    cursor = first_polygon
+    while True:
+        if is_convex(cursor):
+            centroid = points_centroid(cursor)
+            if (point_in_polygon(centroid, first_polygon)
+                    is PointInPolygonResult.INSIDE):
+                return point_in_polygon(centroid, other_polygon)
+        cursor = cursor.next
+        if cursor is first_polygon:
+            break
+    raise RuntimeError('Could not find a point within the polygon to test')
+
+
+def is_convex(node: PointNode) -> bool:
+    area = node.ring.area
+    prev_node = node.prev
+    next_node = node.next
+    delta_x = node.x - prev_node.x
+    delta_y = node.y - prev_node.y
+    next_delta_x = next_node.x - node.x
+    next_delta_y = next_node.y - node.y
+    cross = delta_x * next_delta_y - next_delta_x * delta_y
+    return cross < 0 < area or cross > 0 > area
+
+
+def points_centroid(node: PointNode) -> Point:
+    prev_node = node.prev
+    next_node = node.next
+    return Point((prev_node.x + node.x + next_node.x) / 3,
+                 (prev_node.y + node.y + next_node.y) / 3)

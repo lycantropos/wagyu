@@ -5,10 +5,13 @@ from typing import (List,
 from reprit.base import generate_repr
 
 from .box import Box
+from .enums import PointInPolygonResult
 from .point import Point
 from .point_node import (PointNode,
+                         inside_or_outside_special,
                          maybe_point_node_to_points,
-                         node_key)
+                         node_key,
+                         point_in_polygon)
 
 
 class Ring:
@@ -108,6 +111,24 @@ class Ring:
             return self
         else:
             return other
+
+    def inside_of(self, other: 'Ring') -> bool:
+        if not self.box.inside_of(other.box):
+            return False
+        if abs(other.area) < abs(self.area):
+            return False
+        first_out_node = self.node.next
+        second_out_node = other.node.next
+        cursor = first_out_node
+        while True:
+            result = point_in_polygon(cursor, second_out_node)
+            if result is not PointInPolygonResult.ON:
+                return result is PointInPolygonResult.INSIDE
+            cursor = cursor.next
+            if cursor is first_out_node:
+                break
+        result = inside_or_outside_special(first_out_node, second_out_node)
+        return result is PointInPolygonResult.INSIDE
 
     def is_descendant_of(self, other: 'Ring') -> bool:
         cursor = self.parent
