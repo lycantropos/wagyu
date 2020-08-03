@@ -23,7 +23,9 @@ class Ring:
         self.index = index
         self.parent = None  # type: Optional[Ring]
         self.children = children or []
-        self.node = None if not points else PointNode.from_points(points)
+        self.node = (None
+                     if not points
+                     else node_from_ring_points(points, self))
         self.bottom_node = None  # type: Optional[PointNode]
         self.corrected = corrected
         self.box = Box(Point(0, 0), Point(0, 0))  # type: Box
@@ -134,6 +136,18 @@ class Ring:
     def update_points(self) -> None:
         for node in self.node:
             node.ring = self
+
+
+def node_from_ring_points(points: List[Point], ring: Ring) -> PointNode:
+    points = reversed(points)
+    result = PointNode.from_point(next(points))
+    result.ring = ring
+    for point in points:
+        node = PointNode.from_point(point)
+        node.ring = ring
+        node.place_before(result)
+        result = node
+    return result
 
 
 def remove_from_children(ring: Ring, children: List[Optional[Ring]]) -> None:

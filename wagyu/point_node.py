@@ -57,17 +57,7 @@ class PointNode:
 
     @classmethod
     def from_point(cls, point: Point) -> 'PointNode':
-        return PointNode(point.x, point.y)
-
-    @classmethod
-    def from_points(cls, points: List[Point]) -> 'PointNode':
-        points = reversed(points)
-        result = cls.from_point(next(points))
-        for point in points:
-            node = cls.from_point(point)
-            node.place_before(result)
-            result = node
-        return result
+        return cls(point.x, point.y)
 
     @property
     def bottom_node(self) -> 'PointNode':
