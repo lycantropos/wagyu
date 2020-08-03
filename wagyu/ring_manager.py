@@ -104,6 +104,10 @@ class RingManager:
     def stored_points(self) -> List[List[Point]]:
         return [list(map(point_node_to_point, node)) for node in self.storage]
 
+    @property
+    def sorted_rings(self) -> List[Ring]:
+        return sorted(self.rings)
+
     def add_first_point(self, bound: Bound, active_bounds: List[Bound],
                         point: Point) -> None:
         ring = bound.ring = self.create_ring()

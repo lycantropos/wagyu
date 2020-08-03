@@ -47,6 +47,13 @@ class Ring:
                 if isinstance(other, Ring)
                 else NotImplemented)
 
+    def __lt__(self, other: 'Ring') -> bool:
+        return ((self.node is not None
+                 if self.node is None or other.node is None
+                 else abs(self.area) < abs(other.area))
+                if isinstance(other, Ring)
+                else NotImplemented)
+
     @property
     def area(self) -> float:
         if math.isnan(self._area):
