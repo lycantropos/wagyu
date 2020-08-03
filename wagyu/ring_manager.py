@@ -1158,6 +1158,58 @@ class RingManager:
             active_bounds[first_index], active_bounds[second_index] = (
                 active_bounds[second_index], active_bounds[first_index])
 
+    def remove_duplicate_points(self,
+                                first_node: PointNode,
+                                second_node: PointNode) -> bool:
+        if first_node.ring is second_node.ring:
+            if first_node.next is second_node:
+                first_node.next = second_node.next
+                first_node.next.prev = first_node
+                second_node.prev = second_node.next = second_node.ring = None
+                if first_node.ring.node is second_node:
+                    first_node.ring.node = first_node
+                return True
+            elif second_node.next is first_node:
+                first_node.prev = second_node.prev
+                first_node.prev.next = first_node
+                second_node.prev = second_node.next = second_node.ring = None
+                if first_node.ring.node is second_node:
+                    first_node.ring.node = first_node
+                return True
+        while (first_node.next == first_node
+               and first_node.next is not first_node):
+            outsider = first_node.prev
+            first_node.prev = outsider.prev
+            first_node.prev.next = first_node
+            outsider.prev = outsider.next = outsider.ring = None
+            if first_node.ring.node is outsider:
+                first_node.ring.node = first_node
+        if first_node.next is first_node:
+            self.remove_ring_and_points(first_node.ring, False)
+            return True
+        if second_node.ring is None:
+            return True
+        while (second_node.next == second_node
+               and second_node.next is not second_node):
+            outsider = second_node.next
+            second_node.next = outsider.next
+            second_node.next.prev = second_node
+            outsider.prev = outsider.next = outsider.ring = None
+            if second_node.ring.node is outsider:
+                second_node.ring.node = second_node
+        while (second_node.prev == second_node
+               and second_node.prev is not second_node):
+            outsider = second_node.prev
+            second_node.prev = outsider.prev
+            second_node.prev.next = second_node
+            outsider.prev = outsider.next = outsider.ring = None
+            if second_node.ring.node is outsider:
+                second_node.ring.node = second_node
+        if second_node.next is second_node:
+            self.remove_ring_and_points(second_node.ring, False)
+            return True
+        return first_node.ring is None
+
     def remove_ring_and_points(self,
                                ring: Ring,
                                remove_children: bool = True,
