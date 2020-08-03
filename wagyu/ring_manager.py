@@ -279,6 +279,35 @@ class RingManager:
                 ring.node.reverse()
                 ring.recalculate_stats()
 
+    def correct_self_intersection(self,
+                                  first_node: PointNode,
+                                  second_node: PointNode) -> Optional[Ring]:
+        if first_node.ring is not second_node.ring:
+            return None
+        ring = first_node.ring
+        # split the polygon into two
+        third_node = first_node.prev
+        fourth_node = second_node.prev
+        first_node.prev = fourth_node
+        fourth_node.next = first_node
+        second_node.prev = third_node
+        third_node.next = second_node
+        result = self.create_ring()
+        first_area, first_size, first_box = first_node.stats
+        second_area, second_size, second_box = second_node.stats
+        if abs(first_area) > abs(second_area):
+            ring.node = first_node
+            ring.set_stats(first_area, first_size, first_box)
+            result.node = second_node
+            result.set_stats(second_area, second_size, second_box)
+        else:
+            ring.node = second_node
+            ring.set_stats(second_area, second_size, second_box)
+            result.node = first_node
+            result.set_stats(first_area, first_size, first_box)
+        result.update_points()
+        return result
+
     def create_point_node(self, ring: Optional[Ring], point: Point,
                           before_this_point: Optional[PointNode] = None
                           ) -> PointNode:
