@@ -35,6 +35,7 @@ from .utils import (are_floats_greater_than,
                     find,
                     find_if,
                     insort_unique,
+                    is_float_almost_zero,
                     is_odd,
                     quicksort,
                     round_half_up)
@@ -247,6 +248,47 @@ class RingManager:
                 # from angus
                 break
 
+    def assign_as_child(self, new_ring: Ring, parent: Ring) -> None:
+        # assigning as a child assumes that this is a brand new ring,
+        # therefore it does not have any existing relationships
+        if ((parent is None and new_ring.is_hole)
+                or (parent is not None
+                    and new_ring.is_hole is parent.is_hole)):
+            raise RuntimeError('Trying to assign a child '
+                               'that is the same orientation as the parent')
+        children = self.children if parent is None else parent.children
+        set_to_children(new_ring, children)
+        new_ring.parent = parent
+
+    def assign_new_ring_parents(self,
+                                original_ring: Ring,
+                                new_rings: List[Ring]) -> List[Ring]:
+        new_rings = list(filter(lambda ring:
+                                (ring.node is not None
+                                 and not is_float_almost_zero(ring.area)),
+                                new_rings))
+        if not new_rings:
+            # no new rings created simply return;
+            return new_rings
+        # we should not have to re-assign the parent of the original ring
+        # because we always maintained the largest ring
+        # during splitting on repeated points
+        original_ring_area = original_ring.area
+        original_positive = original_ring_area > 0.
+
+        # if there is only one new ring the logic is very simple
+        # and we do not have to check which ring contains,
+        # we only need to compare the areas of the original ring
+        # and that of the new ring
+        if len(new_rings) == 1:
+            new_ring = new_rings[0]
+            new_ring_area = new_ring.area
+            new_positive = new_ring_area > 0.
+            if original_positive is new_positive:
+                # rings should be siblings
+                self.assign_as_child(new_ring, original_ring.parent)
+        return new_rings
+
     def build_hot_pixels(self, minimums: LocalMinimumList) -> None:
         sorted_minimums = sorted(minimums,
                                  reverse=True)
@@ -300,6 +342,18 @@ class RingManager:
                 if new_ring is not None:
                     new_rings.append(new_ring)
 
+    def correct_ring_self_intersections(self,
+                                        ring: Ring,
+                                        correct_tree: bool) -> bool:
+        if ring.corrected or ring.node is None:
+            return False
+        new_rings = []
+        self.find_and_correct_repeated_points(ring, new_rings)
+        if correct_tree:
+            self.assign_new_ring_parents(ring, new_rings)
+        ring.corrected = True
+        return True
+
     def correct_self_intersection(self,
                                   first_node: PointNode,
                                   second_node: PointNode) -> Optional[Ring]:
@@ -327,6 +381,13 @@ class RingManager:
             result.node = first_node
             result.set_stats(first_area, first_size, first_box)
         result.update_points()
+        return result
+
+    def correct_self_intersections(self, correct_tree: bool) -> bool:
+        result = False
+        for ring in self.sorted_rings:
+            if self.correct_ring_self_intersections(ring, correct_tree):
+                result = True
         return result
 
     def create_point_node(self, ring: Optional[Ring], point: Point,
