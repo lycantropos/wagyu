@@ -7,7 +7,8 @@ from reprit.base import generate_repr
 from .box import Box
 from .point import Point
 from .point_node import (PointNode,
-                         maybe_point_node_to_points)
+                         maybe_point_node_to_points,
+                         node_key)
 
 
 class Ring:
@@ -75,6 +76,11 @@ class Ring:
         if math.isnan(self._area):
             self.recalculate_stats()
         return self._size
+
+    @property
+    def sorted_nodes(self) -> List[PointNode]:
+        return sorted(self.node,
+                      key=node_key)
 
     def get_lowermost_ring(self, other: 'Ring') -> 'Ring':
         # work out which polygon fragment has the correct hole state ...
