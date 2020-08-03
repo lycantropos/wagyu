@@ -1230,6 +1230,22 @@ class RingManager:
             active_bounds[first_index], active_bounds[second_index] = (
                 active_bounds[second_index], active_bounds[first_index])
 
+    def reassign_as_child(self, ring: Ring, parent: Optional[Ring]) -> None:
+        # reassigning a ring assumes it already has an existing parent
+        if ((parent is None and ring.is_hole)
+                or (parent is not None and ring.is_hole is parent.is_hole)):
+            raise RuntimeError('Trying to re-assign a child '
+                               'that is the same orientation as the parent')
+        # remove the old child relationship
+        old_children = (self.children
+                        if ring.parent is None
+                        else ring.parent.children)
+        remove_from_children(ring, old_children)
+        # add new child relationship
+        children = self.children if parent is None else parent.children
+        set_to_children(ring, children)
+        ring.parent = parent
+
     def remove_duplicate_points(self,
                                 first_node: PointNode,
                                 second_node: PointNode) -> bool:
