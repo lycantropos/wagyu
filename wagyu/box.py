@@ -16,3 +16,9 @@ class Box:
         return (self.minimum == other.minimum and self.maximum == other.maximum
                 if isinstance(other, Box)
                 else NotImplemented)
+
+    def inside_of(self, other: 'Box') -> bool:
+        return (other.minimum.x <= self.minimum.x
+                and other.minimum.y <= self.minimum.y
+                and other.maximum.x >= self.maximum.x
+                and other.maximum.y >= self.maximum.y)
