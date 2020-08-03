@@ -418,6 +418,32 @@ class RingManager:
                     scanline_y, scanbeams, sorted_minimums, minimums_index,
                     active_bounds)
 
+    def find_and_correct_repeated_points(self, ring: Ring,
+                                         new_rings: List[Ring]) -> None:
+        sorted_nodes = ring.sorted_nodes
+        count = 0
+        prev_index = 0
+        index = 1
+        while index < len(sorted_nodes):
+            prev_node, node = sorted_nodes[prev_index], sorted_nodes[index]
+            if prev_node == node:
+                count += 1
+                prev_index += 1
+                index += 1
+                if index < len(sorted_nodes):
+                    continue
+                else:
+                    prev_index += 1
+            else:
+                prev_index += 1
+                index += 1
+            if count == 0:
+                continue
+            first = prev_index - (count + 1)
+            self.correct_repeated_points(new_rings, sorted_nodes, first,
+                                         prev_index)
+            count = 0
+
     def horizontals_at_top_scanbeam(self,
                                     top_y: Coordinate,
                                     active_bounds: List[Bound],
