@@ -562,6 +562,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           }))
       .def(py::self == py::self)
       .def("__repr__", repr<Box>)
+      .def("inside_of",
+           mapbox::geometry::wagyu::box2_contains_box1<coordinate_t>)
       .def_readonly("minimum", &Box::min)
       .def_readonly("maximum", &Box::max);
 
