@@ -143,9 +143,9 @@ def remove_from_children(ring: Ring, children: List[Optional[Ring]]) -> None:
             return
 
 
-def set_to_children(r: Ring, children: List[Optional[Ring]]) -> None:
-    for index, c in enumerate(children):
-        if c is None:
-            children[index] = r
+def set_to_children(ring: Ring, children: List[Optional[Ring]]) -> None:
+    for index, child in enumerate(children):
+        if child is None:
+            children[index] = ring
             return
-    children.append(r)
+    children.append(ring)
