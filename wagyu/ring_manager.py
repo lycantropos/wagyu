@@ -279,6 +279,23 @@ class RingManager:
                 ring.node.reverse()
                 ring.recalculate_stats()
 
+    def correct_repeated_points(self,
+                                new_rings: List[Ring],
+                                nodes: List[PointNode],
+                                start: int,
+                                stop: int) -> None:
+        for index in range(start, stop):
+            node = nodes[index]
+            if node.ring is None:
+                continue
+            for next_index in range(index + 1, stop):
+                next_node = nodes[next_index]
+                if next_node.ring is None:
+                    continue
+                new_ring = self.correct_self_intersection(node, next_node)
+                if new_ring is not None:
+                    new_rings.append(new_ring)
+
     def correct_self_intersection(self,
                                   first_node: PointNode,
                                   second_node: PointNode) -> Optional[Ring]:
