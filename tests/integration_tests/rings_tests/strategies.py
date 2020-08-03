@@ -18,3 +18,10 @@ maybe_rings_lists_pairs = (strategies.lists(maybe_rings_pairs)
 rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
                                 sizes, maybe_rings_lists_pairs,
                                 points_lists_pairs, booleans)
+non_empty_points_lists_pairs = (strategies.lists(points_pairs,
+                                                 min_size=1)
+                                .map(transpose_pairs))
+non_empty_rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
+                                          sizes, maybe_rings_lists_pairs,
+                                          non_empty_points_lists_pairs,
+                                          booleans)
