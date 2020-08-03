@@ -121,12 +121,16 @@ static const typename Sequence::value_type& to_item(const Sequence& sequence,
   return sequence[normalized_index];
 }
 
+static Point* point_node_to_point(const PointNode* node) {
+  return new Point(node->x, node->y);
+}
+
 static std::vector<const Point*>* point_node_to_points(const PointNode* node) {
   auto* result = new std::vector<const Point*>{};
   if (node == nullptr) return result;
   const auto* cursor = node;
   do {
-    result->push_back(new Point(cursor->x, cursor->y));
+    result->push_back(point_node_to_point(cursor));
     cursor = cursor->next;
   } while (cursor != node);
   return result;
