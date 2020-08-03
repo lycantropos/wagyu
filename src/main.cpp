@@ -625,6 +625,17 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                                return point_node_to_points(self.bottom_point);
                              })
       .def_readonly("corrected", &Ring::corrected)
+      .def_property_readonly(
+          "sorted_points",
+          [](RingPtr self) {
+            auto nodes =
+                mapbox::geometry::wagyu::sort_ring_points<coordinate_t>(self);
+            std::vector<const Point*> result;
+            result.reserve(nodes.size());
+            for (const auto* node : nodes)
+              result.push_back(point_node_to_point(node));
+            return result;
+          })
       .def_property_readonly("size", &Ring::size)
       .def_property_readonly("area", &Ring::area)
       .def_property_readonly("is_hole", &Ring::is_hole)
