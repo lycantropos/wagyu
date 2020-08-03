@@ -79,7 +79,7 @@ class PointNode:
                         dups = cursor
             cursor = cursor.next
         if dups is not None:
-            # there appears to be at least 2 vertices at bottom_point so ...
+            # there appears to be at least 2 vertices at bottom point
             while dups is not cursor:
                 if not cursor.is_bottom_to(dups):
                     node = dups
@@ -155,7 +155,7 @@ def point_node_to_point(node: PointNode) -> Point:
 
 
 def maybe_point_node_to_points(node: Optional[PointNode]) -> List[Point]:
-    return [] if node is None else [Point(sub_node.x, sub_node.y)
+    return [] if node is None else [point_node_to_point(sub_node)
                                     for sub_node in node]
 
 
@@ -240,3 +240,174 @@ def points_centroid(node: PointNode) -> Point:
     next_node = node.next
     return Point((prev_node.x + node.x + next_node.x) / 3,
                  (prev_node.y + node.y + next_node.y) / 3)
+
+
+def has_collinear_edge(first_node: PointNode, second_node: PointNode) -> bool:
+    # it is assumed pt_a and pt_b are at the same location
+    return (first_node.next == second_node.prev
+            or second_node.next == first_node.prev)
+
+
+def find_start_and_end_of_collinear_edges(pt_a: PointNode,
+                                          pt_b: PointNode
+                                          ) -> Tuple[PointNode, PointNode,
+                                                     PointNode, PointNode]:
+    # search backward on A, forwards on B first
+    same_ring = pt_a.ring is pt_b.ring
+    back = pt_a
+    forward = pt_b
+    first = True
+    while True:
+        while back.prev == back and back is not forward:
+            back = back.prev
+            if back is pt_a:
+                break
+        if back is forward:
+            back = back.prev
+            forward = forward.next
+            break
+        while forward.next == forward and back is not forward:
+            forward = forward.next
+            if forward is pt_b:
+                break
+        if first is None and (back is pt_a or forward is pt_b):
+            break
+        if back is forward:
+            back = back.prev
+            forward = forward.next
+            break
+        back = back.prev
+        forward = forward.next
+        first = False
+        if back != forward:
+            break
+    start_a = back.next
+    # if there are repeated points at the diverge
+    # we want to select only the first of those repeated points
+    while not same_ring and start_a == start_a.next and start_a is not pt_a:
+        start_a = start_a.next
+    end_b = forward.prev
+    while not same_ring and end_b == end_b.prev and end_b is not pt_b:
+        end_b = end_b.prev
+    # search backward on B, forwards on A next
+    back = pt_b
+    forward = pt_a
+    first = True
+    while True:
+        while back.prev == back and back is not forward:
+            back = back.prev
+            if back is pt_b:
+                break
+        if back is forward:
+            back = back.prev
+            forward = forward.next
+            break
+        while forward.next == forward and back is not forward:
+            forward = forward.next
+            if forward is pt_a:
+                break
+        if first is None and (back is pt_b or forward is pt_a):
+            break
+        if (back == forward or (
+                first is None and (back is end_b or forward is start_a))):
+            back = back.prev
+            forward = forward.next
+            break
+        back = back.prev
+        forward = forward.next
+        first = False
+        if back != forward:
+            break
+    start_b = back.next
+    while not same_ring and start_b == start_b.next and start_b is not pt_b:
+        start_b = start_b.next
+    end_a = forward.prev
+    while not same_ring and end_a == end_a.prev and end_a is not pt_a:
+        end_a = end_a.prev
+    return start_a, end_a, start_b, end_b
+
+
+def fix_collinear_path(path: Tuple[PointNode, PointNode, PointNode, PointNode]
+                       ) -> Tuple[Optional[PointNode], Optional[PointNode]]:
+    # Left and right are just the opposite ends of the
+    # collinear path, they may not be actually left
+    # and right of each other.
+    # The left end is start_1 and end_2
+    # The right end is start_2 and end_1
+
+    # NOTE spike detection is checking that the
+    # pointers are the same values, not position!
+    # additionally duplicate points we will treat
+    # if they are a spike left.
+    start_1, end_1, start_2, end_2 = path
+    spike_left = start_1 == end_2
+    spike_right = start_2 == end_1
+
+    if spike_left and spike_right:
+        # If both ends are spikes we should simply
+        # delete all the points. (they should be in a loop)
+        itr = start_1
+        while itr is not None:
+            itr.prev.next = None
+            itr.prev = None
+            itr.ring = None
+            itr = itr.next
+        return None, None
+    elif spike_left:
+        prev = start_2.prev
+        itr = start_2
+        while itr is not end_1:
+            itr.prev.next = None
+            itr.prev = None
+            itr.ring = None
+            itr = itr.next
+        prev.next = end_1
+        end_1.prev = prev
+        return end_1, None
+    elif spike_right:
+        prev = start_1.prev
+        itr = start_1
+        while itr is not end_2:
+            itr.prev.next = None
+            itr.prev = None
+            itr.ring = None
+            itr = itr.next
+
+        prev.next = end_2
+        end_2.prev = prev
+        return end_2, None
+    else:
+        prev_1 = start_1.prev
+        prev_2 = start_2.prev
+        itr = start_1
+        while True:
+            itr.prev.next = None
+            itr.prev = None
+            itr.ring = None
+            itr = itr.next
+            if itr is end_1 or itr is None:
+                break
+        itr = start_2
+        while True:
+            itr.prev.next = None
+            itr.prev = None
+            itr.ring = None
+            itr = itr.next
+            if itr is end_2 or itr is None:
+                break
+        if start_1 is end_1 and start_2 is end_2:
+            return None, None
+        elif start_1 is end_1:
+            prev_2.next = end_2
+            end_2.prev = prev_2
+            return end_2, None
+        elif start_2 == end_2:
+            prev_1.next = end_1
+            end_1.prev = prev_1
+            return end_1, None
+        else:
+            prev_1.next = end_2
+            end_2.prev = prev_1
+            prev_2.next = end_1
+            end_1.prev = prev_2
+            return end_1, end_2

@@ -24,6 +24,9 @@ from .local_minimum import (LocalMinimum,
                             LocalMinimumList)
 from .point import Point
 from .point_node import (PointNode,
+                         find_start_and_end_of_collinear_edges,
+                         fix_collinear_path,
+                         has_collinear_edge,
                          maybe_point_node_to_points,
                          point_node_to_point)
 from .polygon import Multipolygon
@@ -39,6 +42,10 @@ from .utils import (are_floats_greater_than,
                     is_odd,
                     quicksort,
                     round_half_up)
+
+
+def ring_have_points_and_non_zero_area(ring: Ring) -> bool:
+    return ring.node is not None and not is_float_almost_zero(ring.area)
 
 
 class RingManager:
@@ -263,10 +270,8 @@ class RingManager:
     def assign_new_ring_parents(self,
                                 original_ring: Ring,
                                 new_rings: List[Ring]) -> List[Ring]:
-        new_rings = list(filter(lambda ring:
-                                (ring.node is not None
-                                 and not is_float_almost_zero(ring.area)),
-                                new_rings))
+        # first lets remove any rings that have zero area or have no points
+        new_rings = list(filter(ring_have_points_and_non_zero_area, new_rings))
         if not new_rings:
             # no new rings created simply return;
             return new_rings
@@ -287,6 +292,69 @@ class RingManager:
             if original_positive is new_positive:
                 # rings should be siblings
                 self.assign_as_child(new_ring, original_ring.parent)
+                self.reassign_children_if_necessary(new_ring, original_ring,
+                                                    new_rings)
+            else:
+                self.assign_as_child(new_ring, original_ring)
+                self.reassign_children_if_necessary(new_ring,
+                                                    original_ring.parent,
+                                                    new_rings)
+            return new_rings
+        # sort rings by absolute area in descending order
+        # as we will assign the rings with the largest areas first
+        new_rings = sorted(new_rings,
+                           key=lambda ring: abs(ring.area),
+                           reverse=True)
+        for index, ring in enumerate(new_rings):
+            new_ring_area = ring.area
+            new_positive = new_ring_area > 0.
+            same_orientation = new_positive is original_positive
+            found = False
+            # first lets check the trees of any new_rings
+            # that might have been assigned as siblings to the original ring
+            for prev_index in range(0, index):
+                prev_ring = new_rings[prev_index]
+                if prev_ring.parent is not original_ring.parent:
+                    continue
+                if same_orientation:
+                    for prev_child in prev_ring.children:
+                        if prev_child is None:
+                            continue
+                        if self.find_parent_in_tree(ring, prev_child):
+                            self.reassign_children_if_necessary(
+                                    ring, original_ring, new_rings)
+                            found = True
+                            break
+                else:
+                    if self.find_parent_in_tree(ring, prev_ring):
+                        self.reassign_children_if_necessary(
+                                ring, original_ring.parent, new_rings)
+                        found = True
+                if found:
+                    break
+            if found:
+                continue
+            if same_orientation:
+                for original_child in original_ring.children:
+                    if original_child is None:
+                        continue
+                    if self.find_parent_in_tree(ring, original_child):
+                        self.reassign_children_if_necessary(
+                                ring, original_ring, new_rings)
+                        found = True
+                        break
+                if not found:
+                    # if we didn't find any parent and the same orientation
+                    # then it must be a sibling of the original ring
+                    self.assign_as_child(ring, original_ring.parent)
+                    self.reassign_children_if_necessary(ring, original_ring,
+                                                        new_rings)
+            else:
+                if self.find_parent_in_tree(ring, original_ring):
+                    self.reassign_children_if_necessary(
+                            ring, original_ring.parent, new_rings)
+                else:
+                    raise RuntimeError('Unable to find a proper parent ring')
         return new_rings
 
     def build_hot_pixels(self, minimums: LocalMinimumList) -> None:
@@ -504,10 +572,28 @@ class RingManager:
                 index += 1
             if count == 0:
                 continue
-            first = prev_index - (count + 1)
-            self.correct_repeated_points(new_rings, sorted_nodes, first,
+            first_index = prev_index - (count + 1)
+            self.correct_repeated_points(new_rings, sorted_nodes, first_index,
                                          prev_index)
             count = 0
+
+    def find_parent_in_tree(self, ring: Ring, possible_parent: Ring) -> bool:
+        # before starting this we are assuming that possible parent
+        # and ring have opposite signs of their areas
+
+        # first we must search all grandchildren
+        for child in possible_parent.children:
+            if child is None:
+                continue
+            for grand_child in child.children:
+                if grand_child is None:
+                    continue
+                if self.find_parent_in_tree(ring, grand_child):
+                    return True
+        if ring.inside_of(possible_parent):
+            self.reassign_as_child(ring, possible_parent)
+            return True
+        return False
 
     def horizontals_at_top_scanbeam(self,
                                     top_y: Coordinate,
@@ -935,6 +1021,79 @@ class RingManager:
                 first_bound.side, second_bound.side = (second_bound.side,
                                                        first_bound.side)
 
+    def process_collinear_edges(self,
+                                first_node: PointNode,
+                                second_node: PointNode) -> bool:
+        # neither point assigned to a ring (deleted points)
+        if first_node.ring is None or second_node.ring is None:
+            return False
+        if self.remove_duplicate_points(first_node, second_node):
+            return True
+        if not has_collinear_edge(first_node, second_node):
+            if first_node.ring is second_node.ring:
+                self.correct_self_intersection(first_node, second_node)
+                return True
+            return False
+        if first_node.ring is second_node.ring:
+            self.process_collinear_edges_same_ring(first_node, second_node)
+        else:
+            self.process_collinear_edges_different_rings(first_node,
+                                                         second_node)
+        return True
+
+    def process_collinear_edges_different_rings(self,
+                                                first_node: PointNode,
+                                                second_node: PointNode
+                                                ) -> None:
+        ring_a = first_node.ring
+        ring_b = second_node.ring
+        ring_a_larger = abs(ring_a.area()) > abs(ring_b.area())
+        path = find_start_and_end_of_collinear_edges(first_node, second_node)
+        # this should result in two rings becoming one
+        pt1, pt2 = fix_collinear_path(path)
+        if pt1 is None:
+            self.remove_ring(ring_a, False)
+            self.remove_ring(ring_b, False)
+            return
+        # rings should merge into a single ring of the same orientation,
+        # therefore we we will need to replace one ring with the other
+        merged_ring = ring_a if ring_a_larger else ring_b
+        deleted_ring = ring_b if ring_a_larger else ring_a
+        merged_ring.points = pt1
+        merged_ring.update_points()
+        merged_ring.recalculate_stats()
+        if merged_ring.size < 3:
+            self.remove_ring_and_points(merged_ring, False)
+        self.remove_ring(deleted_ring, False)
+
+    def process_collinear_edges_same_ring(self,
+                                          first_node: PointNode,
+                                          second_node: PointNode) -> None:
+        original_ring = first_node.ring
+        # as they are the same ring that are forming a collinear edge
+        # we should expect the creation of two different rings
+        path = find_start_and_end_of_collinear_edges(first_node, second_node)
+        pt1, pt2 = fix_collinear_path(path)
+        if pt1 is None:
+            # if pt1 is none, both values are nones,
+            # this mean the ring was removed during this processing
+            self.remove_ring(original_ring, False)
+        elif pt2 is None:
+            # if a single point is only returned, we simply removed a spike,
+            # in this case we don't need to worry about parent or children
+            # and we simply need to set the points and clear the area
+            original_ring.node = pt1
+            original_ring.recalculate_stats()
+        else:
+            # if we have two separate points,
+            # the ring has split into two different rings
+            ring_new = self.create_ring()
+            ring_new.node = pt2
+            ring_new.recalculate_stats()
+            ring_new.update_points()
+            original_ring.node = pt1
+            original_ring.recalculate_stats()
+
     def process_edges_at_top_of_scanbeam(self,
                                          operation_kind: OperationKind,
                                          subject_fill_kind: FillKind,
@@ -1311,6 +1470,21 @@ class RingManager:
         set_to_children(ring, children)
         ring.parent = parent
 
+    def reassign_children_if_necessary(self,
+                                       new_ring: Ring,
+                                       sibling_ring: Ring,
+                                       new_rings: List[Ring]) -> None:
+        children = (self.children
+                    if sibling_ring is None
+                    else sibling_ring.children)
+        for child in children:
+            if child is None:
+                continue
+            if find(child, new_rings) < len(new_rings):
+                continue
+            if child.inside_of(new_ring):
+                self.reassign_as_child(child, new_ring)
+
     def remove_duplicate_points(self,
                                 first_node: PointNode,
                                 second_node: PointNode) -> bool:
@@ -1362,6 +1536,25 @@ class RingManager:
             self.remove_ring_and_points(second_node.ring, False)
             return True
         return first_node.ring is None
+
+    def remove_ring(self, ring: Ring,
+                    remove_children: bool = True,
+                    remove_from_parent: bool = True) -> None:
+        # removes a ring and any children that might be under that ring
+        for index, child in enumerate(ring.children):
+            if child is None:
+                continue
+            if remove_children:
+                self.remove_ring(child, True, False)
+            ring.children[index] = None
+        if remove_from_parent:
+            # Remove the old child relationship
+            old_children = (self.children
+                            if ring.parent is None
+                            else ring.parent.children)
+            remove_from_children(ring, old_children)
+        ring.node = None
+        ring.reset_stats()
 
     def remove_ring_and_points(self,
                                ring: Ring,
