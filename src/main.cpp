@@ -1006,6 +1006,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
             return py::make_tuple(active_bounds, scanbeams,
                                   minimums_itr - minimums_ptr.begin());
           })
+      .def("correct_collinear_edges",
+           mapbox::geometry::wagyu::correct_collinear_edges<coordinate_t>)
       .def("correct_orientations",
            mapbox::geometry::wagyu::correct_orientations<coordinate_t>)
       .def("correct_self_intersections",
