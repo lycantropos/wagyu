@@ -648,8 +648,7 @@ class RingManager:
         prev_index = 0
         index = 1
         while index < len(sorted_nodes):
-            prev_node, node = sorted_nodes[prev_index], sorted_nodes[index]
-            if prev_node == node:
+            if sorted_nodes[prev_index] == sorted_nodes[index]:
                 count += 1
                 prev_index += 1
                 index += 1
