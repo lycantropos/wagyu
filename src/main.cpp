@@ -863,6 +863,10 @@ PYBIND11_MODULE(MODULE_NAME, m) {
                        const std::deque<Ring>& rings, std::size_t index) {
              auto result = std::make_unique<RingManager>(children, hot_pixels,
                                                          rings, index);
+             for (auto* ring : result->children)
+               mapbox::geometry::wagyu::update_points_ring<coordinate_t>(ring);
+             for (auto& ring : result->rings)
+               mapbox::geometry::wagyu::update_points_ring<coordinate_t>(&ring);
              set_ring_manager_current_hot_pixel_index(*result,
                                                       current_hot_pixel_index);
              return result;
