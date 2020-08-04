@@ -534,7 +534,7 @@ class RingManager:
             for reverse_index in range(index - 1, -1, -1):
                 # If orientations are not different, this can't be its parent.
                 reverse_ring = sorted_rings[reverse_index]
-                if reverse_ring.is_hole is reverse_ring.is_hole:
+                if ring.is_hole is reverse_ring.is_hole:
                     continue
                 if ring.inside_of(reverse_ring):
                     self.reassign_as_child(ring, reverse_ring)
