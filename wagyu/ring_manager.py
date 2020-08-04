@@ -381,6 +381,54 @@ class RingManager:
     def build_result(self, reverse_output: bool) -> Multipolygon:
         return Multipolygon.from_rings(self.rings, reverse_output)
 
+    def correct_collinear_edges(self) -> None:
+        if len(self.all_nodes) < 2:
+            return
+        count = 0
+        prev_index = 0
+        index = 1
+        while index < len(self.all_nodes):
+            prev_node = self.all_nodes[prev_index]
+            node = self.all_nodes[index]
+            if prev_node == node:
+                count += 1
+                prev_index += 1
+                index += 1
+                if index < len(self.all_points):
+                    continue
+                else:
+                    prev_index += 1
+            else:
+                prev_index += 1
+                index += 1
+            if count == 0:
+                continue
+            first_index = prev_index - (count + 1)
+            self.correct_collinear_repeats(self.all_nodes, first_index,
+                                           prev_index)
+            count = 0
+
+    def correct_collinear_repeats(self,
+                                  nodes: List[PointNode],
+                                  start: int,
+                                  stop: int) -> None:
+        for index in range(start, stop):
+            node = nodes[index]
+            if node.ring is None:
+                continue
+            other_index = start
+            while other_index < stop:
+                if node.ring is None:
+                    break
+                other_node = nodes[other_index]
+                if other_node.ring is None or index == other_index:
+                    other_index += 1
+                    continue
+                if self.process_collinear_edges(node, other_node):
+                    other_index = start
+                else:
+                    other_index += 1
+
     def correct_orientations(self) -> None:
         for ring in self.rings:
             if ring.node is None:
