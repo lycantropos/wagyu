@@ -1014,6 +1014,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            mapbox::geometry::wagyu::correct_self_intersections<coordinate_t>)
       .def("correct_topology",
            mapbox::geometry::wagyu::correct_topology<coordinate_t>)
+      .def("correct_tree", mapbox::geometry::wagyu::correct_tree<coordinate_t>)
       .def("insert_horizontal_local_minima_into_abl",
            [](RingManager& self, OperationKind operation_kind,
               FillKind subject_fill_kind, FillKind clip_fill_kind,
