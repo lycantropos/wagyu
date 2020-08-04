@@ -116,6 +116,11 @@ class RingManager:
     def sorted_rings(self) -> List[Ring]:
         return sorted(self.rings)
 
+    @property
+    def reversed_sorted_rings(self) -> List[Ring]:
+        return sorted(self.rings,
+                      reverse=True)
+
     def add_first_point(self, bound: Bound, active_bounds: List[Bound],
                         point: Point) -> None:
         ring = bound.ring = self.create_ring()
@@ -505,6 +510,43 @@ class RingManager:
             if self.correct_ring_self_intersections(ring, correct_tree):
                 result = True
         return result
+
+    def correct_tree(self) -> None:
+        # it is possible that vatti resulted in some parent child
+        # relationships that are not quite right,
+        # therefore we need to just rebuild the entire tree of rings
+
+        # first lets process the rings in order of size from largest
+        # area to smallest, we know right away
+        # that no smaller ring could ever contain a larger ring
+        # so we can use this to our advantage as we iterate over the rings
+        sorted_rings = self.reversed_sorted_rings
+        for index, ring in enumerate(sorted_rings):
+            if ring.node is None:
+                continue
+            if ring.size < 3 or is_float_almost_zero(ring.area):
+                self.remove_ring_and_points(ring, False)
+                continue
+            ring.corrected = True
+            found = False
+            # search in reverse from the current iterator back to the beginning
+            # to see if any of those rings might be its parent.
+            for reverse_index in range(index - 1, -1, -1):
+                # If orientations are not different, this can't be its parent.
+                reverse_ring = sorted_rings[reverse_index]
+                if reverse_ring.is_hole is reverse_ring.is_hole:
+                    continue
+                if ring.inside_of(reverse_ring):
+                    self.reassign_as_child(ring, reverse_ring)
+                    found = True
+                    break
+            if not found:
+                if ring.is_hole:
+                    raise RuntimeError('Could not properly place hole '
+                                       'to a parent')
+                else:
+                    # Assign to base of tree by passing None
+                    self.reassign_as_child(ring, None)
 
     def create_point_node(self, ring: Optional[Ring], point: Point,
                           before_this_point: Optional[PointNode] = None
