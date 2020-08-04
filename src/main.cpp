@@ -857,25 +857,29 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_readonly("reverse_output", &Wagyu::reverse_output);
 
   py::class_<RingManager>(m, RING_MANAGER_NAME)
-      .def(py::init([](const RingVector& children,
-                       const HotPixelVector& hot_pixels,
-                       std::size_t current_hot_pixel_index,
-                       const std::deque<Ring>& rings, std::size_t index) {
-             auto result = std::make_unique<RingManager>(children, hot_pixels,
-                                                         rings, index);
-             for (auto* ring : result->children)
-               mapbox::geometry::wagyu::update_points_ring<coordinate_t>(ring);
-             for (auto& ring : result->rings)
-               mapbox::geometry::wagyu::update_points_ring<coordinate_t>(&ring);
-             set_ring_manager_current_hot_pixel_index(*result,
-                                                      current_hot_pixel_index);
-             return result;
-           }),
-           py::arg("children") = RingVector{},
-           py::arg("hot_pixels") = HotPixelVector{},
-           py::arg("current_hot_pixel_index") =
-               std::numeric_limits<std::size_t>::max(),
-           py::arg("rings") = std::deque<Ring>{}, py::arg("index") = 0)
+      .def(
+          py::init([](const RingVector& children,
+                      const HotPixelVector& hot_pixels,
+                      std::size_t current_hot_pixel_index,
+                      const std::deque<Ring>& rings, std::size_t index) {
+            auto result = std::make_unique<RingManager>(children, hot_pixels,
+                                                        rings, index);
+            for (auto* ring : result->children)
+              if (ring != nullptr && ring->points != nullptr)
+                mapbox::geometry::wagyu::update_points_ring<coordinate_t>(ring);
+            for (auto& ring : result->rings)
+              if (ring.points != nullptr)
+                mapbox::geometry::wagyu::update_points_ring<coordinate_t>(
+                    &ring);
+            set_ring_manager_current_hot_pixel_index(*result,
+                                                     current_hot_pixel_index);
+            return result;
+          }),
+          py::arg("children") = RingVector{},
+          py::arg("hot_pixels") = HotPixelVector{},
+          py::arg("current_hot_pixel_index") =
+              std::numeric_limits<std::size_t>::max(),
+          py::arg("rings") = std::deque<Ring>{}, py::arg("index") = 0)
       .def(py::self == py::self)
       .def("__repr__", repr<RingManager>)
       .def_readonly("children", &RingManager::children)
