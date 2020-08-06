@@ -404,7 +404,7 @@ class RingManager:
         self.sort_hot_pixels()
 
     def build_result(self, reverse_output: bool) -> Multipolygon:
-        return Multipolygon.from_rings(self.rings, reverse_output)
+        return Multipolygon.from_rings(self.children, reverse_output)
 
     def correct_chained_repeats(self,
                                 nodes: List[PointNode],
