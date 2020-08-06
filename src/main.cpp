@@ -1014,6 +1014,8 @@ PYBIND11_MODULE(MODULE_NAME, m) {
             return py::make_tuple(active_bounds, scanbeams,
                                   minimums_itr - minimums_ptr.begin());
           })
+      .def("correct_chained_rings",
+           mapbox::geometry::wagyu::correct_chained_rings<coordinate_t>)
       .def("correct_collinear_edges",
            mapbox::geometry::wagyu::correct_collinear_edges<coordinate_t>)
       .def("correct_orientations",
