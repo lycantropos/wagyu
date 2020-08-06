@@ -3,6 +3,8 @@ from typing import (Iterable,
                     List,
                     Optional)
 
+from reprit.base import generate_repr
+
 from .linear_ring import LinearRing
 from .point_node import (PointNode,
                          point_node_to_point)
@@ -14,6 +16,8 @@ class Polygon(abc.Sequence):
 
     def __init__(self, linear_rings: List[LinearRing]) -> None:
         self.linear_rings = linear_rings
+
+    __repr__ = generate_repr(__init__)
 
     def __getitem__(self, index: int) -> LinearRing:
         return self.linear_rings[index]
@@ -35,6 +39,8 @@ class Multipolygon(abc.Sequence):
 
     def __init__(self, polygons: List[Polygon]) -> None:
         self.polygons = polygons
+
+    __repr__ = generate_repr(__init__)
 
     def __getitem__(self, index: int) -> Polygon:
         return self.polygons[index]
