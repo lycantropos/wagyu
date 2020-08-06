@@ -1,3 +1,4 @@
+import pytest
 from hypothesis import given
 
 from tests.utils import (BoundPortedRingManagersPair,
@@ -9,7 +10,12 @@ from . import strategies
 def test_basic(pair: BoundPortedRingManagersPair) -> None:
     bound, ported = pair
 
-    bound.correct_topology()
-    ported.correct_topology()
+    try:
+        bound.correct_topology()
+    except RuntimeError:
+        with pytest.raises(RuntimeError):
+            ported.correct_topology()
+    else:
+        ported.correct_topology()
 
-    assert are_bound_ported_ring_managers_equal(bound, ported)
+        assert are_bound_ported_ring_managers_equal(bound, ported)
