@@ -582,6 +582,24 @@ class RingManager:
                 result = True
         return result
 
+    def correct_topology(self) -> None:
+        # sort all the points,
+        # this will be used for the locating of chained rings
+        # and the collinear edges and only needs to be done once
+        self.all_nodes.sort()
+        # Initially the orientations of the rings
+        # could be incorrect, we need to adjust them
+        self.correct_orientations()
+        # We should only have to fix collinear edges once.
+        # During this we also correct self intersections
+        self.correct_collinear_edges()
+        self.correct_self_intersections(False)
+        self.correct_tree()
+        fixed_intersections = True
+        while fixed_intersections:
+            self.correct_chained_rings()
+            fixed_intersections = self.correct_self_intersections(True)
+
     def correct_tree(self) -> None:
         # it is possible that vatti resulted in some parent child
         # relationships that are not quite right,
