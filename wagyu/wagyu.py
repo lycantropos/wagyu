@@ -3,11 +3,15 @@ from typing import Optional
 from reprit.base import generate_repr
 
 from .box import Box
-from .enums import PolygonKind
+from .enums import (FillKind,
+                    OperationKind,
+                    PolygonKind)
 from .linear_ring import LinearRing
 from .local_minimum import LocalMinimumList
 from .point import Point
-from .polygon import Polygon
+from .polygon import (Multipolygon,
+                      Polygon)
+from .ring_manager import RingManager
 
 
 class Wagyu:
@@ -77,3 +81,43 @@ class Wagyu:
 
     def clear(self) -> None:
         self.minimums.clear()
+
+    def execute(self,
+                operation_kind: OperationKind,
+                subject_fill_type: FillKind,
+                clip_fill_type: FillKind) -> Multipolygon:
+        if not self.minimums:
+            return Multipolygon([])
+        manager = RingManager()
+        manager.build_hot_pixels(self.minimums)
+
+        manager.execute_vatti(self.minimums, operation_kind, subject_fill_type,
+                              clip_fill_type)
+        manager.correct_topology()
+        return manager.build_result(self.reverse_output)
+
+    def intersect(self,
+                  subject_fill_type: FillKind = FillKind.EVEN_ODD,
+                  clip_fill_type: FillKind = FillKind.EVEN_ODD
+                  ) -> Multipolygon:
+        return self.execute(OperationKind.INTERSECTION, subject_fill_type,
+                            clip_fill_type)
+
+    def subtract(self,
+                 subject_fill_type: FillKind = FillKind.EVEN_ODD,
+                 clip_fill_type: FillKind = FillKind.EVEN_ODD) -> Multipolygon:
+        return self.execute(OperationKind.DIFFERENCE, subject_fill_type,
+                            clip_fill_type)
+
+    def symmetric_subtract(self,
+                           subject_fill_type: FillKind = FillKind.EVEN_ODD,
+                           clip_fill_type: FillKind = FillKind.EVEN_ODD
+                           ) -> Multipolygon:
+        return self.execute(OperationKind.XOR, subject_fill_type,
+                            clip_fill_type)
+
+    def unite(self,
+              subject_fill_type: FillKind = FillKind.EVEN_ODD,
+              clip_fill_type: FillKind = FillKind.EVEN_ODD) -> Multipolygon:
+        return self.execute(OperationKind.UNION, subject_fill_type,
+                            clip_fill_type)
