@@ -1,9 +1,14 @@
 import math
+from collections import (defaultdict,
+                         deque)
 from functools import partial
 from itertools import groupby
 from operator import is_not
-from typing import (List,
+from typing import (Deque,
+                    Dict,
+                    List,
                     Optional,
+                    Set,
                     Tuple)
 
 from reprit.base import generate_repr
@@ -42,6 +47,8 @@ from .utils import (are_floats_greater_than,
                     is_odd,
                     quicksort,
                     round_half_up)
+
+ConnectionMap = Dict[int, List[Tuple[PointNode, PointNode]]]
 
 
 def ring_have_points_and_non_zero_area(ring: Ring) -> bool:
@@ -272,6 +279,19 @@ class RingManager:
         set_to_children(new_ring, children)
         new_ring.parent = parent
 
+    def assign_as_sibling(self, new_ring: Ring, sibling: Ring) -> None:
+        # assigning as a sibling assumes that this is a brand new ring,
+        # therefore it does not have any existing relationships
+        if new_ring.is_hole is not sibling.is_hole:
+            raise RuntimeError('Trying to assign to be a sibling '
+                               'that is not the same orientation '
+                               'as the sibling')
+        children = (self.children
+                    if sibling.parent is None
+                    else sibling.parent.children)
+        set_to_children(new_ring, children)
+        new_ring.parent = sibling.parent
+
     def assign_new_ring_parents(self,
                                 original_ring: Ring,
                                 new_rings: List[Ring]) -> List[Ring]:
@@ -385,6 +405,57 @@ class RingManager:
 
     def build_result(self, reverse_output: bool) -> Multipolygon:
         return Multipolygon.from_rings(self.rings, reverse_output)
+
+    def correct_chained_repeats(self,
+                                nodes: List[PointNode],
+                                start: int,
+                                stop: int,
+                                connection_map: ConnectionMap) -> None:
+        for index in range(start, stop):
+            node = nodes[index]
+            if node.ring is None:
+                continue
+            for next_index in range(index + 1, stop):
+                next_node = nodes[next_index]
+                if next_node.ring is None:
+                    continue
+                self.process_single_intersection(node, next_node,
+                                                 connection_map)
+
+    def correct_chained_rings(self) -> None:
+        nodes = self.all_nodes
+        if len(nodes) < 2:
+            return
+        # setup connection map which is a map of rings
+        # and their connection point pairs with other rings
+        connection_map = defaultdict(list)
+
+        # now lets find and process any points that overlap,
+        # we should have solved all situations
+        # where these points would be self intersections of a ring
+        # with earlier processing
+        # so this should just be points where different rings are touching
+        count = 0
+        prev_index = 0
+        index = 1
+        while index < len(nodes):
+            if nodes[prev_index] == nodes[index]:
+                count += 1
+                prev_index += 1
+                index += 1
+                if index < len(nodes):
+                    continue
+                else:
+                    prev_index += 1
+            else:
+                prev_index += 1
+                index += 1
+            if count == 0:
+                continue
+            first_index = prev_index - (count + 1)
+            self.correct_chained_repeats(nodes, first_index, prev_index,
+                                         connection_map)
+            count = 0
 
     def correct_collinear_edges(self) -> None:
         if len(self.all_nodes) < 2:
@@ -665,6 +736,56 @@ class RingManager:
             self.correct_repeated_points(new_rings, sorted_nodes, first_index,
                                          prev_index)
             count = 0
+
+    def find_intersect_loop(self,
+                            connection_map: ConnectionMap,
+                            iList
+                            : Deque[Tuple[Ring, Tuple[PointNode, PointNode]]],
+                            ring_parent: Ring,
+                            ring_origin: Ring,
+                            ring_search: Ring,
+                            visited: Set[int],
+                            orig_pt: PointNode,
+                            prev_pt: PointNode) -> bool:
+        # Check for direct connection
+        nodes_pairs = connection_map[id(ring_search)]
+        nodes_pairs_indices_to_remove = set()
+        for index, (op1, op2) in enumerate(nodes_pairs):
+            it_ring1 = op1.ring
+            it_ring2 = op2.ring
+            if (it_ring1 is None or it_ring2 is None
+                    or it_ring1 is not ring_search
+                    or not it_ring1.is_hole and not it_ring2.is_hole):
+                nodes_pairs_indices_to_remove.add(index)
+                continue
+            if (it_ring2 is ring_origin
+                    and (ring_parent and it_ring2
+                         or ring_parent is it_ring2.parent)
+                    and prev_pt != op2 and orig_pt != op2):
+                iList.appendleft((ring_search, (op1, op2)))
+                return True
+        if nodes_pairs_indices_to_remove:
+            nodes_pairs[:] = [nodes_pair
+                              for index, nodes_pair in enumerate(nodes_pairs)
+                              if index not in nodes_pairs_indices_to_remove]
+        nodes_pairs = connection_map[id(ring_search)]
+        visited.add(id(ring_search))
+        # Check for connection through chain of other intersections
+        for op1, op2 in nodes_pairs:
+            it_ring = op2.ring
+            if (id(it_ring) in visited
+                    or it_ring is None
+                    or ring_parent is not it_ring
+                    and ring_parent is not it_ring.parent
+                    or is_float_almost_zero(it_ring.area)
+                    or prev_pt == op2):
+                continue
+            if (self.find_intersect_loop(connection_map, iList, ring_parent,
+                                         ring_origin, it_ring,
+                                         visited, orig_pt, op2)):
+                iList.appendleft((ring_search, (op1, op2)))
+                return True
+        return False
 
     def find_parent_in_tree(self, ring: Ring, possible_parent: Ring) -> bool:
         # before starting this we are assuming that possible parent
@@ -1542,6 +1663,195 @@ class RingManager:
                                   active_bounds)
             active_bounds[first_index], active_bounds[second_index] = (
                 active_bounds[second_index], active_bounds[first_index])
+
+    def process_single_intersection(self,
+                                    op_j: PointNode,
+                                    op_k: PointNode,
+                                    connection_map: ConnectionMap) -> None:
+        ring_j = op_j.ring
+        ring_k = op_k.ring
+        if ring_j is ring_k:
+            return
+        if not ring_j.is_hole and not ring_k.is_hole:
+            # both are not holes, nothing to do
+            return
+        if not ring_j.is_hole:
+            ring_origin = ring_j
+            ring_parent = ring_origin
+            ring_search = ring_k
+            op_origin_1 = op_j
+            op_origin_2 = op_k
+        elif not ring_k.is_hole:
+            ring_origin = ring_k
+            ring_parent = ring_origin
+            ring_search = ring_j
+            op_origin_1 = op_k
+            op_origin_2 = op_j
+        else:
+            # both are holes,
+            # order doesn't matter
+            ring_origin = ring_j
+            ring_parent = ring_origin.parent
+            ring_search = ring_k
+            op_origin_1 = op_j
+            op_origin_2 = op_k
+        if ring_parent is not ring_search.parent:
+            # the two holes do not have the same parent,
+            # do not add them, simply return
+            return
+        found = False
+        iList = deque()
+        nodes_pairs_indices_to_remove = set()
+        nodes_pairs = connection_map[id(ring_search)]
+        for index, (op1, op2) in enumerate(nodes_pairs):
+            if op1.ring is None or op2.ring is None:
+                nodes_pairs_indices_to_remove.add(index)
+                continue
+            it_ring2 = op2.ring
+            if it_ring2 is ring_origin:
+                found = True
+                if op_origin_1 != op2:
+                    iList.append((ring_search, (op1, op2)))
+                    break
+        if nodes_pairs_indices_to_remove:
+            nodes_pairs[:] = [nodes_pair
+                              for index, nodes_pair in enumerate(nodes_pairs)
+                              if index not in nodes_pairs_indices_to_remove]
+        if not iList:
+            visited = {id(ring_search)}
+            for op1, op2 in nodes_pairs:
+                it_ring = op2.ring
+                if (it_ring is not ring_search and op_origin_2 != op2
+                        and it_ring is not None
+                        and (ring_parent is it_ring
+                             or ring_parent is it_ring.parent)
+                        and not is_float_almost_zero(it_ring.area)
+                        and self.find_intersect_loop(
+                                connection_map, iList, ring_parent,
+                                ring_origin, it_ring, visited, op_origin_2,
+                                op2)):
+                    found = True
+                    iList.appendleft((ring_search, (op1, op2)))
+                    break
+        if not found:
+            connection_map[id(ring_origin)].append((op_origin_1, op_origin_2))
+            connection_map[id(ring_search)].append((op_origin_2, op_origin_1))
+            return
+        if not iList:
+            # the situation where both origin and search are holes
+            # might have a missing search condition,
+            # we must check if a new pair must be added
+            missing = True
+            # check for direct connection
+            for op1, op2 in connection_map[id(ring_origin)]:
+                it_ring2 = op2.ring
+                if it_ring2 is ring_search:
+                    missing = False
+            if missing:
+                connection_map[id(ring_origin)].append((op_origin_1,
+                                                        op_origin_2))
+            return
+        if ring_origin.is_hole:
+            for index, (ring_itr, (op1, op2)) in enumerate(iList):
+                if not ring_itr.is_hole:
+                    op1, op_origin_1 = op_origin_1, op1
+                    op2, op_origin_2 = op_origin_2, op2
+                    iList[index] = (ring_origin, (op1, op2))
+                    ring_origin = ring_itr
+                    ring_parent = ring_origin
+                    break
+        origin_is_hole = ring_origin.is_hole
+        # switch
+        op_origin_1_next = op_origin_1.next
+        op_origin_2_next = op_origin_2.next
+        op_origin_1.next = op_origin_2_next
+        op_origin_2.next = op_origin_1_next
+        op_origin_1_next.prev = op_origin_2
+        op_origin_2_next.prev = op_origin_1
+        for _, (op1, op2) in iList:
+            op_search_1 = op1
+            op_search_2 = op2
+            op_search_1_next = op_search_1.next
+            op_search_2_next = op_search_2.next
+            op_search_1.next = op_search_2_next
+            op_search_2.next = op_search_1_next
+            op_search_1_next.prev = op_search_2
+            op_search_2_next.prev = op_search_1
+        ring_new = self.create_ring()
+        ring_origin.corrected = False
+        area_1, size_1, box1 = op_origin_1.stats
+        area_2, size_2, box2 = op_origin_2.stats
+        if origin_is_hole and area_1 < 0.:
+            ring_origin.node = op_origin_1
+            ring_origin.set_stats(area_1, size_1, box1)
+            ring_new.node = op_origin_2
+            ring_new.set_stats(area_2, size_2, box2)
+        else:
+            ring_origin.node = op_origin_2
+            ring_origin.set_stats(area_2, size_2, box2)
+            ring_new.node = op_origin_1
+            ring_new.set_stats(area_1, size_1, box1)
+        ring_origin.update_points()
+        ring_new.update_points()
+        ring_origin.bottom_node = None
+        for ring_itr, _ in iList:
+            ring_itr.bottom_node = None
+            if origin_is_hole:
+                self.replace_ring(ring_itr, ring_origin)
+            else:
+                self.replace_ring(ring_itr, ring_origin.parent)
+        if origin_is_hole:
+            self.assign_as_child(ring_new, ring_origin)
+            # the parent ring in this situation might need to give up children
+            # to the new ring
+            for c in ring_parent.children:
+                if c is None:
+                    continue
+                if c.inside_of(ring_new):
+                    self.reassign_as_child(c, ring_new)
+        else:
+            # the new ring and the origin ring need to be siblings
+            # however some children ring from the ring origin might
+            # need to be re-assigned to the new ring
+            self.assign_as_sibling(ring_new, ring_origin)
+            for c in ring_origin.children:
+                if c is None:
+                    continue
+                if c.inside_of(ring_new):
+                    self.reassign_as_child(c, ring_new)
+        move_list = []
+        for ring, _ in iList:
+            nodes_pairs = connection_map[id(ring)]
+            for op1, op2 in nodes_pairs:
+                it_ring = op1.ring
+                it_ring2 = op2.ring
+                if it_ring is None or it_ring2 is None or it_ring is it_ring2:
+                    continue
+                if it_ring.is_hole or it_ring2.is_hole:
+                    move_list.append((it_ring, (op1, op2)))
+            nodes_pairs.clear()
+        nodes_pairs = connection_map[id(ring_origin)]
+        nodes_pairs_indices_to_remove = set()
+        for index, (op1, op2) in enumerate(nodes_pairs):
+            it_ring = op1.ring
+            it_ring2 = op2.ring
+            if it_ring is None or it_ring2 is None or it_ring is it_ring2:
+                nodes_pairs_indices_to_remove.add(index)
+                continue
+            if it_ring is not ring_origin:
+                if it_ring.is_hole or it_ring2.is_hole:
+                    move_list.append((it_ring, (op1, op2)))
+                nodes_pairs_indices_to_remove.add(index)
+            else:
+                if not (it_ring.is_hole or it_ring2.is_hole):
+                    nodes_pairs_indices_to_remove.add(index)
+        if nodes_pairs_indices_to_remove:
+            nodes_pairs[:] = [nodes_pair
+                              for index, nodes_pair in enumerate(nodes_pairs)
+                              if index not in nodes_pairs_indices_to_remove]
+        if move_list:
+            for ring, nodes_pair in move_list:
+                connection_map[id(ring)].append(nodes_pair)
 
     def reassign_as_child(self, ring: Ring, parent: Optional[Ring]) -> None:
         # reassigning a ring assumes it already has an existing parent
