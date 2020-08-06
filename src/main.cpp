@@ -400,7 +400,7 @@ static std::ostream& operator<<(std::ostream& stream,
 }
 
 static std::ostream& operator<<(std::ostream& stream, const Wagyu& wagyu) {
-  stream << C_STR(MODULE_NAME) "." EDGE_NAME "(";
+  stream << C_STR(MODULE_NAME) "." WAGYU_NAME "(";
   write_sequence(stream, wagyu.minima_list);
   stream << ", ";
   return stream << bool_repr(wagyu.reverse_output) << ")";
