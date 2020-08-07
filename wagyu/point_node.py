@@ -340,8 +340,8 @@ def fix_collinear_path(path: Tuple[PointNode, PointNode, PointNode, PointNode]
     # additionally duplicate points we will treat
     # if they are a spike left.
     start_1, end_1, start_2, end_2 = path
-    spike_left = start_1 == end_2
-    spike_right = start_2 == end_1
+    spike_left = start_1 is end_2
+    spike_right = start_2 is end_1
 
     if spike_left and spike_right:
         # If both ends are spikes we should simply
@@ -372,7 +372,6 @@ def fix_collinear_path(path: Tuple[PointNode, PointNode, PointNode, PointNode]
             itr.prev = None
             itr.ring = None
             itr = itr.next
-
         prev.next = end_2
         end_2.prev = prev
         return end_2, None
@@ -401,7 +400,7 @@ def fix_collinear_path(path: Tuple[PointNode, PointNode, PointNode, PointNode]
             prev_2.next = end_2
             end_2.prev = prev_2
             return end_2, None
-        elif start_2 == end_2:
+        elif start_2 is end_2:
             prev_1.next = end_1
             end_1.prev = prev_1
             return end_1, None
