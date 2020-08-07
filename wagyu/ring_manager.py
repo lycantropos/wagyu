@@ -252,9 +252,9 @@ class RingManager:
         keep_is_hole = is_odd(keep_ring.depth)
         remove_is_hole = is_odd(remove_ring.depth)
         if keep_is_hole is not remove_is_hole:
-            self.replace_ring(keep_ring.parent, remove_ring)
+            self.replace_ring(remove_ring, keep_ring.parent)
         else:
-            self.replace_ring(keep_ring, remove_ring)
+            self.replace_ring(remove_ring, keep_ring)
         keep_ring.update_points()
         remove_bound.ring = keep_bound.ring = None
         for bound in active_bounds:
