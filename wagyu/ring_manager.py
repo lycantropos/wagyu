@@ -2010,22 +2010,22 @@ class RingManager:
                      original: Optional[Ring],
                      replacement: Ring) -> None:
         assert original is not replacement
-        original_children = (self.children
-                             if original is None
-                             else original.children)
-        for index, child in enumerate(replacement.children):
+        replacement_children = (self.children
+                                if replacement is None
+                                else replacement.children)
+        for index, child in enumerate(original.children):
             if child is None:
                 continue
-            child.parent = original
-            set_to_children(child, original_children)
+            child.parent = replacement
+            set_to_children(child, replacement_children)
             replacement.children[index] = None
         # remove the old child relationship
-        remove_from_children(replacement,
+        remove_from_children(original,
                              self.children
-                             if replacement.parent is None
-                             else replacement.parent.children)
-        replacement.node = None
-        replacement.reset_stats()
+                             if original.parent is None
+                             else original.parent.children)
+        original.node = None
+        original.reset_stats()
 
     def set_hole_state(self, bound: Bound, active_bounds: List[Bound]) -> None:
         bound_index = next(index
