@@ -90,7 +90,6 @@ class Wagyu:
             return Multipolygon([])
         manager = RingManager()
         manager.build_hot_pixels(self.minimums)
-
         manager.execute_vatti(self.minimums, operation_kind, subject_fill_type,
                               clip_fill_type)
         manager.correct_topology()
