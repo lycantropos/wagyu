@@ -2018,7 +2018,7 @@ class RingManager:
                 continue
             child.parent = replacement
             set_to_children(child, replacement_children)
-            replacement.children[index] = None
+            original.children[index] = None
         # remove the old child relationship
         remove_from_children(original,
                              self.children
