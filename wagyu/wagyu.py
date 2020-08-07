@@ -76,8 +76,11 @@ class Wagyu:
     def add_polygon(self,
                     polygon: Polygon,
                     polygon_kind: PolygonKind) -> bool:
-        return any(self.add_linear_ring(linear_ring, polygon_kind)
-                   for linear_ring in polygon)
+        result = False
+        for linear_ring in polygon:
+            if self.add_linear_ring(linear_ring, polygon_kind) and not result:
+                result = True
+        return result
 
     def clear(self) -> None:
         self.minimums.clear()
