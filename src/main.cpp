@@ -798,7 +798,12 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       });
 
   py::class_<Wagyu>(m, WAGYU_NAME)
-      .def(py::init<>())
+      .def(py::init<>([](bool reverse_output) {
+             auto result = std::make_unique<Wagyu>();
+             result->reverse_rings(reverse_output);
+             return result;
+           }),
+           py::arg("reverse_output") = false)
       .def(py::self == py::self)
       .def("__repr__", repr<Wagyu>)
       .def("add_linear_ring", &Wagyu::add_ring<coordinate_t>)
