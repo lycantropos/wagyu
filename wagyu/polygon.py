@@ -65,11 +65,12 @@ def rings_to_polygons(rings: Iterable[Optional[Ring]],
     for ring in rings:
         if ring is None:
             continue
-        yield Polygon.from_ring(ring, reverse_output)
+        polygon = Polygon.from_ring(ring, reverse_output)
+        yield polygon
         for child in ring.children:
             if child is None:
                 continue
-            yield Polygon.from_ring(child, reverse_output)
+            polygon.append(child, reverse_output)
         for child in ring.children:
             if child is None:
                 continue
