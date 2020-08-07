@@ -497,7 +497,7 @@ class RingManager:
                 if node.ring is None:
                     break
                 other_node = nodes[other_index]
-                if other_node.ring is None or index == other_index:
+                if other_node.ring is None or node is other_node:
                     other_index += 1
                     continue
                 if self.process_collinear_edges(node, other_node):
