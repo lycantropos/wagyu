@@ -2013,12 +2013,13 @@ class RingManager:
         replacement_children = (self.children
                                 if replacement is None
                                 else replacement.children)
-        for index, child in enumerate(original.children):
+        original_children = original.children
+        for index, child in enumerate(original_children):
             if child is None:
                 continue
             child.parent = replacement
             set_to_children(child, replacement_children)
-            original.children[index] = None
+            original_children[index] = None
         # remove the old child relationship
         remove_from_children(original,
                              self.children
