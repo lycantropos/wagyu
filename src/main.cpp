@@ -121,16 +121,16 @@ static const typename Sequence::value_type& to_item(const Sequence& sequence,
   return sequence[normalized_index];
 }
 
-static Point* point_node_to_point(const PointNode* node) {
-  return new Point(node->x, node->y);
+static Point point_node_to_point(const PointNode* node) {
+  return Point(node->x, node->y);
 }
 
-static std::vector<const Point*>* point_node_to_points(const PointNode* node) {
-  auto* result = new std::vector<const Point*>{};
+static std::vector<Point> point_node_to_points(const PointNode* node) {
+  std::vector<Point> result;
   if (node == nullptr) return result;
   const auto* cursor = node;
   do {
-    result->push_back(point_node_to_point(cursor));
+    result.push_back(point_node_to_point(cursor));
     cursor = cursor->next;
   } while (cursor != node);
   return result;
@@ -340,7 +340,7 @@ static std::ostream& operator<<(std::ostream& stream, const Ring& ring) {
   stream << C_STR(MODULE_NAME) "." RING_NAME "(" << ring.ring_index << ", ";
   write_pointers_sequence(stream, ring.children);
   stream << ", ";
-  write_pointers_sequence(stream, *point_node_to_points(ring.points));
+  write_sequence(stream, point_node_to_points(ring.points));
   stream << ", " << bool_repr(ring.corrected) << ")";
   return stream;
 }
@@ -632,7 +632,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
           [](RingPtr self) {
             auto nodes =
                 mapbox::geometry::wagyu::sort_ring_points<coordinate_t>(self);
-            std::vector<const Point*> result;
+            std::vector<Point> result;
             result.reserve(nodes.size());
             for (const auto* node : nodes)
               result.push_back(point_node_to_point(node));
@@ -887,31 +887,28 @@ PYBIND11_MODULE(MODULE_NAME, m) {
       .def_property("current_hot_pixel_index",
                     get_ring_manager_current_hot_pixel_index,
                     set_ring_manager_current_hot_pixel_index)
-      .def_property_readonly(
-          "all_points",
-          [](const RingManager& self) {
-            auto* result = new std::vector<std::vector<const Point*>*>{};
-            for (const auto* node : self.all_points)
-              result->push_back(point_node_to_points(node));
-            return result;
-          })
-      .def_property_readonly(
-          "points",
-          [](const RingManager& self) {
-            auto* result = new std::vector<std::vector<const Point*>*>{};
-            for (const auto& node : self.points)
-              result->push_back(point_node_to_points(&node));
-            return result;
-          })
+      .def_property_readonly("all_points",
+                             [](const RingManager& self) {
+                               std::vector<std::vector<Point>> result;
+                               for (const auto* node : self.all_points)
+                                 result.push_back(point_node_to_points(node));
+                               return result;
+                             })
+      .def_property_readonly("points",
+                             [](const RingManager& self) {
+                               std::vector<std::vector<Point>> result;
+                               for (const auto& node : self.points)
+                                 result.push_back(point_node_to_points(&node));
+                               return result;
+                             })
       .def_readonly("rings", &RingManager::rings)
-      .def_property_readonly(
-          "stored_points",
-          [](const RingManager& self) {
-            auto* result = new std::vector<std::vector<const Point*>*>{};
-            for (const auto& node : self.storage)
-              result->push_back(point_node_to_points(&node));
-            return result;
-          })
+      .def_property_readonly("stored_points",
+                             [](const RingManager& self) {
+                               std::vector<std::vector<Point>> result;
+                               for (const auto& node : self.storage)
+                                 result.push_back(point_node_to_points(&node));
+                               return result;
+                             })
       .def_property_readonly(
           "sorted_rings",
           mapbox::geometry::wagyu::sort_rings_smallest_to_largest<coordinate_t>)
