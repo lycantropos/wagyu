@@ -1922,6 +1922,14 @@ class RingManager:
                 return True
         while (first_node.next == first_node
                and first_node.next is not first_node):
+            outsider = first_node.next
+            first_node.next = outsider.next
+            first_node.next.prev = first_node
+            outsider.prev = outsider.next = outsider.ring = None
+            if first_node.ring.node is outsider:
+                first_node.ring.node = first_node
+        while (first_node.prev == first_node
+               and first_node.prev is not first_node):
             outsider = first_node.prev
             first_node.prev = outsider.prev
             first_node.prev.next = first_node
