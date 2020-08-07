@@ -1273,26 +1273,26 @@ class RingManager:
                                                 first_node: PointNode,
                                                 second_node: PointNode
                                                 ) -> None:
-        ring_a = first_node.ring
-        ring_b = second_node.ring
-        ring_a_larger = abs(ring_a.area()) > abs(ring_b.area())
+        first_ring = first_node.ring
+        second_ring = second_node.ring
+        first_ring_is_larger = abs(first_ring.area) > abs(second_ring.area)
         path = find_start_and_end_of_collinear_edges(first_node, second_node)
         # this should result in two rings becoming one
-        pt1, pt2 = fix_collinear_path(path)
+        pt1, _ = fix_collinear_path(path)
         if pt1 is None:
-            self.remove_ring(ring_a, False)
-            self.remove_ring(ring_b, False)
+            self.remove_ring(first_ring, False)
+            self.remove_ring(second_ring, False)
             return
         # rings should merge into a single ring of the same orientation,
         # therefore we we will need to replace one ring with the other
-        merged_ring = ring_a if ring_a_larger else ring_b
-        deleted_ring = ring_b if ring_a_larger else ring_a
-        merged_ring.points = pt1
-        merged_ring.update_points()
-        merged_ring.recalculate_stats()
-        if merged_ring.size < 3:
-            self.remove_ring_and_points(merged_ring, False)
-        self.remove_ring(deleted_ring, False)
+        union_ring = first_ring if first_ring_is_larger else second_ring
+        outsider_ring = second_ring if first_ring_is_larger else first_ring
+        union_ring.node = pt1
+        union_ring.update_points()
+        union_ring.recalculate_stats()
+        if union_ring.size < 3:
+            self.remove_ring_and_points(union_ring, False)
+        self.remove_ring(outsider_ring, False)
 
     def process_collinear_edges_same_ring(self,
                                           first_node: PointNode,
