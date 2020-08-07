@@ -470,7 +470,7 @@ class RingManager:
                 count += 1
                 prev_index += 1
                 index += 1
-                if index < len(self.all_points):
+                if index < len(self.all_nodes):
                     continue
                 else:
                     prev_index += 1
