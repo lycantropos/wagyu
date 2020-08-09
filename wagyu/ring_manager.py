@@ -711,9 +711,7 @@ class RingManager:
             self.process_intersections(scanline_y, operation_kind,
                                        subject_fill_kind, clip_fill_kind,
                                        active_bounds)
-            while (self.hot_pixels[self.current_hot_pixel_index].y
-                   > scanline_y):
-                self.current_hot_pixel_index += 1
+            self.update_current_hot_pixel_index(scanline_y)
             # first we process bounds that has already been added
             # to the active bound list -- if the active bound list is empty
             # local minima that are at this scanline_y and have
