@@ -35,7 +35,7 @@ script:
 
 after_success:
   - ls -la
-  - ls build/**/*
+  - ls temp/**/*
   - ls **/*.gcno | xargs du -h
   - gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml -v
   - cat coverage_cpp.xml
