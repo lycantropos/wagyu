@@ -271,25 +271,6 @@ static std::ostream& operator<<(std::ostream& stream, const Box& box) {
 }
 
 namespace wagyu {
-static std::ostream& operator<<(std::ostream& stream, const clip_type& type) {
-  stream << C_STR(MODULE_NAME) "." OPERATION_KIND_NAME;
-  switch (type) {
-    case clip_type_intersection:
-      stream << ".INTERSECTION";
-      break;
-    case clip_type_union:
-      stream << ".UNION";
-      break;
-    case clip_type_difference:
-      stream << ".DIFFERENCE";
-      break;
-    case clip_type_x_or:
-      stream << ".XOR";
-      break;
-  }
-  return stream;
-}
-
 static std::ostream& operator<<(std::ostream& stream, const edge_side& side) {
   stream << C_STR(MODULE_NAME) "." EDGE_SIDE_NAME;
   switch (side) {
@@ -298,25 +279,6 @@ static std::ostream& operator<<(std::ostream& stream, const edge_side& side) {
       break;
     case edge_right:
       stream << ".RIGHT";
-      break;
-  }
-  return stream;
-}
-
-static std::ostream& operator<<(std::ostream& stream, const fill_type& type) {
-  stream << C_STR(MODULE_NAME) "." FILL_KIND_NAME;
-  switch (type) {
-    case fill_type_even_odd:
-      stream << ".EVEN_ODD";
-      break;
-    case fill_type_non_zero:
-      stream << ".NON_ZERO";
-      break;
-    case fill_type_positive:
-      stream << ".POSITIVE";
-      break;
-    case fill_type_negative:
-      stream << ".NEGATIVE";
       break;
   }
   return stream;
@@ -464,9 +426,7 @@ static bool operator==(const Wagyu& self, const Wagyu& other) {
 PYBIND11_MAKE_OPAQUE(LocalMinimumList);
 
 PYBIND11_MODULE(MODULE_NAME, m) {
-  m.doc() = R"pbdoc(
-        Python binding of mapbox/wagyu library.
-    )pbdoc";
+  m.doc() = R"pbdoc(Python binding of mapbox/wagyu library.)pbdoc";
 
   py::enum_<OperationKind>(m, OPERATION_KIND_NAME)
       .value("INTERSECTION", OperationKind::clip_type_intersection)
