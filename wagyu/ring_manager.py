@@ -251,6 +251,7 @@ class RingManager:
         keep_ring.bottom_node = None
         keep_is_hole = is_odd(keep_ring.depth)
         remove_is_hole = is_odd(remove_ring.depth)
+        remove_ring.node = remove_ring.bottom_node = None
         if keep_is_hole is not remove_is_hole:
             self.replace_ring(remove_ring, keep_ring.parent)
         else:
