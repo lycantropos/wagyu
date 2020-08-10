@@ -33,12 +33,12 @@ class IntersectNode:
 
     def __lt__(self, other: 'IntersectNode') -> bool:
         return (to_int32(self.first_bound.opposite_winding_count
-                         + self.second_bound.opposite_winding_count) >
+                         + self.second_bound.opposite_winding_count) <
                 to_int32(other.first_bound.opposite_winding_count
                          + other.second_bound.opposite_winding_count)
                 if are_floats_almost_equal(float(self.point.y),
                                            float(other.point.y))
-                else self.point.y < other.point.y)
+                else other.point.y < self.point.y)
 
     def has_bound(self, bound: Bound) -> bool:
         return self.first_bound is bound or self.second_bound is bound
