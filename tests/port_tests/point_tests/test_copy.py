@@ -1,8 +1,8 @@
 import copy
 
-from wagyu.point import Point
 from hypothesis import given
 
+from wagyu.point import Point
 from . import strategies
 
 

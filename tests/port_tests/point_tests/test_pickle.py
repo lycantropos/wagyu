@@ -1,7 +1,7 @@
-from wagyu.point import Point
 from hypothesis import given
 
 from tests.utils import pickle_round_trip
+from wagyu.point import Point
 from . import strategies
 
 

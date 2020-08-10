@@ -1,8 +1,8 @@
-from wagyu.point import Point
 from hypothesis import given
 
 from tests.utils import (equivalence,
                          implication)
+from wagyu.point import Point
 from . import strategies
 
 

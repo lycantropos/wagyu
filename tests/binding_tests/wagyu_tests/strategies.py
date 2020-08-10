@@ -6,12 +6,11 @@ from hypothesis_geometry import planar
 
 from tests.strategies import coordinates
 from tests.utils import (bound_polygon_kinds,
-                         to_bound_linear_rings_points,
+                         to_bound_points_list,
                          to_bound_polygon_linear_rings)
 
 polygon_kinds = strategies.sampled_from(bound_polygon_kinds)
-linear_rings_points = (planar.contours(coordinates)
-                       .map(to_bound_linear_rings_points))
+linear_rings_points = planar.contours(coordinates).map(to_bound_points_list)
 linear_rings = strategies.builds(LinearRing, linear_rings_points)
 linear_rings_lists = (planar.polygons(coordinates)
                       .map(to_bound_polygon_linear_rings))

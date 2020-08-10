@@ -14,9 +14,9 @@ from tests.utils import (BoundLinearRingWithPolygonKind,
                          Strategy,
                          bound_polygon_kinds,
                          ported_polygon_kinds,
-                         to_bound_with_ported_linear_rings,
-                         to_bound_with_ported_linear_rings_points,
+                         to_bound_with_ported_linear_rings_pair,
                          to_bound_with_ported_local_minimum_lists,
+                         to_bound_with_ported_points_lists_pair,
                          transpose_pairs)
 
 polygon_kinds_pairs = strategies.sampled_from(
@@ -45,9 +45,9 @@ def to_linear_rings_with_polygon_kinds(
 
 
 linear_rings_points_pairs = planar.contours(coordinates).map(
-        to_bound_with_ported_linear_rings_points)
+        to_bound_with_ported_points_lists_pair)
 linear_rings_pairs = (linear_rings_points_pairs
-                      .map(to_bound_with_ported_linear_rings))
+                      .map(to_bound_with_ported_linear_rings_pair))
 local_minimum_lists_pairs = (strategies.lists(linear_rings_pairs)
                              .flatmap(to_linear_rings_with_polygon_kinds)
                              .map(to_bound_with_ported_local_minimum_lists))

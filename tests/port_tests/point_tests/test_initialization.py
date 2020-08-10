@@ -1,7 +1,7 @@
-from wagyu.point import Point
 from hypothesis import given
 
 from wagyu.hints import Coordinate
+from wagyu.point import Point
 from . import strategies
 
 

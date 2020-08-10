@@ -13,8 +13,8 @@ from tests.utils import (bound_edges_sides,
                          to_bound_with_ported_bounds_pair,
                          to_bound_with_ported_edges_lists,
                          to_bound_with_ported_intersect_nodes_pair,
-                         to_bound_with_ported_linear_rings,
-                         to_bound_with_ported_linear_rings_points,
+                         to_bound_with_ported_linear_rings_pair,
+                         to_bound_with_ported_points_lists_pair,
                          to_bound_with_ported_points_pair,
                          to_bound_with_ported_rings_pair,
                          to_maybe_pairs,
@@ -32,10 +32,11 @@ maybe_rings_lists_pairs = (strategies.lists(maybe_rings_pairs)
 rings_pairs = strategies.builds(to_bound_with_ported_rings_pair,
                                 sizes, maybe_rings_lists_pairs,
                                 points_lists_pairs, booleans)
-linear_rings_points_pairs = (planar.contours(coordinates)
-                             .map(to_bound_with_ported_linear_rings_points))
+linear_rings_points_pairs = (
+    planar.contours(coordinates).map(
+            to_bound_with_ported_points_lists_pair))
 linear_rings_pairs = (linear_rings_points_pairs
-                      .map(to_bound_with_ported_linear_rings))
+                      .map(to_bound_with_ported_linear_rings_pair))
 edges_lists_pairs = linear_rings_pairs.map(to_bound_with_ported_edges_lists)
 polygon_kinds_pairs = strategies.sampled_from(
         list(zip(bound_polygon_kinds, ported_polygon_kinds)))
