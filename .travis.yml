@@ -14,7 +14,7 @@ matrix:
 
 env:
   global:
-    - CXXFLAGS="--coverage -O0 -fprofile-arcs -ftest-coverage"
+    - CXXFLAGS="-O0 -fprofile-arcs -ftest-coverage --coverage"
     - TWINE_USERNAME=__token__
     - secure: ex9SpWjDxZFP6vxVBa35RFJbbkAPFSwmUgKK4OwMFtaBSAdQz3EgKGIQD49oP/Q5pL1pyjUCg5HMdXU6zf8BbQfhd5mUyUd3Vc27UGANPikELmPt4lDjx29jziihJ7Dj2SjkJzO+diwMnwfMYhyLGf7KTpHAASvXw4BVCasI/XC9MmLgnObqhx+vsG1Dl9OzYB46HUZmvzqX/SbeaRU1UkC7cL5XuwM3tDdm0KVAEM7aI5TZqEaVaOJnkva9ZPohEY3uWF4koDS8i9Kodiysee7zrJQApXbNxl1tkp0XXt4eLoaQVDorZhCa1U5Z8X6vRoAzHZK1ubPTGIyBBzwo+MEGY0yeeCNVxoS+yW4cVbAZxdnk2VmnzDEw/M2RtjBA4bqEZ4M6gZpYTXVi0PViRld2uD7N232Apw2UHkYSnf1k2e88AWm6Y7Si639ATgtiPbc9FWjrWs0RtCePBYWeynIe//+Pd1KnBilvujl91l6E6j3VBpohLJUJT5UwOElr9TztBUHDexWaSzB3KtGaTCOsBBYordA5OxpFvvdbh6uWqeSFAarLeKQA1YORNCF9VTm1+eN769Z1VcKlRaj/cJ8qsCVNKhQ71sNL2Oi3ToYk9jRCd5sPPXYzq1wNw+AS0sSpMt/wDVM+QP4SH6kSedgX0VVaRuAbLSoQcbtTaKg=
 
@@ -24,7 +24,7 @@ install:
   - python -m pip install --upgrade gcovr
   - python -m pip install --force-reinstall -r requirements.txt
   - python -m pip install --force-reinstall -r requirements-tests.txt
-  - python -m pip install -e .
+  - python setup.py develop
   - rm -rf build
 
 script:
