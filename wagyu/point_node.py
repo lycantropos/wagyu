@@ -270,7 +270,7 @@ def find_start_and_end_of_collinear_edges(pt_a: PointNode,
             forward = forward.next
             if forward is pt_b:
                 break
-        if first is None and (back is pt_a or forward is pt_b):
+        if not first and (back is pt_a or forward is pt_b):
             break
         if back is forward:
             back = back.prev
@@ -306,7 +306,7 @@ def find_start_and_end_of_collinear_edges(pt_a: PointNode,
             forward = forward.next
             if forward is pt_a:
                 break
-        if first is None and (back is pt_b or forward is pt_a):
+        if not first and (back is pt_b or forward is pt_a):
             break
         if (back is forward
                 or first is None and (back is end_b or forward is start_a)):
