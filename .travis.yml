@@ -32,6 +32,7 @@ script:
   - pytest
 
 after_success:
+  - ls **/*.gcno | xargs du -h
   - gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml -v
   - cat coverage_cpp.xml
   - python -m codecov -f coverage.xml -X gcov
