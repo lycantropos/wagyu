@@ -32,7 +32,10 @@ script:
   - pytest
 
 after_success:
-  - python -m codecov
+  - gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml -v
+  - cat coverage_cpp.xml
+  - python -m codecov -f coverage.xml -X gcov
+  - python -m codecov -f coverage_cpp.xml -X gcov
 
 before_deploy:
   - rm *.so
