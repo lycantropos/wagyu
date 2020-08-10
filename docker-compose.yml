@@ -7,7 +7,7 @@ services:
       args:
         - IMAGE_NAME=${IMAGE_NAME}
         - IMAGE_VERSION=${IMAGE_VERSION}
-    image: lycantropos/wagyu:0.0.0
+    image: lycantropos/wagyu:0.1.0-alpha
     volumes:
       - ./include/:/opt/wagyu/include/
       - ./src/:/opt/wagyu/src/
