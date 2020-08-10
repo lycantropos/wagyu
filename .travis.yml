@@ -28,8 +28,8 @@ install:
   - rm -rf build
 
 script:
-  - pytest
   - python -m doctest README.md
+  - pytest
 
 after_success:
   - python -m codecov
