@@ -746,7 +746,7 @@ PYBIND11_MODULE(MODULE_NAME, m) {
            [](const IntersectNode& self, const IntersectNode& other) {
              static mapbox::geometry::wagyu::intersect_list_sorter<coordinate_t>
                  sorter;
-             return sorter(other, self);
+             return sorter(self, other);
            })
       .def("__repr__", repr<IntersectNode>)
       .def_readonly("first_bound", &IntersectNode::bound1)
