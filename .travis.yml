@@ -31,12 +31,11 @@ script:
 
 after_success:
   - gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml -v
-  - cat coverage_cpp.xml
-  - rm -rf build
   - python -m codecov -f coverage.xml -X gcov
   - python -m codecov -f coverage_cpp.xml -X gcov
 
 before_deploy:
+  - rm -rf build
   - rm *.so
   - python setup.py sdist
   - python -m pip install --upgrade cibuildwheel
