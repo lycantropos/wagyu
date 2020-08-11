@@ -1,6 +1,6 @@
 $compose_file = "docker-compose.yml"
 
-docker-compose --build --exit-code-from wagyu
+docker-compose up --build --exit-code-from wagyu
 
 $STATUS = $LastExitCode
 
