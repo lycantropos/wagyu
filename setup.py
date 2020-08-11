@@ -31,7 +31,7 @@ def has_flag(compiler: CCompiler, name: str) -> bool:
 
 def cpp_flag(compiler: CCompiler) -> str:
     """
-    Returns the -std=c++[11/14/17] compiler flag.
+    Returns the -std=c++[11|...] compiler flag.
     The newer version is preferred when available.
     """
     flags = ['-std=c++{}'.format(str(year)[2:])
