@@ -1455,8 +1455,7 @@ class RingManager:
                         or hot_pixel.x >= bound.current_edge.top.x):
                     break
                 if bound.ring is not None:
-                    self.add_point_to_ring(bound,
-                                           self.hot_pixels[hot_pixel_index])
+                    self.add_point_to_ring(bound, hot_pixel)
             else:
                 hot_pixel_index = len(self.hot_pixels)
             if are_floats_greater_than(next_bound.current_x,
