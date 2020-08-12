@@ -2056,6 +2056,4 @@ def update_current_x(active_bounds: List[Bound], top_y: Coordinate) -> None:
 
 
 def hot_pixels_compare(left: Point, right: Point) -> bool:
-    return not (left.x < right.x
-                if left.y == right.y
-                else left.y > right.y)
+    return (right.y, left.x) >= (left.y, right.x)
