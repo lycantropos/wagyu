@@ -92,9 +92,9 @@ class LocalMinimumList(abc.MutableSequence):
         return sorted(value.y for value in self.values)
 
     def add_linear_ring(self,
-                        ring: LinearRing,
+                        linear_ring: LinearRing,
                         polygon_kind: PolygonKind) -> bool:
-        edges = ring.edges
+        edges = linear_ring.edges
         if not edges:
             return False
         start_list_on_local_maximum(edges)
@@ -109,7 +109,6 @@ class LocalMinimumList(abc.MutableSequence):
             to_minimum.fix_horizontals()
             to_maximum.fix_horizontals()
             max_non_horizontal_index = 0
-            minimum_is_left = True
             maximum_edges = to_maximum.edges
             while (max_non_horizontal_index < len(maximum_edges)
                    and maximum_edges[max_non_horizontal_index].is_horizontal):
