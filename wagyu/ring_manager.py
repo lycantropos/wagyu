@@ -1436,6 +1436,8 @@ class RingManager:
             if ((hot_pixel.y, bound.current_edge.bottom.x)
                     <= (scanline_y, hot_pixel.x)):
                 break
+        else:
+            hot_pixel_index = len(self.hot_pixels)
         for next_bound_index in range(bound_index + 1, len(active_bounds)):
             next_bound = active_bounds[next_bound_index]
             if next_bound is None:
@@ -1455,6 +1457,8 @@ class RingManager:
                 if bound.ring is not None:
                     self.add_point_to_ring(bound,
                                            self.hot_pixels[hot_pixel_index])
+            else:
+                hot_pixel_index = len(self.hot_pixels)
             if are_floats_greater_than(next_bound.current_x,
                                        float(bound.current_edge.top.x)):
                 break
