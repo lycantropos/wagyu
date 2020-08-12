@@ -48,7 +48,7 @@ def _double_to_biased(value: float,
 
 def rotate_sequence(sequence: Domain, index: int) -> Domain:
     return (sequence[index:] + sequence[:index]
-            if 0 < index < len(sequence)
+            if 0 < abs(index) < len(sequence)
             else sequence)
 
 

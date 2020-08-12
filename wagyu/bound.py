@@ -17,7 +17,8 @@ from .utils import (are_floats_almost_equal,
                     are_floats_greater_than,
                     are_floats_less_than,
                     find_if,
-                    insort_unique)
+                    insort_unique,
+                    rotate_sequence)
 
 
 class Bound:
@@ -197,20 +198,18 @@ class Bound:
             edge_index += 1
 
     def move_horizontals(self, other: 'Bound') -> None:
-        index = 0
         edges = self.edges
-        while index < len(edges):
-            edge = edges[index]
+        for index, edge in enumerate(edges):
             if not edge.is_horizontal:
                 break
             edge.reverse_horizontal()
-            index += 1
-        if not index:
-            return
-        other_edges = other.edges
-        other_edges.extend(reversed(edges[:index]))
-        del edges[:index]
-        other_edges[:] = other_edges[-index:] + other_edges[:-index]
+        else:
+            index = len(edges)
+        if index:
+            other_edges = other.edges
+            other_edges.extend(edges[:index:-1])
+            del edges[:index]
+            other_edges[:] = rotate_sequence(other_edges, -index)
 
     def to_next_edge(self, scanbeams: List[Coordinate]) -> None:
         self.current_edge_index += 1
