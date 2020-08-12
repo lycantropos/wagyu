@@ -1431,33 +1431,30 @@ class RingManager:
         if is_maxima_edge:
             maximum_bound_index = find(bound.maximum_bound, active_bounds)
         hot_pixel_index = self.current_hot_pixel_index
-        while (hot_pixel_index < len(self.hot_pixels)
-               and (self.hot_pixels[hot_pixel_index].y > scanline_y
-                    or self.hot_pixels[hot_pixel_index].y == scanline_y
-                    and (self.hot_pixels[hot_pixel_index].x
-                         < bound.current_edge.bottom.x))):
-            hot_pixel_index += 1
-        next_bound_index = bound_index + 1
-        while next_bound_index < len(active_bounds):
+        for hot_pixel_index in range(hot_pixel_index, len(self.hot_pixels)):
+            hot_pixel = self.hot_pixels[hot_pixel_index]
+            if ((hot_pixel.y, bound.current_edge.bottom.x)
+                    <= (scanline_y, hot_pixel.x)):
+                break
+        for next_bound_index in range(bound_index + 1, len(active_bounds)):
             next_bound = active_bounds[next_bound_index]
             if next_bound is None:
-                next_bound_index += 1
                 continue
             # insert extra coordinates into horizontal edges
             # (in output polygons)
             # wherever hot pixels touch these horizontal edges,
             # this helps 'simplifying' polygons
             # (i.e. if the simplify property is set)
-            while (hot_pixel_index < len(self.hot_pixels)
-                   and self.hot_pixels[hot_pixel_index].y == scanline_y
-                   and (self.hot_pixels[hot_pixel_index].x
-                        < round_half_up(next_bound.current_x))
-                   and (self.hot_pixels[hot_pixel_index].x
-                        < bound.current_edge.top.x)):
+            for hot_pixel_index in range(hot_pixel_index,
+                                         len(self.hot_pixels)):
+                hot_pixel = self.hot_pixels[hot_pixel_index]
+                if (hot_pixel.y != scanline_y
+                        or hot_pixel.x >= round_half_up(next_bound.current_x)
+                        or hot_pixel.x >= bound.current_edge.top.x):
+                    break
                 if bound.ring is not None:
                     self.add_point_to_ring(bound,
                                            self.hot_pixels[hot_pixel_index])
-                hot_pixel_index += 1
             if are_floats_greater_than(next_bound.current_x,
                                        float(bound.current_edge.top.x)):
                 break
@@ -1490,15 +1487,15 @@ class RingManager:
                 active_bounds[next_bound_index], active_bounds[bound_index])
             bound_index = next_bound_index
             bound = active_bounds[bound_index]
-            next_bound_index += 1
             shifted = True
         if bound.ring is not None:
-            while (hot_pixel_index < len(self.hot_pixels)
-                   and self.hot_pixels[hot_pixel_index].y == scanline_y
-                   and (self.hot_pixels[hot_pixel_index].x
-                        < bound.current_edge.top.x)):
-                self.add_point_to_ring(bound, self.hot_pixels[hot_pixel_index])
-                hot_pixel_index += 1
+            for hot_pixel_index in range(hot_pixel_index,
+                                         len(self.hot_pixels)):
+                hot_pixel = self.hot_pixels[hot_pixel_index]
+                if (hot_pixel.y != scanline_y
+                        or hot_pixel.x >= bound.current_edge.top.x):
+                    break
+                self.add_point_to_ring(bound, hot_pixel)
         if bound.ring is not None:
             self.add_point_to_ring(bound, bound.current_edge.top)
         if bound.next_edge_index < len(bound.edges):
