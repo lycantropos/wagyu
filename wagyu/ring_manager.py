@@ -1520,31 +1520,25 @@ class RingManager:
         if is_maxima_edge:
             maximum_bound_index = find(bound.maximum_bound, active_bounds)
         hot_pixel_index = self.current_hot_pixel_index
-        while (hot_pixel_index < len(self.hot_pixels)
-               and (self.hot_pixels[hot_pixel_index].y < scanline_y
-                    or self.hot_pixels[hot_pixel_index].y == scanline_y
-                    and (self.hot_pixels[hot_pixel_index].x
-                         < bound.current_edge.top.x))):
-            hot_pixel_index += 1
+        for hot_pixel_index in range(hot_pixel_index, len(self.hot_pixels)):
+            hot_pixel = self.hot_pixels[hot_pixel_index]
+            if ((hot_pixel.y, hot_pixel.x)
+                    >= (scanline_y, bound.current_edge.top.x)):
+                break
         hot_pixel_index -= 1
-        prev_bound_index = bound_index - 1
-        bound_index = prev_bound_index + 1
         bound = active_bounds[bound_index]
-        while prev_bound_index >= 0:
+        for prev_bound_index in range(bound_index - 1, -1, -1):
             prev_bound = active_bounds[prev_bound_index]
             if prev_bound is None:
-                prev_bound_index -= 1
                 continue
-            while (hot_pixel_index >= 0
-                   and self.hot_pixels[hot_pixel_index].y == scanline_y
-                   and (self.hot_pixels[hot_pixel_index].x
-                        > round_half_up(prev_bound.current_x))
-                   and (self.hot_pixels[hot_pixel_index].x
-                        > bound.current_edge.top.x)):
+            for hot_pixel_index in range(hot_pixel_index, -1, -1):
+                hot_pixel = self.hot_pixels[hot_pixel_index]
+                if (hot_pixel.y != scanline_y
+                        or hot_pixel.x <= round_half_up(prev_bound.current_x)
+                        or hot_pixel.x <= bound.current_edge.top.x):
+                    break
                 if bound.ring is not None:
-                    self.add_point_to_ring(bound,
-                                           self.hot_pixels[hot_pixel_index])
-                hot_pixel_index -= 1
+                    self.add_point_to_ring(bound, hot_pixel)
             if are_floats_less_than(prev_bound.current_x,
                                     float(bound.current_edge.top.x)):
                 break
@@ -1576,14 +1570,14 @@ class RingManager:
             active_bounds[prev_bound_index], active_bounds[bound_index] = (
                 active_bounds[bound_index], active_bounds[prev_bound_index])
             bound_index = prev_bound_index
-            prev_bound_index -= 1
+            bound = active_bounds[bound_index]
         if bound.ring is not None:
-            while (hot_pixel_index >= 0
-                   and self.hot_pixels[hot_pixel_index].y == scanline_y
-                   and (self.hot_pixels[hot_pixel_index].x
-                        > bound.current_edge.top.x)):
-                self.add_point_to_ring(bound, self.hot_pixels[hot_pixel_index])
-                hot_pixel_index -= 1
+            for hot_pixel_index in range(hot_pixel_index, -1, -1):
+                hot_pixel = self.hot_pixels[hot_pixel_index]
+                if (hot_pixel.y != scanline_y
+                        or hot_pixel.x <= bound.current_edge.top.x):
+                    break
+                self.add_point_to_ring(bound, hot_pixel)
         if bound.ring is not None:
             self.add_point_to_ring(bound, bound.current_edge.top)
         if bound.next_edge_index < len(bound.edges):
