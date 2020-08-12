@@ -12,6 +12,7 @@ from .enums import (EdgeSide,
                     PolygonKind)
 from .hints import Coordinate
 from .linear_ring import LinearRing
+from .utils import rotate_sequence
 
 
 class LocalMinimum:
@@ -97,10 +98,9 @@ class LocalMinimumList(abc.MutableSequence):
         edges = linear_ring.edges
         if not edges:
             return False
-        start_list_on_local_maximum(edges)
+        edges = to_edges_starting_on_local_maximum(edges)
         first_minimum = last_maximum = None  # type: Optional[Bound]
         while edges:
-            lm_minimum_has_horizontal = False
             to_minimum = create_bound_towards_minimum(edges)
             if not edges:
                 raise RuntimeError('Edges is empty '
@@ -108,23 +108,19 @@ class LocalMinimumList(abc.MutableSequence):
             to_maximum = create_bound_towards_maximum(edges)
             to_minimum.fix_horizontals()
             to_maximum.fix_horizontals()
-            max_non_horizontal_index = 0
             maximum_edges = to_maximum.edges
-            while (max_non_horizontal_index < len(maximum_edges)
-                   and maximum_edges[max_non_horizontal_index].is_horizontal):
-                lm_minimum_has_horizontal = True
-                max_non_horizontal_index += 1
-            min_non_horizontal_index = 0
             minimum_edges = to_minimum.edges
-            while (min_non_horizontal_index < len(minimum_edges)
-                   and minimum_edges[min_non_horizontal_index].is_horizontal):
-                lm_minimum_has_horizontal = True
-                min_non_horizontal_index += 1
+            max_non_horizontal_index = to_first_non_horizontal_index(
+                    maximum_edges)
+            min_non_horizontal_index = to_first_non_horizontal_index(
+                    minimum_edges)
             if (max_non_horizontal_index == len(maximum_edges)
                     or min_non_horizontal_index == len(minimum_edges)):
                 raise RuntimeError('should not have a horizontal only bound '
                                    'for a ring')
-            if lm_minimum_has_horizontal:
+            minimum_has_horizontal = (max_non_horizontal_index > 0
+                                      or min_non_horizontal_index > 0)
+            if minimum_has_horizontal:
                 if (maximum_edges[max_non_horizontal_index].bottom.x
                         > minimum_edges[min_non_horizontal_index].bottom.x):
                     minimum_is_left = True
@@ -149,27 +145,28 @@ class LocalMinimumList(abc.MutableSequence):
                 to_maximum.side = EdgeSide.LEFT
                 to_minimum.winding_delta = -1
                 to_maximum.winding_delta = 1
-                self.values.append(LocalMinimum(to_maximum, to_minimum,
-                                                min_front.bottom.y,
-                                                lm_minimum_has_horizontal))
+                minimum = LocalMinimum(to_maximum, to_minimum,
+                                       min_front.bottom.y,
+                                       minimum_has_horizontal)
                 if last_maximum is None:
-                    first_minimum = self[-1].right_bound
+                    first_minimum = minimum.right_bound
                 else:
-                    last_maximum.maximum_bound = self[-1].right_bound
-                last_maximum = self[-1].left_bound
+                    last_maximum.maximum_bound = minimum.right_bound
+                last_maximum = minimum.left_bound
             else:
                 to_minimum.side = EdgeSide.LEFT
                 to_maximum.side = EdgeSide.RIGHT
                 to_minimum.winding_delta = -1
                 to_maximum.winding_delta = 1
-                self.values.append(LocalMinimum(to_minimum, to_maximum,
-                                                min_front.bottom.y,
-                                                lm_minimum_has_horizontal))
+                minimum = LocalMinimum(to_minimum, to_maximum,
+                                       min_front.bottom.y,
+                                       minimum_has_horizontal)
                 if last_maximum is None:
-                    first_minimum = self[-1].left_bound
+                    first_minimum = minimum.left_bound
                 else:
-                    last_maximum.maximum_bound = self[-1].left_bound
-                last_maximum = self[-1].right_bound
+                    last_maximum.maximum_bound = minimum.left_bound
+                last_maximum = minimum.right_bound
+            self.values.append(minimum)
         last_maximum.maximum_bound = first_minimum
         first_minimum.maximum_bound = last_maximum
         return True
@@ -178,16 +175,17 @@ class LocalMinimumList(abc.MutableSequence):
         self.insert(index, value)
 
 
-def start_list_on_local_maximum(edges: List[Edge]) -> None:
-    if len(edges) <= 2:
-        return
-    prev_edge_index = len(edges) - 1
-    prev_edge = edges[prev_edge_index]
+def to_edges_starting_on_local_maximum(edges: List[Edge]) -> List[Edge]:
+    return (rotate_sequence(edges, to_local_maximum_index(edges))
+            if len(edges) > 2
+            else edges)
+
+
+def to_local_maximum_index(edges: List[Edge]) -> int:
+    prev_edge = edges[-1]
     prev_edge_is_horizontal = prev_edge.is_horizontal
-    index = 0
     y_decreasing_before_last_horizontal = False
-    while index < len(edges):
-        edge = edges[index]
+    for index, edge in enumerate(edges):
         edge_is_horizontal = edge.is_horizontal
         if (not prev_edge_is_horizontal and not edge_is_horizontal
                 and edge.top == prev_edge.top):
@@ -202,5 +200,12 @@ def start_list_on_local_maximum(edges: List[Edge]) -> None:
               and (prev_edge.top == edge.top or prev_edge.top == edge.bottom)):
             y_decreasing_before_last_horizontal = True
         prev_edge, prev_edge_is_horizontal = edge, edge_is_horizontal
-        index += 1
-    edges[:] = edges[index:] + edges[:index]
+    else:
+        index = len(edges)
+    return index
+
+
+def to_first_non_horizontal_index(edges: List[Edge]) -> int:
+    return next(index
+                for index, edge in enumerate(edges)
+                if not edge.is_horizontal)

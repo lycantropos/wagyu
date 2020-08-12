@@ -46,6 +46,12 @@ def _double_to_biased(value: float,
         return ctypes.c_uint64(sign_bit_mask | result).value
 
 
+def rotate_sequence(sequence: Domain, index: int) -> Domain:
+    return (sequence[index:] + sequence[:index]
+            if 0 < index < len(sequence)
+            else sequence)
+
+
 def insort_unique(sequence: MutableSequence[Domain], value: Domain) -> None:
     index = bisect_left(sequence, value)
     if index == len(sequence) or value < sequence[index]:
