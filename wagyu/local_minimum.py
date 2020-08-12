@@ -73,7 +73,7 @@ class LocalMinimumList(abc.MutableSequence):
     def __delitem__(self, index: int) -> None:
         del self.values[index]
 
-    def __eq__(self, other: 'LocalMinimumList'):
+    def __eq__(self, other: 'LocalMinimumList') -> bool:
         return (self.values == other.values
                 if isinstance(other, LocalMinimumList)
                 else NotImplemented)
