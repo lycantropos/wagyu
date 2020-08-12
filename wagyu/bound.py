@@ -171,7 +171,7 @@ class Bound:
             return subject_fill_kind is FillKind.EVEN_ODD
 
     def is_intermediate(self, y: Coordinate) -> bool:
-        return (self.next_edge_index != len(self.edges)
+        return (self.next_edge_index < len(self.edges)
                 and self.current_edge.top.y == y)
 
     def is_maxima(self, y: Coordinate) -> bool:
