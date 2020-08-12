@@ -110,14 +110,14 @@ class LocalMinimumList(abc.MutableSequence):
             to_maximum.fix_horizontals()
             maximum_edges = to_maximum.edges
             minimum_edges = to_minimum.edges
-            max_non_horizontal_index = to_first_non_horizontal_index(
-                    maximum_edges)
-            min_non_horizontal_index = to_first_non_horizontal_index(
-                    minimum_edges)
-            if (max_non_horizontal_index == len(maximum_edges)
-                    or min_non_horizontal_index == len(minimum_edges)):
+            try:
+                max_non_horizontal_index = to_first_non_horizontal_index(
+                        maximum_edges)
+                min_non_horizontal_index = to_first_non_horizontal_index(
+                        minimum_edges)
+            except StopIteration as error:
                 raise RuntimeError('should not have a horizontal only bound '
-                                   'for a ring')
+                                   'for a ring') from error
             minimum_has_horizontal = (max_non_horizontal_index > 0
                                       or min_non_horizontal_index > 0)
             if minimum_has_horizontal:
@@ -129,13 +129,9 @@ class LocalMinimumList(abc.MutableSequence):
                     minimum_is_left = False
                     to_maximum.move_horizontals(to_minimum)
             else:
-                if (maximum_edges[max_non_horizontal_index].slope
-                        > minimum_edges[min_non_horizontal_index].slope):
-                    minimum_is_left = False
-                else:
-                    minimum_is_left = True
-            assert minimum_edges
-            assert maximum_edges
+                minimum_is_left = (
+                        maximum_edges[max_non_horizontal_index].slope
+                        <= minimum_edges[min_non_horizontal_index].slope)
             min_front = minimum_edges[0]
             if last_maximum:
                 to_minimum.maximum_bound = last_maximum
