@@ -254,22 +254,14 @@ def create_bound_towards_maximum(edges: List[Edge]) -> Bound:
 
 
 def create_bound_towards_minimum(edges: List[Edge]) -> Bound:
-    if len(edges) == 1:
-        first_edge = edges[0]
-        if first_edge.is_horizontal:
-            first_edge.reverse_horizontal()
-        result = Bound(edges[:])
-        edges.clear()
-        return result
-    next_edge_index = 0
-    edge = edges[next_edge_index]
-    next_edge_index += 1
+    edges_iterator = iter(edges)
+    edge = next(edges_iterator)
     edge_is_horizontal = edge.is_horizontal
     if edge_is_horizontal:
         edge.reverse_horizontal()
     y_increasing_before_last_horizontal = False
-    while next_edge_index < len(edges):
-        next_edge = edges[next_edge_index]
+    for next_edge_index, next_edge in enumerate(edges_iterator,
+                                                start=1):
         next_edge_is_horizontal = next_edge.is_horizontal
         if (not next_edge_is_horizontal and not edge_is_horizontal
                 and edge.bottom == next_edge.bottom):
@@ -287,14 +279,10 @@ def create_bound_towards_minimum(edges: List[Edge]) -> Bound:
         edge_is_horizontal, edge = next_edge_is_horizontal, next_edge
         if edge_is_horizontal:
             edge.reverse_horizontal()
-        next_edge_index += 1
-    if next_edge_index == len(edges):
-        result = Bound(edges[:])
-        edges.clear()
     else:
-        result = Bound(edges[:next_edge_index])
-        del edges[:next_edge_index]
-    result.edges.reverse()
+        next_edge_index = len(edges)
+    result = Bound(edges[next_edge_index - 1::-1])
+    del edges[:next_edge_index]
     return result
 
 
