@@ -304,9 +304,8 @@ def insert_bound_into_abl(left: Bound,
 
 
 def intersection_compare(left: Bound, right: Bound) -> bool:
-    return not (left.current_x > right.current_x and
-                not are_edges_slopes_equal(left.current_edge,
-                                           right.current_edge))
+    return (left.current_x <= right.current_x
+            or are_edges_slopes_equal(left.current_edge, right.current_edge))
 
 
 def set_winding_count(bound_index: int, active_bounds: List[Bound],
