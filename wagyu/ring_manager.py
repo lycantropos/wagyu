@@ -825,51 +825,43 @@ class RingManager:
     def horizontals_at_top_scanbeam(self,
                                     top_y: Coordinate,
                                     active_bounds: List[Bound],
-                                    current_bound_index: int
+                                    bound_index: int
                                     ) -> Tuple[int, bool]:
         shifted = False
-        current_edge = active_bounds[current_bound_index].current_edge
-        active_bounds[current_bound_index].current_x = current_edge.top.x
+        bound = active_bounds[bound_index]
+        current_edge = bound.current_edge
+        bound.current_x = current_edge.top.x
         if current_edge.bottom.x < current_edge.top.x:
-            next_bound_index = current_bound_index + 1
-            while (next_bound_index < len(active_bounds)
-                   and (active_bounds[next_bound_index] is None
-                        or active_bounds[next_bound_index].current_x
-                        < active_bounds[current_bound_index].current_x)):
-                bound_next = active_bounds[next_bound_index]
-                if (bound_next is not None
-                        and bound_next.current_edge.top.y != top_y
-                        and bound_next.current_edge.bottom.y != top_y):
+            for next_bound_index in range(bound_index + 1, len(active_bounds)):
+                next_bound = active_bounds[next_bound_index]
+                if (next_bound is not None
+                        and next_bound.current_x >= bound.current_x):
+                    break
+                if (next_bound is not None
+                        and next_bound.current_edge.top.y != top_y
+                        and next_bound.current_edge.bottom.y != top_y):
                     self.hot_pixels.append(
-                            Point(round_half_up(bound_next.current_x),
-                                  top_y))
-                (active_bounds[current_bound_index],
-                 active_bounds[next_bound_index]) = (
-                    active_bounds[next_bound_index],
-                    active_bounds[current_bound_index])
-                current_bound_index += 1
-                next_bound_index += 1
-                shifted = True
-        elif current_bound_index > 0:
-            prev_bound_index = current_bound_index - 1
-            while (current_bound_index > 0
-                   and (active_bounds[prev_bound_index] is None
-                        or active_bounds[prev_bound_index].current_x
-                        > active_bounds[current_bound_index].current_x)):
+                            Point(round_half_up(next_bound.current_x), top_y))
+                active_bounds[bound_index], active_bounds[next_bound_index] = (
+                    next_bound, bound)
+                bound_index = next_bound_index
+                if not shifted:
+                    shifted = True
+        else:
+            for prev_bound_index in range(bound_index - 1, -1, -1):
                 prev_bound = active_bounds[prev_bound_index]
+                if (prev_bound is not None
+                        and prev_bound.current_x <= bound.current_x):
+                    break
                 if (prev_bound is not None
                         and prev_bound.current_edge.top.y != top_y
                         and prev_bound.current_edge.bottom.y != top_y):
                     self.hot_pixels.append(
-                            Point(round_half_up(prev_bound.current_x),
-                                  top_y))
-                (active_bounds[current_bound_index],
-                 active_bounds[prev_bound_index]) = (
-                    active_bounds[prev_bound_index],
-                    active_bounds[current_bound_index])
-                current_bound_index -= 1
-                prev_bound_index -= 1
-        return current_bound_index, shifted
+                            Point(round_half_up(prev_bound.current_x), top_y))
+                active_bounds[bound_index], active_bounds[prev_bound_index] = (
+                    prev_bound, bound)
+                bound_index = prev_bound_index
+        return bound_index, shifted
 
     def hot_pixels_on_swap(self,
                            first_bound: Bound,
