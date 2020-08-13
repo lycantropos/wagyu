@@ -965,9 +965,11 @@ class RingManager:
             return
         start_x, start_y = bound.last_point.x, bound.last_point.y
         end_x, end_y = end_point.x, end_point.y
-        index = self.current_hot_pixel_index
-        while self.hot_pixels[index].y <= start_y and index > 0:
-            index -= 1
+        for index in range(self.current_hot_pixel_index, 0, -1):
+            if self.hot_pixels[index].y > start_y:
+                break
+        else:
+            index = 0
         if start_x > end_x:
             while index < len(self.hot_pixels):
                 y = self.hot_pixels[index].y
@@ -977,9 +979,11 @@ class RingManager:
                 elif y < end_y:
                     break
                 first_index = index
-                while (index < len(self.hot_pixels)
-                       and self.hot_pixels[index].y == y):
-                    index += 1
+                for index in range(index, len(self.hot_pixels)):
+                    if self.hot_pixels[index].y != y:
+                        break
+                else:
+                    index = len(self.hot_pixels)
                 last_index = index
                 self.hot_pixel_set_right_to_left(
                         y, start_x, end_x, bound, first_index, last_index,
@@ -993,9 +997,11 @@ class RingManager:
                 elif y < end_y:
                     break
                 first_index = index
-                while (index < len(self.hot_pixels)
-                       and self.hot_pixels[index].y == y):
-                    index += 1
+                for index in range(index, len(self.hot_pixels)):
+                    if self.hot_pixels[index].y != y:
+                        break
+                else:
+                    index = len(self.hot_pixels)
                 last_index = index
                 self.hot_pixel_set_left_to_right(
                         y, start_x, end_x, bound, first_index, last_index,
