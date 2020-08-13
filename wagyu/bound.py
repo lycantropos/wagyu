@@ -207,7 +207,7 @@ class Bound:
             index = len(edges)
         if index:
             other_edges = other.edges
-            other_edges.extend(edges[:index:-1])
+            other_edges.extend(edges[index - 1::-1])
             del edges[:index]
             other_edges[:] = rotate_sequence(other_edges, -index)
 
