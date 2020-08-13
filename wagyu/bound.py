@@ -218,17 +218,12 @@ class Bound:
 
 
 def create_bound_towards_maximum(edges: List[Edge]) -> Bound:
-    if len(edges) == 1:
-        result = Bound(edges[:])
-        edges.clear()
-        return result
-    next_edge_index = 0
-    edge = edges[next_edge_index]
-    next_edge_index += 1
+    edges_iterator = iter(edges)
+    edge = next(edges_iterator)
     edge_is_horizontal = edge.is_horizontal
     y_decreasing_before_last_horizontal = False
-    while next_edge_index < len(edges):
-        next_edge = edges[next_edge_index]
+    for next_edge_index, next_edge in enumerate(edges_iterator,
+                                                start=1):
         next_edge_is_horizontal = next_edge.is_horizontal
         if (not next_edge_is_horizontal and not edge_is_horizontal
                 and edge.top == next_edge.top):
@@ -244,12 +239,10 @@ def create_bound_towards_maximum(edges: List[Edge]) -> Bound:
             y_decreasing_before_last_horizontal = True
         edge, edge_is_horizontal = next_edge, next_edge_is_horizontal
         next_edge_index += 1
-    if next_edge_index == len(edges):
-        result = Bound(edges[:])
-        edges.clear()
     else:
-        result = Bound(edges[:next_edge_index])
-        del edges[:next_edge_index]
+        next_edge_index = len(edges)
+    result = Bound(edges[:next_edge_index])
+    del edges[:next_edge_index]
     return result
 
 
