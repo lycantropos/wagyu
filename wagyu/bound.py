@@ -180,22 +180,19 @@ class Bound:
                 and self.current_edge.top.y == y)
 
     def fix_horizontals(self) -> None:
-        edge_index = 0
-        next_index = 1
         edges = self.edges
-        if next_index == len(edges):
+        if len(edges) == 1:
             return
-        edge = edges[edge_index]
-        if edge.is_horizontal and edges[next_index].bottom != edge.top:
+        edge = edges[0]
+        next_edge_index = 1
+        next_edge = edges[next_edge_index]
+        if edge.is_horizontal and edge.top != next_edge.bottom:
             edge.reverse_horizontal()
-        prev_edge = edge
-        edge_index += 1
-        while edge_index < len(edges):
-            edge = edges[edge_index]
-            if edge.is_horizontal and prev_edge.top != edge.bottom:
-                edge.reverse_horizontal()
-            prev_edge = edge
-            edge_index += 1
+        for next_edge_index in range(next_edge_index, len(edges)):
+            next_edge = edges[next_edge_index]
+            if next_edge.is_horizontal and edge.top != next_edge.bottom:
+                next_edge.reverse_horizontal()
+            edge = next_edge
 
     def move_horizontals(self, other: 'Bound') -> None:
         edges = self.edges
