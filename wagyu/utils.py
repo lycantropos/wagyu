@@ -104,35 +104,29 @@ def is_odd(number: int) -> bool:
 
 def quicksort(sequence: MutableSequence[Domain],
               comparator: Callable[[Domain, Domain], bool]) -> None:
-    _quicksort(sequence, 0, len(sequence) - 1, comparator)
-
-
-def _quicksort(sequence: MutableSequence[Domain],
-               start: int,
-               end: int,
-               comparator: Callable[[Domain, Domain], bool]) -> None:
-    if start >= end:
+    size = len(sequence)
+    if size < 2:
         return
-    pivot = partition(sequence, start, end, comparator)
-    _quicksort(sequence, start, pivot - 1, comparator)
-    _quicksort(sequence, pivot + 1, end, comparator)
-
-
-def partition(sequence: MutableSequence[Domain],
-              start: int,
-              end: int,
-              comparator: Callable[[Domain, Domain], bool]) -> int:
-    pivot = sequence[start]
-    low = start + 1
-    high = end
-    while True:
-        while low <= high and comparator(sequence[high], pivot):
-            high = high - 1
-        while low <= high and not comparator(sequence[low], pivot):
-            low = low + 1
-        if low <= high:
-            sequence[low], sequence[high] = sequence[high], sequence[low]
-        else:
-            break
-    sequence[start], sequence[high] = sequence[high], sequence[start]
-    return high
+    queue = [(0, size - 1)]
+    while queue:
+        index, pivot_index = low, high = queue.pop()
+        element = sequence[index]
+        pivot = sequence[pivot_index]
+        while pivot_index > index:
+            if comparator(pivot, element):
+                index += 1
+                element = sequence[index]
+            else:
+                sequence[pivot_index] = element
+                pivot_index -= 1
+                sequence[index] = element = sequence[pivot_index]
+        sequence[pivot_index] = pivot
+        low_size = pivot_index - low
+        high_size = high - pivot_index
+        if low_size > high_size:
+            queue.append((low, pivot_index - 1))
+        elif low_size > 1:
+            queue.append((pivot_index + 1, high))
+            queue.append((low, pivot_index - 1))
+        if high_size > 1:
+            queue.append((pivot_index + 1, high))
