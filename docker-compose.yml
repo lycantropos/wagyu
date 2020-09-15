@@ -14,6 +14,7 @@ services:
       - ./wagyu/:/opt/wagyu/wagyu/
       - ./tests/:/opt/wagyu/tests/
       - ./README.md:/opt/wagyu/README.md
+      - ./requirements-setup.txt:/opt/wagyu/requirements-setup.txt
       - ./requirements.txt:/opt/wagyu/requirements.txt
       - ./requirements-tests.txt:/opt/wagyu/requirements-tests.txt
       - ./setup.py:/opt/wagyu/setup.py
