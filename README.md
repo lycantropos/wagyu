@@ -46,6 +46,37 @@ Install:
 python setup.py install
 ```
 
+Usage
+-----
+```python
+>>> from wagyu.enums import PolygonKind, FillKind
+>>> from wagyu.linear_ring import LinearRing
+>>> from wagyu.point import Point
+>>> from wagyu.polygon import Multipolygon, Polygon
+>>> from wagyu.wagyu import Wagyu
+>>> lower_triangle = Polygon([LinearRing([Point(0, 0), Point(6, 0), Point(3, 3), Point(0, 0)])])
+>>> upper_triangle = Polygon([LinearRing([Point(3, 1), Point(6, 4), Point(0, 4), Point(3, 1)])])
+>>> wagyu = Wagyu()
+>>> wagyu.add_polygon(lower_triangle, PolygonKind.SUBJECT)
+True
+>>> wagyu.add_polygon(upper_triangle, PolygonKind.CLIP)
+True
+>>> (wagyu.intersect()
+...  == Multipolygon([Polygon([LinearRing([Point(3, 1), Point(4, 2), Point(3, 3), Point(2, 2), Point(3, 1)])])]))
+True
+>>> (wagyu.unite()
+...  == Multipolygon([Polygon([LinearRing([Point(6, 0), Point(4, 2), Point(6, 4), Point(0, 4), Point(2, 2), Point(0, 0), Point(6, 0)])])]))
+True
+>>> (wagyu.symmetric_subtract()
+...  == Multipolygon([Polygon([LinearRing([Point(4, 2), Point(3, 1), Point(2, 2), Point(0, 0), Point(6, 0), Point(4, 2)])]),
+...                   Polygon([LinearRing([Point(4, 2), Point(6, 4), Point(0, 4), Point(2, 2), Point(3, 3), Point(4, 2)])])]))
+True
+>>> (wagyu.subtract()
+...  == Multipolygon([Polygon([LinearRing([Point(6, 0), Point(4, 2), Point(3, 1), Point(2, 2), Point(0, 0), Point(6, 0)])])]))
+True
+
+```
+
 Development
 -----------
 
