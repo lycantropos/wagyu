@@ -47,6 +47,11 @@ class Multipolygon(abc.Sequence):
 
     __repr__ = generate_repr(__init__)
 
+    def __eq__(self, other: 'Multipolygon') -> bool:
+        return (self.polygons == other.polygons
+                if isinstance(other, Multipolygon)
+                else NotImplemented)
+
     def __getitem__(self, index: int) -> Polygon:
         return self.polygons[index]
 
