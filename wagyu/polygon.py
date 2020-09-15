@@ -19,6 +19,11 @@ class Polygon(abc.Sequence):
 
     __repr__ = generate_repr(__init__)
 
+    def __eq__(self, other: 'Polygon') -> bool:
+        return (self.linear_rings == other.linear_rings
+                if isinstance(other, Polygon)
+                else NotImplemented)
+
     def __getitem__(self, index: int) -> LinearRing:
         return self.linear_rings[index]
 
