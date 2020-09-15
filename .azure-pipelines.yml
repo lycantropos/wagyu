@@ -142,3 +142,8 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: $(TWINE_PASSWORD)
+
+trigger:
+  tags:
+    include:
+      - 'v*'
