@@ -49,7 +49,7 @@ python setup.py install
 Usage
 -----
 ```python
->>> from wagyu.enums import PolygonKind, FillKind
+>>> from wagyu.enums import PolygonKind
 >>> from wagyu.linear_ring import LinearRing
 >>> from wagyu.point import Point
 >>> from wagyu.polygon import Multipolygon, Polygon
@@ -76,6 +76,7 @@ True
 True
 
 ```
+original C++ implementation can be invoked by importing from `_wagyu` module instead.
 
 Development
 -----------
