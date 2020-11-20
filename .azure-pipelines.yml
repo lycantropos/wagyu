@@ -113,7 +113,7 @@ steps:
     displayName: 'Install packaging tools'
   - script: python -m pip install --force-reinstall -r requirements-tests.txt
     displayName: 'Install tests requirements'
-  - script: python -m pip install -e .
+  - script: python setup.py develop
     displayName: 'Install in editable mode'
     env:
       CXXFLAGS: --coverage -O0 -fprofile-arcs -ftest-coverage
