@@ -1,6 +1,6 @@
 from hypothesis import given
 
-from tests.utils import BoundPortedEdgesPair
+from tests.integration_tests.utils import BoundPortedEdgesPair
 from . import strategies
 
 

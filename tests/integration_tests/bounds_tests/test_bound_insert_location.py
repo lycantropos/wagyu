@@ -1,8 +1,8 @@
 from _wagyu import bound_insert_location as bound
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsPair,
-                         equivalence)
+from tests.integration_tests.utils import BoundPortedBoundsPair
+from tests.utils import equivalence
 from wagyu.bound import bound_insert_location as ported
 from . import strategies
 

@@ -1,8 +1,8 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedEdgesPair,
-                         are_bound_ported_edges_equal,
-                         pickle_round_trip)
+from tests.integration_tests.utils import (BoundPortedEdgesPair,
+                                           are_bound_ported_edges_equal)
+from tests.utils import pickle_round_trip
 from . import strategies
 
 

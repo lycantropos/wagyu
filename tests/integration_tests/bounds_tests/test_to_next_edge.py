@@ -2,8 +2,8 @@ from typing import List
 
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsPair,
-                         are_bound_ported_bounds_equal)
+from tests.integration_tests.utils import (BoundPortedBoundsPair,
+                                           are_bound_ported_bounds_equal)
 from wagyu.hints import Coordinate
 from . import strategies
 

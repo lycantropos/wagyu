@@ -3,9 +3,9 @@ from typing import Tuple
 from _wagyu import set_winding_count as bound
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsListsPair,
-                         BoundPortedFillKindsPair,
-                         are_bound_ported_bounds_lists_equal)
+from tests.integration_tests.utils import (BoundPortedBoundsListsPair,
+                                           BoundPortedFillKindsPair,
+                                           are_bound_ported_bounds_lists_equal)
 from wagyu.bound import set_winding_count as ported
 from . import strategies
 

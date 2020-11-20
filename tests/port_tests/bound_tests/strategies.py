@@ -1,12 +1,12 @@
 from hypothesis import strategies
 
+from tests.port_tests.utils import (ported_edges_sides,
+                                    ported_polygon_kinds)
 from tests.strategies import (coordinates,
                               floats,
                               non_negative_integers,
                               trits)
-from tests.utils import (ported_edges_sides,
-                         ported_polygon_kinds,
-                         to_maybe)
+from tests.utils import to_maybe
 from wagyu.bound import Bound
 from wagyu.box import Box
 from wagyu.edge import Edge

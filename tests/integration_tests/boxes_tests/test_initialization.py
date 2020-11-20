@@ -2,10 +2,10 @@ from typing import Tuple
 
 from hypothesis import given
 
-from tests.utils import (BoundBox,
-                         BoundPortedPointsPair,
-                         PortedBox,
-                         are_bound_ported_boxes_equal)
+from tests.binding_tests.utils import BoundBox
+from tests.integration_tests.utils import (BoundPortedPointsPair,
+                                           are_bound_ported_boxes_equal)
+from tests.port_tests.utils import PortedBox
 from . import strategies
 
 

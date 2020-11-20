@@ -2,13 +2,14 @@ from typing import Tuple
 
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsListsPair,
-                         BoundPortedFillKindsPair,
-                         BoundPortedLocalMinimumListsPair,
-                         BoundPortedOperationKindsPair,
-                         BoundPortedRingManagersPair,
-                         are_bound_ported_bounds_lists_equal,
-                         are_bound_ported_ring_managers_equal)
+from tests.integration_tests.utils import (
+    BoundPortedBoundsListsPair,
+    BoundPortedFillKindsPair,
+    BoundPortedLocalMinimumListsPair,
+    BoundPortedOperationKindsPair,
+    BoundPortedRingManagersPair,
+    are_bound_ported_bounds_lists_equal,
+    are_bound_ported_ring_managers_equal)
 from wagyu.hints import Coordinate
 from . import strategies
 
@@ -44,7 +45,7 @@ def test_basic(pair: BoundPortedRingManagersPair,
             bound_local_minimum_list, index, bound_active_bounds)
     ported_result = ported.insert_local_minima_into_abl(
             ported_operation_kind, ported_subject_fill_kind,
-            ported_clip_fill_kind, bottom_y, ported_scanbeams, 
+            ported_clip_fill_kind, bottom_y, ported_scanbeams,
             ported_local_minimum_list, index, ported_active_bounds)
 
     assert bound_result == ported_result

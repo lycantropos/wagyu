@@ -1,8 +1,8 @@
 from _wagyu import is_point_between_others as bound
 from hypothesis import given
 
-from tests.utils import (BoundPortedPointsPair,
-                         equivalence)
+from tests.integration_tests.utils import BoundPortedPointsPair
+from tests.utils import equivalence
 from wagyu.point import is_point_between_others as ported
 from . import strategies
 

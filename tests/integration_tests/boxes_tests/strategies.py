@@ -1,9 +1,9 @@
 from hypothesis import strategies
 
+from tests.integration_tests.utils import (to_bound_with_ported_boxes_pair,
+                                           to_bound_with_ported_points_pair)
 from tests.strategies import coordinates
 from tests.utils import (pack,
-                         to_bound_with_ported_boxes_pair,
-                         to_bound_with_ported_points_pair,
                          to_pairs)
 
 points_pairs = strategies.builds(to_bound_with_ported_points_pair, coordinates,

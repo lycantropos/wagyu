@@ -2,12 +2,13 @@ from typing import Tuple
 
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsListsPair,
-                         BoundPortedPointsPair,
-                         BoundPortedRingManagersPair,
-                         are_bound_ported_bounds_equal,
-                         are_bound_ported_bounds_lists_equal,
-                         are_bound_ported_ring_managers_equal)
+from tests.integration_tests.utils import (
+    BoundPortedBoundsListsPair,
+    BoundPortedPointsPair,
+    BoundPortedRingManagersPair,
+    are_bound_ported_bounds_equal,
+    are_bound_ported_ring_managers_equal,
+    are_bound_ported_bounds_lists_equal)
 from . import strategies
 
 

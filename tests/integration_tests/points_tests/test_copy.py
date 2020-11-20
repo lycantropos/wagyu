@@ -2,8 +2,8 @@ import copy
 
 from hypothesis import given
 
-from tests.utils import (BoundPortedPointsPair,
-                         are_bound_ported_points_equal)
+from tests.integration_tests.utils import (BoundPortedPointsPair,
+                                           are_bound_ported_points_equal)
 from . import strategies
 
 

@@ -1,23 +1,24 @@
 from hypothesis import strategies
 from hypothesis_geometry import planar
 
+from tests.binding_tests.utils import (bound_edges_sides,
+                                       bound_polygon_kinds)
+from tests.integration_tests.utils import (
+    to_bound_with_ported_bounds_pair,
+    to_bound_with_ported_edges_lists,
+    to_bound_with_ported_intersect_nodes_pair,
+    to_bound_with_ported_linear_rings_pair,
+    to_bound_with_ported_points_lists_pair,
+    to_bound_with_ported_points_pair,
+    to_bound_with_ported_rings_pair)
+from tests.port_tests.utils import (ported_edges_sides,
+                                    ported_polygon_kinds)
 from tests.strategies import (coordinates,
                               floats,
                               integers_32,
                               sizes,
                               trits)
-from tests.utils import (bound_edges_sides,
-                         bound_polygon_kinds,
-                         ported_edges_sides,
-                         ported_polygon_kinds,
-                         to_bound_with_ported_bounds_pair,
-                         to_bound_with_ported_edges_lists,
-                         to_bound_with_ported_intersect_nodes_pair,
-                         to_bound_with_ported_linear_rings_pair,
-                         to_bound_with_ported_points_lists_pair,
-                         to_bound_with_ported_points_pair,
-                         to_bound_with_ported_rings_pair,
-                         to_maybe_pairs,
+from tests.utils import (to_maybe_pairs,
                          transpose_pairs)
 
 booleans = strategies.booleans()

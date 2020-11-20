@@ -1,12 +1,13 @@
 from hypothesis import given
 
-from tests.utils import (BoundPolygonKind,
-                         BoundPortedFillKindsPair,
-                         BoundPortedMultipolygonsPair,
-                         BoundPortedWagyusPair,
-                         PortedPolygonKind,
-                         are_bound_ported_multipolygons_equal,
-                         are_bound_ported_wagyus_equal)
+from tests.binding_tests.utils import BoundPolygonKind
+from tests.integration_tests.utils import (
+    BoundPortedFillKindsPair,
+    BoundPortedMultipolygonsPair,
+    BoundPortedWagyusPair,
+    are_bound_ported_multipolygons_equal,
+    are_bound_ported_wagyus_equal)
+from tests.port_tests.utils import PortedPolygonKind
 from . import strategies
 
 

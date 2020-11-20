@@ -1,7 +1,7 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedLocalMinimumListsPair,
-                         equivalence)
+from tests.integration_tests.utils import BoundPortedLocalMinimumListsPair
+from tests.utils import equivalence
 from . import strategies
 
 

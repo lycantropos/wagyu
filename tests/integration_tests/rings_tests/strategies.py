@@ -1,10 +1,10 @@
 from hypothesis import strategies
 
+from tests.integration_tests.utils import (to_bound_with_ported_points_pair,
+                                           to_bound_with_ported_rings_pair)
 from tests.strategies import (coordinates,
                               sizes)
-from tests.utils import (to_bound_with_ported_points_pair,
-                         to_bound_with_ported_rings_pair,
-                         to_maybe_pairs,
+from tests.utils import (to_maybe_pairs,
                          transpose_pairs)
 
 booleans = strategies.booleans()

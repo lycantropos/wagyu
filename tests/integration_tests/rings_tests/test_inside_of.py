@@ -1,8 +1,8 @@
 import pytest
 from hypothesis import given
 
-from tests.utils import (BoundPortedRingsPair,
-                         equivalence)
+from tests.integration_tests.utils import BoundPortedRingsPair
+from tests.utils import equivalence
 from . import strategies
 
 

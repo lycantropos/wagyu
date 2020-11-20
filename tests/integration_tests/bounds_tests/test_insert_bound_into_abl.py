@@ -1,9 +1,9 @@
 from _wagyu import insert_bound_into_abl as bound
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsListsPair,
-                         BoundPortedBoundsPair,
-                         are_bound_ported_bounds_lists_equal)
+from tests.integration_tests.utils import (BoundPortedBoundsListsPair,
+                                           BoundPortedBoundsPair,
+                                           are_bound_ported_bounds_lists_equal)
 from wagyu.bound import insert_bound_into_abl as ported
 from . import strategies
 

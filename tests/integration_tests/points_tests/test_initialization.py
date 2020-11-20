@@ -1,8 +1,8 @@
 from hypothesis import given
 
-from tests.utils import (BoundPoint,
-                         PortedPoint,
-                         are_bound_ported_points_equal)
+from tests.binding_tests.utils import BoundPoint
+from tests.integration_tests.utils import are_bound_ported_points_equal
+from tests.port_tests.utils import PortedPoint
 from . import strategies
 
 

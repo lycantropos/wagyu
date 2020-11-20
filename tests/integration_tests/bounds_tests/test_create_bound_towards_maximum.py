@@ -1,8 +1,8 @@
 from _wagyu import create_bound_towards_maximum as bound
 from hypothesis import given
 
-from tests.utils import (BoundPortedEdgesListsPair,
-                         are_bound_ported_bounds_equal)
+from tests.integration_tests.utils import (BoundPortedEdgesListsPair,
+                                           are_bound_ported_bounds_equal)
 from wagyu.bound import create_bound_towards_maximum as ported
 from . import strategies
 

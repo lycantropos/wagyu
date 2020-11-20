@@ -1,7 +1,7 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedRingsPair,
-                         are_bound_ported_points_lists_equal)
+from tests.integration_tests.utils import (BoundPortedRingsPair,
+                                           are_bound_ported_points_lists_equal)
 from wagyu.point_node import point_node_to_point
 from . import strategies
 

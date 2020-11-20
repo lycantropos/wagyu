@@ -3,12 +3,13 @@ from typing import Tuple
 import pytest
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsListsPair,
-                         BoundPortedFillKindsPair,
-                         BoundPortedOperationKindsPair,
-                         BoundPortedRingManagersPair,
-                         are_bound_ported_maybe_bounds_lists_equal,
-                         are_bound_ported_ring_managers_equal)
+from tests.integration_tests.utils import (
+    BoundPortedBoundsListsPair,
+    BoundPortedFillKindsPair,
+    BoundPortedOperationKindsPair,
+    BoundPortedRingManagersPair,
+    are_bound_ported_maybe_bounds_lists_equal,
+    are_bound_ported_ring_managers_equal)
 from . import strategies
 
 

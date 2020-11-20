@@ -1,8 +1,9 @@
 import pytest
 from hypothesis import given
 
-from tests.utils import (BoundPortedRingManagersPair,
-                         are_bound_ported_ring_managers_equal)
+from tests.integration_tests.utils import (
+    BoundPortedRingManagersPair,
+    are_bound_ported_ring_managers_equal)
 from . import strategies
 
 

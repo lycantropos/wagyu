@@ -1,10 +1,10 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedMaybeRingsListsPair,
-                         BoundPortedPointsListsPair,
-                         BoundRing,
-                         PortedRing,
-                         are_bound_ported_rings_equal)
+from tests.binding_tests.utils import BoundRing
+from tests.integration_tests.utils import (BoundPortedMaybeRingsListsPair,
+                                           BoundPortedPointsListsPair,
+                                           are_bound_ported_rings_equal)
+from tests.port_tests.utils import PortedRing
 from . import strategies
 
 

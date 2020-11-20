@@ -4,19 +4,20 @@ from typing import (List,
 from hypothesis import strategies
 from hypothesis_geometry import planar
 
+from tests.binding_tests.utils import (BoundLinearRingWithPolygonKind,
+                                       BoundLocalMinimumList,
+                                       bound_polygon_kinds)
+from tests.integration_tests.utils import (
+    BoundPortedLocalMinimumListsPair,
+    BoundPortedPolygonKindsPair,
+    to_bound_with_ported_linear_rings_pair,
+    to_bound_with_ported_local_minimum_lists,
+    to_bound_with_ported_points_lists_pair)
+from tests.port_tests.utils import (PortedLinearRingWithPolygonKind,
+                                    PortedLocalMinimumList,
+                                    ported_polygon_kinds)
 from tests.strategies import coordinates
-from tests.utils import (BoundLinearRingWithPolygonKind,
-                         BoundLocalMinimumList,
-                         BoundPortedLocalMinimumListsPair,
-                         BoundPortedPolygonKindsPair,
-                         PortedLinearRingWithPolygonKind,
-                         PortedLocalMinimumList,
-                         Strategy,
-                         bound_polygon_kinds,
-                         ported_polygon_kinds,
-                         to_bound_with_ported_linear_rings_pair,
-                         to_bound_with_ported_local_minimum_lists,
-                         to_bound_with_ported_points_lists_pair,
+from tests.utils import (Strategy,
                          transpose_pairs)
 
 polygon_kinds_pairs = strategies.sampled_from(

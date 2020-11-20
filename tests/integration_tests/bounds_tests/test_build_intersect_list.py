@@ -2,9 +2,10 @@ import pytest
 from _wagyu import build_intersect_list as bound
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsListsPair,
-                         are_bound_ported_bounds_lists_equal,
-                         are_bound_ported_intersect_nodes_lists_equal)
+from tests.integration_tests.utils import (
+    BoundPortedBoundsListsPair,
+    are_bound_ported_bounds_lists_equal,
+    are_bound_ported_intersect_nodes_lists_equal)
 from wagyu.intersect_node import build_intersect_list as ported
 from . import strategies
 

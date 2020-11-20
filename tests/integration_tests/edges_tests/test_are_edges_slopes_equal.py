@@ -1,8 +1,8 @@
 from _wagyu import are_edges_slopes_equal as bound
 from hypothesis import given
 
-from tests.utils import (BoundPortedEdgesPair,
-                         equivalence)
+from tests.integration_tests.utils import BoundPortedEdgesPair
+from tests.utils import equivalence
 from wagyu.edge import are_edges_slopes_equal as ported
 from . import strategies
 

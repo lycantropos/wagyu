@@ -1,7 +1,7 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoxesPair,
-                         equivalence)
+from tests.integration_tests.utils import BoundPortedBoxesPair
+from tests.utils import equivalence
 from . import strategies
 
 

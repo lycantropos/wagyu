@@ -1,11 +1,11 @@
 from hypothesis import strategies
 
+from tests.integration_tests.utils import (are_endpoints_non_degenerate,
+                                           to_bound_with_ported_edges_pair,
+                                           to_bound_with_ported_points_pair)
 from tests.strategies import (coordinates,
                               floats)
-from tests.utils import (are_endpoints_non_degenerate,
-                         pack,
-                         to_bound_with_ported_edges_pair,
-                         to_bound_with_ported_points_pair,
+from tests.utils import (pack,
                          to_pairs)
 
 floats = floats

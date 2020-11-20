@@ -1,9 +1,9 @@
 from hypothesis import given
 
-from tests.utils import (BoundLinearRing,
-                         BoundPortedPointsListsPair,
-                         PortedLinearRing,
-                         are_bound_ported_points_lists_equal)
+from tests.binding_tests.utils import BoundLinearRing
+from tests.integration_tests.utils import (BoundPortedPointsListsPair,
+                                           are_bound_ported_points_lists_equal)
+from tests.port_tests.utils import PortedLinearRing
 from . import strategies
 
 

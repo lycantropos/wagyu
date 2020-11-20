@@ -5,14 +5,14 @@ from _wagyu import (Bound,
                     Ring)
 from hypothesis import strategies
 
+from tests.binding_tests.utils import (bound_edges_sides,
+                                       bound_polygon_kinds)
 from tests.strategies import (coordinates,
                               floats,
                               integers_32,
                               sizes,
                               trits)
-from tests.utils import (bound_edges_sides,
-                         bound_polygon_kinds,
-                         to_maybe)
+from tests.utils import to_maybe
 
 booleans = strategies.booleans()
 floats = floats

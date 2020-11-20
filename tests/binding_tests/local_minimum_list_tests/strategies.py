@@ -7,11 +7,11 @@ from _wagyu import (LinearRing,
 from hypothesis import strategies
 from hypothesis_geometry import planar
 
+from tests.binding_tests.utils import (bound_polygon_kinds,
+                                       to_bound_points_list,
+                                       to_bound_polygon_linear_rings)
 from tests.strategies import coordinates
-from tests.utils import (Strategy,
-                         bound_polygon_kinds,
-                         to_bound_points_list,
-                         to_bound_polygon_linear_rings)
+from tests.utils import Strategy
 
 linear_rings_points = planar.contours(coordinates).map(to_bound_points_list)
 linear_rings = strategies.builds(LinearRing, linear_rings_points)

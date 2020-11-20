@@ -2,28 +2,28 @@ from typing import Tuple
 
 from hypothesis import strategies
 
+from tests.binding_tests.utils import (bound_edges_sides,
+                                       bound_fill_kinds,
+                                       bound_operation_kinds,
+                                       bound_polygon_kinds)
+from tests.integration_tests.utils import (BoundPortedBoundsListsPair,
+                                           BoundPortedBoundsPair,
+                                           initialize_bounds,
+                                           to_bound_with_ported_bounds_pair,
+                                           to_bound_with_ported_edges_pair,
+                                           to_bound_with_ported_points_pair,
+                                           to_bound_with_ported_rings_pair)
+from tests.port_tests.utils import (ported_edges_sides,
+                                    ported_fill_kinds,
+                                    ported_operation_kinds,
+                                    ported_polygon_kinds)
 from tests.strategies import (coordinates,
                               floats,
                               integers_32,
                               sizes,
                               trits)
-from tests.utils import (BoundPortedBoundsListsPair,
-                         BoundPortedBoundsPair,
-                         Strategy,
-                         bound_edges_sides,
-                         bound_fill_kinds,
-                         bound_operation_kinds,
-                         bound_polygon_kinds,
-                         initialize_bounds,
-                         ported_edges_sides,
-                         ported_fill_kinds,
-                         ported_operation_kinds,
-                         ported_polygon_kinds,
+from tests.utils import (Strategy,
                          sort_pair,
-                         to_bound_with_ported_bounds_pair,
-                         to_bound_with_ported_edges_pair,
-                         to_bound_with_ported_points_pair,
-                         to_bound_with_ported_rings_pair,
                          to_maybe_pairs,
                          transpose_pairs)
 

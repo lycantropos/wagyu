@@ -1,8 +1,8 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsPair,
-                         BoundPortedFillKindsPair,
-                         equivalence)
+from tests.integration_tests.utils import (BoundPortedBoundsPair,
+                                           BoundPortedFillKindsPair)
+from tests.utils import equivalence
 from . import strategies
 
 

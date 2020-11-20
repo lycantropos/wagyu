@@ -1,9 +1,10 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedLinearRingsPair,
-                         BoundPortedLocalMinimumListsPair,
-                         BoundPortedPolygonKindsPair,
-                         are_bound_ported_local_minimums_lists_equal)
+from tests.integration_tests.utils import (
+    BoundPortedLinearRingsPair,
+    BoundPortedLocalMinimumListsPair,
+    BoundPortedPolygonKindsPair,
+    are_bound_ported_local_minimums_lists_equal)
 from . import strategies
 
 

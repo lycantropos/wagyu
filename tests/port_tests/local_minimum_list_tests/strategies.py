@@ -4,11 +4,11 @@ from typing import (List,
 from hypothesis import strategies
 from hypothesis_geometry import planar
 
+from tests.port_tests.utils import (ported_polygon_kinds,
+                                    to_ported_linear_rings_points,
+                                    to_ported_polygon_linear_rings)
 from tests.strategies import coordinates
-from tests.utils import (Strategy,
-                         ported_polygon_kinds,
-                         to_ported_linear_rings_points,
-                         to_ported_polygon_linear_rings)
+from tests.utils import Strategy
 from wagyu.enums import PolygonKind
 from wagyu.linear_ring import LinearRing
 from wagyu.local_minimum import LocalMinimumList

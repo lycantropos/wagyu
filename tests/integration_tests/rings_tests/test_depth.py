@@ -1,6 +1,6 @@
 from hypothesis import given
 
-from tests.utils import BoundPortedRingsPair
+from tests.integration_tests.utils import BoundPortedRingsPair
 from . import strategies
 
 

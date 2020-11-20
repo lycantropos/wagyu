@@ -1,7 +1,7 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsPair,
-                         equivalence)
+from tests.integration_tests.utils import BoundPortedBoundsPair
+from tests.utils import equivalence
 from wagyu.hints import Coordinate
 from . import strategies
 

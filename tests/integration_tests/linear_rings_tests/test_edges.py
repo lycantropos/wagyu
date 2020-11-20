@@ -1,7 +1,7 @@
 from hypothesis import given
 
-from tests.utils import (BoundPortedLinearRingsPair,
-                         are_bound_ported_edges_lists_equal)
+from tests.integration_tests.utils import (BoundPortedLinearRingsPair,
+                                           are_bound_ported_edges_lists_equal)
 from . import strategies
 
 

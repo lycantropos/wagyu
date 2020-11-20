@@ -2,11 +2,12 @@ from typing import Tuple
 
 from hypothesis import given
 
-from tests.utils import (BoundPortedBoundsListsPair,
-                         BoundPortedLocalMinimumListsPair,
-                         BoundPortedRingManagersPair,
-                         are_bound_ported_bounds_lists_equal,
-                         are_bound_ported_ring_managers_equal)
+from tests.integration_tests.utils import (
+    BoundPortedBoundsListsPair,
+    BoundPortedLocalMinimumListsPair,
+    BoundPortedRingManagersPair,
+    are_bound_ported_bounds_lists_equal,
+    are_bound_ported_ring_managers_equal)
 from wagyu.hints import Coordinate
 from . import strategies
 
