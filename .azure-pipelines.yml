@@ -108,6 +108,8 @@ jobs:
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '$(python.version)'
+      - script: printenv
+        displayName: 'Print environment variables'
       - script: python -m pip install --upgrade pip setuptools
         displayName: 'Install packaging tools'
       - script: python -m pip install --upgrade codecov
