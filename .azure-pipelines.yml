@@ -32,6 +32,30 @@ strategy:
       image: 'macos-latest'
       python.version: 'pypy3'
       python.architecture: 'x64'
+    Ubuntu CPython3.5:
+      image: 'ubuntu-latest'
+      python.version: '3.5'
+      python.architecture: 'x64'
+    Ubuntu CPython3.6:
+      image: 'ubuntu-latest'
+      python.version: '3.6'
+      python.architecture: 'x64'
+    Ubuntu CPython3.7:
+      image: 'ubuntu-latest'
+      python.version: '3.7'
+      python.architecture: 'x64'
+    Ubuntu CPython3.8:
+      image: 'ubuntu-latest'
+      python.version: '3.8'
+      python.architecture: 'x64'
+    Ubuntu CPython3.9:
+      image: 'ubuntu-latest'
+      python.version: '3.9'
+      python.architecture: 'x64'
+    Ubuntu PyPy3:
+      image: 'ubuntu-latest'
+      python.version: 'pypy3'
+      python.architecture: 'x64'
     Windows CPython3.5 (x86):
       image: 'windows-latest'
       python.version: '3.5'
