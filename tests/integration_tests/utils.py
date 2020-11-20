@@ -366,7 +366,8 @@ def to_bound_with_ported_ring_managers_pair(
                               current_hot_pixel_index, ported_rings, index))
 
 
-def to_bound_with_wagyus_pair(reverse_output: bool) -> BoundPortedWagyusPair:
+def to_bound_with_ported_wagyus_pair(reverse_output: bool
+                                     ) -> BoundPortedWagyusPair:
     return BoundWagyu(reverse_output), PortedWagyu(reverse_output)
 
 

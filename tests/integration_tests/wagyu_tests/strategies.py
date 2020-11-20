@@ -8,13 +8,13 @@ from tests.integration_tests.utils import (
     to_bound_with_ported_multipolygons_pair,
     to_bound_with_ported_points_lists_pair,
     to_bound_with_ported_polygons_pair,
-    to_bound_with_wagyus_pair)
+    to_bound_with_ported_wagyus_pair)
 from tests.port_tests.utils import (ported_fill_kinds,
                                     ported_polygon_kinds)
 from tests.strategies import coordinates
 
 booleans = strategies.booleans()
-wagyus_pairs = strategies.builds(to_bound_with_wagyus_pair, booleans)
+wagyus_pairs = strategies.builds(to_bound_with_ported_wagyus_pair, booleans)
 linear_rings_points_pairs = (planar.contours(coordinates)
                              .map(to_bound_with_ported_points_lists_pair))
 linear_rings_pairs = (linear_rings_points_pairs
