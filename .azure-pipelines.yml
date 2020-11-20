@@ -42,6 +42,9 @@ jobs:
         Python39_x64:
           python.version: '3.9'
           python.architecture: 'x64'
+        PyPy3:
+          python.version: 'pypy3'
+          python.architecture: 'x86'
 
     steps:
       - task: UsePythonVersion@0
@@ -70,19 +73,31 @@ jobs:
         env:
           CODECOV_TOKEN: $(CODECOV_TOKEN)
       - script: python -m pip install --upgrade cibuildwheel
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+          succeeded(),
+          startsWith(variables['python.version'], '3.'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Install build requirements'
       - bash:
           CIBW_BEFORE_BUILD='python -m pip install -r requirements-setup.txt'
           CIBW_BUILD=$(python -c 'import sys; print("cp" + "".join(map(str, sys.version_info[:2])) + "-*")')
           cibuildwheel --output-dir dist
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+          succeeded(),
+          startsWith(variables['python.version'], '3.'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Build wheels'
       - script: python -m pip install --upgrade twine
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+          succeeded(),
+          startsWith(variables['python.version'], '3.'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Install deployment requirements'
       - script: twine upload --skip-existing dist/*
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+          succeeded(),
+          startsWith(variables['python.version'], '3.'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Deploy wheels'
         env:
           TWINE_USERNAME: __token__
@@ -103,13 +118,13 @@ jobs:
           python.version: '3.8'
         Python39:
           python.version: '3.9'
+        PyPy3:
+          python.version: 'pypy3'
 
     steps:
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '$(python.version)'
-      - script: printenv
-        displayName: 'Print environment variables'
       - script: python -m pip install --upgrade pip setuptools
         displayName: 'Install packaging tools'
       - script: python -m pip install --upgrade codecov
@@ -143,19 +158,31 @@ jobs:
         env:
           CODECOV_TOKEN: $(CODECOV_TOKEN)
       - script: python -m pip install --upgrade cibuildwheel
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+          succeeded(),
+          startsWith(variables['python.version'], '3.'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Install build requirements'
       - bash:
           CIBW_BEFORE_BUILD='python -m pip install -r requirements-setup.txt'
           CIBW_BUILD=$(python -c 'import sys; print("cp" + "".join(map(str, sys.version_info[:2])) + "-*")')
           cibuildwheel --output-dir dist
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+        succeeded(),
+        startsWith(variables['python.version'], '3.'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Build wheels'
       - script: python -m pip install --upgrade twine
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+          succeeded(),
+          startsWith(variables['python.version'], '3.'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Install deployment requirements'
       - script: twine upload --skip-existing dist/*
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        condition: and(
+          succeeded(),
+          startsWith(variables['python.version'], '3.'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: 'Deploy wheels'
         env:
           TWINE_USERNAME: __token__
