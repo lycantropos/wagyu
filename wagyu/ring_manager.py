@@ -4,8 +4,7 @@ from collections import (defaultdict,
 from functools import partial
 from itertools import groupby
 from operator import is_not
-from typing import (Deque,
-                    Dict,
+from typing import (Dict,
                     List,
                     Optional,
                     Set,
@@ -47,6 +46,11 @@ from .utils import (are_floats_greater_than,
                     is_odd,
                     quicksort,
                     round_half_up)
+
+try:
+    from typing import Deque
+except ImportError:
+    from typing_extensions import Deque
 
 ConnectionMap = Dict[int, List[Tuple[PointNode, PointNode]]]
 
