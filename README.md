@@ -7,11 +7,9 @@ wagyu
 [![](https://img.shields.io/github/license/lycantropos/wagyu.svg)](https://github.com/lycantropos/wagyu/blob/master/LICENSE "License")
 [![](https://badge.fury.io/py/wagyu.svg)](https://badge.fury.io/py/wagyu "PyPI")
 
-In what follows
-- `python` is an alias for `python3.5` or any later
-version (`python3.6` and so on),
-- `pypy` is an alias for `pypy3.5` or any later
-version (`pypy3.6` and so on).
+In what follows `python` is an alias
+for `python3.5` or `pypy3.5` or any later version
+(`python3.6`, `pypy3.6` and so on).
 
 Installation
 ------------
@@ -76,7 +74,7 @@ True
 True
 
 ```
-original C++ implementation can be invoked by importing from `_wagyu` module instead.
+for `CPython` original C++ implementation can be invoked by importing from `_wagyu` module instead.
 
 Development
 -----------
