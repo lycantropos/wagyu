@@ -1,2 +1,3 @@
 recursive-include include *
 include requirements.txt
+include requirements-setup.txt
