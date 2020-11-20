@@ -104,6 +104,10 @@ strategy:
 pool:
   vmImage: $(image)
 
+variables:
+  isCPython: $[startsWith(variables['python.version'], '3.')]
+  tagged: $[startsWith(variables['Build.SourceBranch'], 'refs/tags/')]
+
 steps:
   - task: UsePythonVersion@0
     inputs:
@@ -121,35 +125,38 @@ steps:
     displayName: 'Run tests'
   - script: python -m doctest README.md
     displayName: 'Run doctests'
-  - script: python -m pip install --upgrade codecov gcovr
+  - script: python -m pip install --upgrade codecov
     condition: succeeded()
     displayName: 'Install coverage dependencies'
-  - script: gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml
-    condition: succeeded()
-    displayName: 'Collect C++ coverage'
   - script: python -m codecov -f coverage.xml -X gcov
     condition: succeeded()
     displayName: 'Upload coverage'
     env:
       CODECOV_TOKEN: $(CODECOV_TOKEN)
+  - script: python -m pip install --upgrade codecov
+    condition: and(succeeded(), variables.isCPython)
+    displayName: 'Install С++ coverage dependencies'
+  - script: gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml
+    condition: and(succeeded(), variables.isCPython)
+    displayName: 'Collect C++ coverage'
   - script: python -m codecov -f coverage_cpp.xml -X gcov
-    condition: succeeded()
+    condition: and(succeeded(), variables.isCPython)
     displayName: 'Upload C++ coverage'
     env:
       CODECOV_TOKEN: $(CODECOV_TOKEN)
   - script: python -m pip install --upgrade cibuildwheel
-    condition: and(succeeded(), startsWith(variables['python.version'], '3.'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: and(succeeded(), variables.isCPython, variables.tagged)
     displayName: 'Install build requirements'
   - bash:
       CIBW_BUILD=$(python -c 'import sys; print("cp" + "".join(map(str, sys.version_info[:2])) + "-*")')
       cibuildwheel --output-dir dist
-    condition: and(succeeded(), startsWith(variables['python.version'], '3.'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: and(succeeded(), variables.isCPython, variables.tagged)
     displayName: 'Build wheels'
   - script: python -m pip install --upgrade twine
-    condition: and(succeeded(), startsWith(variables['python.version'], '3.'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: and(succeeded(), variables.isCPython, variables.tagged)
     displayName: 'Install deployment requirements'
   - script: twine upload --skip-existing dist/*
-    condition: and(succeeded(), startsWith(variables['python.version'], '3.'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: and(succeeded(), variables.isCPython, variables.tagged)
     displayName: 'Deploy wheels'
     env:
       TWINE_USERNAME: __token__
