@@ -1,7 +1,7 @@
-ARG IMAGE_NAME
-ARG IMAGE_VERSION
+ARG PYTHON_IMAGE
+ARG PYTHON_IMAGE_VERSION
 
-FROM ${IMAGE_NAME}:${IMAGE_VERSION}
+FROM ${PYTHON_IMAGE}:${PYTHON_IMAGE_VERSION}
 
 RUN pip install --upgrade pip setuptools
 
@@ -24,4 +24,4 @@ COPY src/ src/
 COPY wagyu/ wagyu/
 COPY tests/ tests/
 
-RUN python -m pip install -e .
+RUN pip install -e .
