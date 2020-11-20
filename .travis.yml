@@ -41,9 +41,8 @@ before_deploy:
   - rm *.so
   - python setup.py sdist
   - python -m pip install --upgrade cibuildwheel
-  - CIBW_BEFORE_BUILD='python -m pip install -r requirements-setup.txt' CIBW_BUILD=$(python
-    -c 'import sys; print("cp" + "".join(map(str, sys.version_info[:2])) + "-*")') cibuildwheel
-    --output-dir dist
+  - CIBW_BUILD=$(python -c 'import sys; print("cp" + "".join(map(str, sys.version_info[:2])) + "-*")')
+    cibuildwheel --output-dir dist
   - python -m pip install --upgrade twine
 
 deploy:
