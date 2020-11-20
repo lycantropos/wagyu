@@ -132,7 +132,7 @@ steps:
     displayName: 'Upload coverage'
     env:
       CODECOV_TOKEN: $(CODECOV_TOKEN)
-  - script: python -m pip install --upgrade codecov
+  - script: python -m pip install --upgrade gcovr
     condition: and(succeeded(), variables.startsWith(variables['python.version'], '3.'))
     displayName: 'Install С++ coverage dependencies'
   - script: gcovr --filter src/ --filter include/ --xml -o coverage_cpp.xml
