@@ -132,16 +132,40 @@ pytest
 ```
 
 Inside `Docker` container:
-```bash
-docker-compose up
-```
+- with `CPython`
+  ```bash
+  docker-compose --file docker-compose.cpython.yml up
+  ```
+- with `PyPy`
+  ```bash
+  docker-compose --file docker-compose.pypy.yml up
+  ```
 
 `Bash` script (e.g. can be used in `Git` hooks):
-```bash
-./run-tests.sh
-```
+- with `CPython`
+  ```bash
+  ./run-tests.sh
+  ```
+  or
+  ```bash
+  ./run-tests.sh cpython
+  ```
+
+- with `PyPy`
+  ```bash
+  ./run-tests.sh pypy
+  ```
 
 `PowerShell` script (e.g. can be used in `Git` hooks):
-```powershell
-.\run-tests.ps1
-```
+- with `CPython`
+  ```powershell
+  .\run-tests.ps1
+  ```
+  or
+  ```powershell
+  .\run-tests.ps1 cpython
+  ```
+- with `PyPy`
+  ```powershell
+  .\run-tests.ps1 pypy
+  ```
