@@ -8,23 +8,23 @@ trigger:
 
 strategy:
   matrix:
-    MacOs Python3.5:
+    MacOs CPython3.5:
       image: 'macos-latest'
       python.version: '3.5'
       python.architecture: 'x64'
-    MacOs Python3.6:
+    MacOs CPython3.6:
       image: 'macos-latest'
       python.version: '3.6'
       python.architecture: 'x64'
-    MacOs Python3.7:
+    MacOs CPython3.7:
       image: 'macos-latest'
       python.version: '3.7'
       python.architecture: 'x64'
-    MacOs Python3.8:
+    MacOs CPython3.8:
       image: 'macos-latest'
       python.version: '3.8'
       python.architecture: 'x64'
-    MacOs Python3.9:
+    MacOs CPython3.9:
       image: 'macos-latest'
       python.version: '3.9'
       python.architecture: 'x64'
@@ -32,43 +32,43 @@ strategy:
       image: 'macos-latest'
       python.version: 'pypy3'
       python.architecture: 'x64'
-    Windows Python3.5 (x86):
+    Windows CPython3.5 (x86):
       image: 'windows-latest'
       python.version: '3.5'
       python.architecture: 'x86'
-    Windows Python3.5 (x64):
+    Windows CPython3.5 (x64):
       image: 'windows-latest'
       python.version: '3.5'
       python.architecture: 'x64'
-    Windows Python3.6 (x86):
+    Windows CPython3.6 (x86):
       image: 'windows-latest'
       python.version: '3.6'
       python.architecture: 'x86'
-    Windows Python3.6 (x64):
+    Windows CPython3.6 (x64):
       image: 'windows-latest'
       python.version: '3.6'
       python.architecture: 'x64'
-    Windows Python3.7 (x86):
+    Windows CPython3.7 (x86):
       image: 'windows-latest'
       python.version: '3.7'
       python.architecture: 'x86'
-    Windows Python3.7 (x64):
+    Windows CPython3.7 (x64):
       image: 'windows-latest'
       python.version: '3.7'
       python.architecture: 'x64'
-    Windows Python3.8 (x86):
+    Windows CPython3.8 (x86):
       image: 'windows-latest'
       python.version: '3.8'
       python.architecture: 'x86'
-    Windows Python3.8 (x64):
+    Windows CPython3.8 (x64):
       image: 'windows-latest'
       python.version: '3.8'
       python.architecture: 'x64'
-    Windows Python3.9 (x86):
+    Windows CPython3.9 (x86):
       image: 'windows-latest'
       python.version: '3.9'
       python.architecture: 'x86'
-    Windows Python3.9 (x64):
+    Windows CPython3.9 (x64):
       image: 'windows-latest'
       python.version: '3.9'
       python.architecture: 'x64'
