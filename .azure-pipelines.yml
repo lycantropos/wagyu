@@ -119,7 +119,7 @@ steps:
   - script: python setup.py develop
     displayName: 'Install in editable mode'
     env:
-      CXXFLAGS: --coverage -O0 -fprofile-arcs -ftest-coverage
+      CPPFLAGS: --coverage -O0 -fprofile-arcs -ftest-coverage
   - script: pytest
     displayName: 'Run tests'
   - script: python -m doctest README.md
