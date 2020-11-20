@@ -427,6 +427,7 @@ PYBIND11_MAKE_OPAQUE(LocalMinimumList);
 
 PYBIND11_MODULE(MODULE_NAME, m) {
   m.doc() = R"pbdoc(Python binding of mapbox/wagyu library.)pbdoc";
+  m.attr("__version__") = C_STR(VERSION_INFO);
 
   py::enum_<OperationKind>(m, OPERATION_KIND_NAME)
       .value("INTERSECTION", OperationKind::clip_type_intersection)
@@ -1310,10 +1311,4 @@ PYBIND11_MODULE(MODULE_NAME, m) {
               subject_fill_kind, clip_fill_kind);
           return active_bounds;
         });
-
-#ifdef VERSION_INFO
-  m.attr("__version__") = VERSION_INFO;
-#else
-  m.attr("__version__") = "dev";
-#endif
 }
