@@ -109,8 +109,6 @@ steps:
     inputs:
       versionSpec: '$(python.version)'
       architecture: '$(python.architecture)'
-  - script: python -m doctest README.md
-    displayName: 'Run doctests'
   - script: python -m pip install --upgrade pip setuptools
     displayName: 'Install packaging tools'
   - script: python -m pip install --force-reinstall -r requirements-tests.txt
@@ -119,6 +117,8 @@ steps:
     displayName: 'Install in editable mode'
     env:
       CPPFLAGS: --coverage -O0
+  - script: python -m doctest README.md
+    displayName: 'Run doctests'
   - script: pytest
     displayName: 'Run tests'
   - script: python -m pip install --upgrade codecov
