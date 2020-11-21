@@ -146,11 +146,14 @@ steps:
   - bash: rm -rf build && rm -f $(python -c 'from importlib.machinery import EXTENSION_SUFFIXES; print(" ".join("*" + suffix for suffix in EXTENSION_SUFFIXES))')
     condition: and(succeeded(), startsWith(variables['python.version'], '3.'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     displayName: 'Pre-build'
+  - bash: python setup.py sdist
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    displayName: 'Build source distribution'
   - bash:
       CIBW_BUILD=$(python -c 'import sys; print("cp" + "".join(map(str, sys.version_info[:2])) + "-*")')
       cibuildwheel --output-dir dist
     condition: and(succeeded(), startsWith(variables['python.version'], '3.'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-    displayName: 'Build'
+    displayName: 'Build wheels'
   - bash: python -m pip install --upgrade twine
     condition: and(succeeded(), startsWith(variables['python.version'], '3.'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     displayName: 'Install deploy dependencies'
